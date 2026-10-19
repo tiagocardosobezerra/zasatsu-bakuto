@@ -46,6 +46,7 @@ What it is not:
 - **Knows which conversation is which**: the machine shows the project and title of the conversation it follows, and dots for the others. Follow one automatically or pin one from the tray.
 - **Synthesised pachinko sounds** (キュイン, ball clatter, shutter clank, fanfare) and an optional Japanese announcer. Every sound and image can be replaced with your own files.
 - **Built-in guide** (tray → 遊び方 · guide) that explains the game step by step, with a glossary.
+- **Open to other AIs**: Claude Code works out of the box; any other agent connects through a simple local API ([how](#does-it-work-with-other-ais)).
 - **Works in OBS** as a browser source for streamers.
 
 > Fan project. Not affiliated with Jujutsu Kaisen, Gege Akutami, Shueisha or MAPPA. It ships no official art or music: everything is drawn in CSS and the sounds are synthesised.
@@ -70,6 +71,50 @@ Want the short `fever` command? Run `npm link` once inside the folder, then use 
 - `fever uninstall` removes only this project's hooks and leaves the rest of your settings alone.
 - `--settings .claude/settings.json` installs the hooks for one project instead of globally.
 - npm 11 may ask you to approve Electron's install script: `npm install-scripts approve electron`.
+
+## Does it work with other AIs?
+
+**Today, built-in support is for Claude Code**: `fever install` wires everything up. But the machine does not depend on Claude. It only listens to a local API, and **any agent or tool that can run a command or make an HTTP request when something happens** can play.
+
+| Tool | Status |
+| --- | --- |
+| **Claude Code** (terminal, desktop app, IDE extensions) | ✅ Built-in, installed automatically with `fever install` |
+| Codex CLI, Gemini CLI, Cursor, GitHub Copilot, Aider and others | 🔌 No ready-made adapter yet. Connect them through the API below if the tool has hooks, event scripts or notifications |
+| Your own scripts, CI, home-made agents | 🔌 Through the API below |
+
+### How to connect another AI
+
+`POST` a JSON body to `http://127.0.0.1:4111/event` for each agent event. The shape is the same as Claude Code's hooks:
+
+| `hook_event_name` | When to send it | On the machine |
+| --- | --- | --- |
+| `UserPromptSubmit` | You sent the agent a request | Opens the Domain Expansion |
+| `PreToolUse` | The agent is about to use a tool | Spins; a test command starts a リーチ |
+| `PostToolUse` | The tool finished | A notice effect; for tests, the result decides jackpot or ハズレ |
+| `PostToolUseFailure` | The tool failed | 疑似連 (×2, ×3, ×4) |
+| `Notification` | The agent needs you | YOUR TURN |
+| `Stop` | The agent finished its turn | The domain closes |
+
+Fields the machine reads: `session_id` (keeps conversations apart), `cwd` (becomes the project name), `prompt` (becomes the title), `tool_name`, `tool_input.command` (test commands such as `npm test` or `pytest` start a リーチ) and `tool_response.stdout` (summaries such as `12 passed` or `1 failed` decide the result).
+
+Example with `curl` (macOS, Linux, Git Bash):
+
+```bash
+curl -X POST http://127.0.0.1:4111/event -H "Content-Type: application/json" \
+  -d '{"hook_event_name":"UserPromptSubmit","session_id":"my-agent","cwd":"/projects/app","prompt":"Fix the login"}'
+
+curl -X POST http://127.0.0.1:4111/event -H "Content-Type: application/json" \
+  -d '{"hook_event_name":"PostToolUse","session_id":"my-agent","cwd":"/projects/app","tool_name":"Bash","tool_input":{"command":"npm test"},"tool_response":{"stdout":"12 passed"}}'
+```
+
+The same in PowerShell:
+
+```powershell
+$payload = @{ hook_event_name = 'Notification'; session_id = 'my-agent'; cwd = 'C:\projects\app' } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:4111/event -ContentType 'application/json' -Body $payload
+```
+
+An adapter for a new AI is just a script that turns its events into this JSON. If you write one, open a pull request and it joins the list above.
 
 ## The rules of the domain
 

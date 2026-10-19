@@ -46,6 +46,7 @@ O que ele não faz:
 - **Sabe qual conversa é qual**: a máquina mostra o projeto e o título da conversa que está seguindo, e bolinhas para as outras. Siga uma automaticamente ou fixe uma pelo menu da bandeja.
 - **Sons de pachinko sintetizados** (キュイン, chuva de bolinhas, batida do shutter, fanfarra) e um locutor japonês opcional. Todo som e imagem pode ser trocado por arquivos seus.
 - **Guia embutido** (bandeja → 遊び方 · guia) que explica o jogo passo a passo, com glossário.
+- **Aberto para outras IAs**: Claude Code vem pronto; qualquer outro agente liga por uma API local simples ([como](#funciona-com-outras-ias)).
 - **Funciona no OBS** como browser source, para quem faz live.
 
 > Projeto de fã. Sem vínculo com Jujutsu Kaisen, Gege Akutami, Shueisha ou MAPPA. Não inclui nenhuma arte ou música oficial: tudo é desenhado em CSS e os sons são sintetizados.
@@ -70,6 +71,50 @@ Quer o comando curto `fever`? Rode `npm link` uma vez dentro da pasta e depois u
 - `fever uninstall` remove só os hooks deste projeto e não mexe no resto das suas configurações.
 - `--settings .claude/settings.json` instala os hooks em um projeto só, em vez de no global.
 - O npm 11 pode pedir para você aprovar o script de instalação do Electron: `npm install-scripts approve electron`.
+
+## Funciona com outras IAs?
+
+**Hoje, o suporte pronto é para o Claude Code**: o `fever install` liga tudo sozinho. Mas a máquina não depende do Claude. Ela só escuta uma API local, e **qualquer agente ou ferramenta que consiga rodar um comando ou fazer uma requisição HTTP quando algo acontece** pode jogar.
+
+| Ferramenta | Situação |
+| --- | --- |
+| **Claude Code** (terminal, app desktop, extensões de IDE) | ✅ Suporte pronto, instalação automática com `fever install` |
+| Codex CLI, Gemini CLI, Cursor, GitHub Copilot, Aider e outros | 🔌 Ainda sem adaptador pronto. Dá para ligar pela API abaixo se a ferramenta tiver hooks, scripts de evento ou notificações |
+| Seus próprios scripts, CI, agentes caseiros | 🔌 Pela API abaixo |
+
+### Como ligar outra IA
+
+Mande um JSON por `POST` para `http://127.0.0.1:4111/event` a cada evento do agente. O formato é o mesmo dos hooks do Claude Code:
+
+| `hook_event_name` | Quando mandar | Na máquina |
+| --- | --- | --- |
+| `UserPromptSubmit` | Você mandou um pedido ao agente | Abre a Expansão de Domínio |
+| `PreToolUse` | O agente vai usar uma ferramenta | Gira; se o comando for de teste, entra em リーチ |
+| `PostToolUse` | A ferramenta terminou | Efeito de aviso; se for teste, o resultado decide jackpot ou ハズレ |
+| `PostToolUseFailure` | A ferramenta falhou | 疑似連 (×2, ×3, ×4) |
+| `Notification` | O agente precisa de você | YOUR TURN |
+| `Stop` | O agente terminou a vez | O domínio fecha |
+
+Campos que a máquina usa: `session_id` (separa as conversas), `cwd` (vira o nome do projeto), `prompt` (vira o título), `tool_name`, `tool_input.command` (comandos de teste como `npm test` ou `pytest` viram リーチ) e `tool_response.stdout` (resumos como `12 passed` ou `1 failed` decidem o resultado).
+
+Exemplo com `curl` (macOS, Linux, Git Bash):
+
+```bash
+curl -X POST http://127.0.0.1:4111/event -H "Content-Type: application/json" \
+  -d '{"hook_event_name":"UserPromptSubmit","session_id":"meu-agente","cwd":"/projetos/app","prompt":"Corrigir o login"}'
+
+curl -X POST http://127.0.0.1:4111/event -H "Content-Type: application/json" \
+  -d '{"hook_event_name":"PostToolUse","session_id":"meu-agente","cwd":"/projetos/app","tool_name":"Bash","tool_input":{"command":"npm test"},"tool_response":{"stdout":"12 passed"}}'
+```
+
+O mesmo no PowerShell:
+
+```powershell
+$evento = @{ hook_event_name = 'Notification'; session_id = 'meu-agente'; cwd = 'C:\projetos\app' } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri http://127.0.0.1:4111/event -ContentType 'application/json' -Body $evento
+```
+
+Um adaptador para uma IA nova é só um script que traduz os eventos dela para esse JSON. Se você fizer um, abra um pull request: ele entra na lista acima.
 
 ## As regras do domínio
 
