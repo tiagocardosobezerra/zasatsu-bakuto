@@ -1,33 +1,71 @@
-# Zasatsu Bakuto (坐殺博徒): Idle Death Gamble
+<p align="center">
+  <img src="docs/icon.png" width="128" alt="Zasatsu Bakuto icon: a slot machine with the 坐殺博徒 marquee">
+</p>
 
-**Kinji Hakari's domain, played by your AI coding agent.**
+<h1 align="center">Zasatsu Bakuto (坐殺博徒)</h1>
 
-Every prompt is a **Domain Expansion: 坐殺博徒 (Idle Death Gamble)**. Inside the domain the agent plays *CR Private Pure Love Train Ver. 1/239*: tool calls spin the reels, test runs trigger a **riichi**, green tests can hit the **大当り (JACKPOT)**, and a jackpot gives 4 minutes 11 seconds of unlimited cursed energy, during which every failure is healed by the automatic reverse cursed technique.
+<p align="center">
+  <b>Kinji Hakari's Domain Expansion, Idle Death Gamble, played by your AI coding agent.</b><br>
+  A tiny pachinko machine in the corner of your screen that tells you what Claude Code is doing, without you having to look at the terminal.
+</p>
 
-It is a joke you can run all day, because it is also useful: you know what your agent is doing from the corner of your eye.
+---
 
-- Uses the agent's official hooks, not fake keystrokes. It never interrupts, blocks or slows the agent.
-- Click-through, always-on-top overlay. Works as an **OBS browser source** too.
-- Ships no official assets: everything is drawn in CSS in a manga style, sounds are synthesised. You can add your own art and music (see below).
-- No telemetry. The only outside request is Google Fonts (Dela Gothic One, Yuji Boku); offline it falls back to system fonts.
+## Why you would want this
 
-> Fan project. Not affiliated with Jujutsu Kaisen, Gege Akutami, Shueisha or MAPPA.
+When an AI agent works for minutes at a time, you end up doing one of two things: staring at the terminal, or switching away and forgetting to come back. Zasatsu Bakuto fixes both. It turns the agent's activity into a pachinko machine you can read from the corner of your eye:
+
+| You see on the machine | It means |
+| --- | --- |
+| Reels spinning, shutter doors, reserve balls | The agent is working (editing files, reading, running commands) |
+| **リーチ (Riichi)** | The agent is running your tests right now |
+| **大当り (JACKPOT)** | The tests came back green |
+| **ハズレ (Miss)** | The tests failed |
+| **×2 / ×3 / ×4** | A tool call failed and the agent is recovering |
+| **YOUR TURN**, with the conversation's name | The agent is waiting for your permission or your answer |
+| Domain closes | The agent finished its turn |
+| Coloured dots next to the name | Your other Claude Code conversations and what each one is doing |
+
+So you can read docs, answer chat, or make coffee, and still know **when the tests pass, when something breaks, and when the agent needs you**. And because every test run is a gamble at 1/239 with Hakari's own rules, waiting for the agent becomes fun instead of dead time.
+
+What it is not:
+
+- It never blocks, slows or changes the agent. It only listens to Claude Code's official hooks, asynchronously.
+- It sends nothing anywhere. Everything runs on `127.0.0.1`. No telemetry, no account.
+- It does not get in your way: the overlay is click-through, and there is a **discreet mode** (small, silent, translucent) for the work computer.
+
+## Highlights
+
+- **Faithful to the manga.** The rules come from the CR私鉄純愛列車 rule sheet Hakari shows in chapter 183 and the fights in chapters 182–190: 1/239 odds, 疑似連, 緑 < 赤 < 金 < 虹 notices, the four riichi scenarios, 確変/時短, 潜伏確変 and the 4:11 jackpot round with automatic reverse cursed technique. The full table is [below](#the-rules-of-the-domain).
+- **Japanese first, with a translation under every line** in your computer's language (English, Português, Español), down to the sound effects, scanlation style.
+- **Three sizes**: Normal, Compact, and Mini (about 230 px wide, one status line).
+- **Knows which conversation is which**: the machine shows the project and title of the conversation it follows, and dots for the others. Follow one automatically or pin one from the tray.
+- **Synthesised pachinko sounds** (キュイン, ball clatter, shutter clank, fanfare) and an optional Japanese announcer. Every sound and image can be replaced with your own files.
+- **Built-in guide** (tray → 遊び方 · guide) that explains the game step by step, with a glossary.
+- **Works in OBS** as a browser source for streamers.
+
+> Fan project. Not affiliated with Jujutsu Kaisen, Gege Akutami, Shueisha or MAPPA. It ships no official art or music: everything is drawn in CSS and the sounds are synthesised.
 
 ## Quick start
 
+You need [Node.js](https://nodejs.org) 20 or newer and [Claude Code](https://claude.com/claude-code).
+
 ```bash
-npm install -g zasatsu-bakuto
-fever install     # adds hooks to ~/.claude/settings.json (a backup is kept)
-fever start       # overlay + tray icon
-fever demo        # watch a scripted session play out
-fever settings    # size, what appears, sound
+git clone https://github.com/tiagocardosobezerra/zasatsu-bakuto.git
+cd zasatsu-bakuto
+npm install
+node bin/fever.js install     # adds hooks to ~/.claude/settings.json (a backup is kept)
+node bin/fever.js start       # overlay + tray icon
+node bin/fever.js demo        # watch a scripted session play out
 ```
 
-Then start a new Claude Code session and get to work.
+Then open a new Claude Code session and get to work. The machine wakes up on your first prompt.
 
-`fever uninstall` removes only Fever's hooks. Use `--settings .claude/settings.json` to install for one project instead of globally.
+Want the short `fever` command? Run `npm link` once inside the folder, then use `fever start`, `fever demo`, `fever settings`, `fever guide`, `fever status`.
 
-> npm 11 may ask you to approve Electron's install script: `npm install-scripts approve electron`.
+- `fever uninstall` removes only this project's hooks and leaves the rest of your settings alone.
+- `--settings .claude/settings.json` installs the hooks for one project instead of globally.
+- npm 11 may ask you to approve Electron's install script: `npm install-scripts approve electron`.
 
 ## The rules of the domain
 
@@ -157,7 +195,7 @@ npm start           # Electron overlay
 
 - Theme packs (the reels, sounds and fever screen are all swappable)
 - Adapters: Codex CLI, Gemini CLI, Cursor, Aider
-- One lane per session when several agents run at once
+- npm package, so `npx zasatsu-bakuto` works without cloning
 - Shareable end-of-day card: spins, jackpots, best streak
 
 ## License
