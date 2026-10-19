@@ -10,7 +10,7 @@
 ![100% local](https://img.shields.io/badge/data-100%25%20local-2ea44f?style=flat-square)
 ![MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
-<p align="center"><img width="160" alt="Zasatsu Bakuto icon: Hakari's Domain Expansion hand sign" src="docs/icon.png" /></p>
+<img width="100%" alt="Zasatsu Bakuto: the agent works, the domain opens, the machine spins with every tool and green tests hit the jackpot" src="assets/zasatsu-banner.svg" />
 
 Zasatsu Bakuto (坐殺博徒, *Idle Death Gamble*) is a small pachinko machine that sits in the corner of your screen and plays by itself while Claude Code works. Every tool the agent uses spins the reels, running the tests becomes a リーチ, green tests can hit the 大当たり, and when the agent needs you the machine tells you, with the conversation's name. You stop staring at the terminal, and you stop forgetting to come back.
 
@@ -213,12 +213,7 @@ The agent's events are the fight. Each rule comes from the rule sheet Hakari sho
 
 ## How it works inside
 
-```
-Claude Code ──hook (async)──▶ src/hook.js ──POST /event──▶ server (127.0.0.1:4111)
-                                                              │ classify → machine
-                                                              ▼
-                                         overlay ◀── SSE /stream ──▶ OBS · browser
-```
+<img width="100%" alt="How it works inside: the hook tells, the event becomes a signal, the machine decides and the spin shows on screen" src="assets/zasatsu-dominio.svg" />
 
 | Piece | What it does |
 |---|---|
@@ -249,6 +244,7 @@ zasatsu-bakuto/
 ├── src/                   # Hook, classifier, game, machines, server and desktop app
 ├── public/                # Overlay, guide, settings and icon
 ├── scripts/               # Renders the icon (npm run icon)
+├── assets/                # README animations
 ├── docs/                  # README icon and the animation prompt
 └── test/                  # Test suite (node:test)
 ```
@@ -265,7 +261,6 @@ npm run icon        # renders the icon again from public/icon-render.js
 
 ## Roadmap
 
-* README animations (see the [animation prompt](docs/roteiro-animacao.md), in Portuguese)
 * Theme packs: swappable reels, sounds and jackpot screen
 * Adapters for Codex CLI, Gemini CLI, Cursor and Aider
 * An npm package, so `npx zasatsu-bakuto` works without cloning
