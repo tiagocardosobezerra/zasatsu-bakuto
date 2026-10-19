@@ -249,7 +249,7 @@ zasatsu-bakuto/
 ├── src/                   # Hook, classificador, jogo, máquinas, servidor e app desktop
 ├── public/                # Overlay, guia, configurações e ícone
 ├── scripts/               # Gera o ícone (npm run icon)
-├── docs/                  # Ícone do README e roteiro das animações
+├── docs/                  # Ícone do README e prompt das animações
 └── test/                  # Suíte de testes (node:test)
 ```
 
@@ -265,7 +265,7 @@ npm run icon        # gera o ícone de novo a partir de public/icon-render.js
 
 ## Próximos passos
 
-* Animações do README (veja o [roteiro](docs/roteiro-animacao.md))
+* Animações do README (veja o [prompt das animações](docs/roteiro-animacao.md))
 * Pacotes de tema: rolos, sons e tela do jackpot trocáveis
 * Adaptadores para Codex CLI, Gemini CLI, Cursor e Aider
 * Pacote no npm, para `npx zasatsu-bakuto` funcionar sem clonar
