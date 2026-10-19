@@ -12,7 +12,7 @@ const read = (f) => fs.readFileSync(path.join(__dirname, '..', 'public', f), 'ut
 function loadI18n(language) {
   const sandbox = { window: {}, navigator: { languages: [language], language } };
   vm.runInNewContext(read('i18n.js'), sandbox);
-  return sandbox.window.FeverI18n;
+  return sandbox.window.DomainI18n;
 }
 
 test('translation follows the computer language, Japanese stays first', () => {

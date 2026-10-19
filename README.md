@@ -257,7 +257,7 @@ npm start           # overlay Electron
 
 ## Próximos passos
 
-- Pacotes de tema (rolos, sons e tela de fever são todos trocáveis)
+- Pacotes de tema (rolos, sons e tela do jackpot são todos trocáveis)
 - Adaptadores: Codex CLI, Gemini CLI, Cursor, Aider
 - Pacote no npm, para `npx zasatsu-bakuto` funcionar sem clonar
 - Card de fim de dia para compartilhar: giros, jackpots, melhor sequência

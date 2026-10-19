@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { createFeverServer } = require('../src/server');
+const { createDomainServer } = require('../src/server');
 const { clean, merge, DEFAULTS } = require('../src/config');
 
 test('settings drop unknown keys and clamp values', () => {
@@ -22,10 +22,10 @@ test('settings drop unknown keys and clamp values', () => {
 });
 
 test('POST /config saves settings; other web pages are refused', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fever-cfg-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zb-cfg-'));
   const configFile = path.join(dir, 'config.json');
-  const fever = createFeverServer({ port: 0, configFile });
-  const port = await fever.listen();
+  const domain = createDomainServer({ port: 0, configFile });
+  const port = await domain.listen();
   const base = `http://127.0.0.1:${port}`;
   try {
     const res = await fetch(`${base}/config`, { method: 'POST', body: JSON.stringify({ position: 'tl', sound: { volume: 0.3 } }) });
@@ -40,7 +40,7 @@ test('POST /config saves settings; other web pages are refused', async () => {
     assert.equal(own.status, 200);
     assert.equal((await fetch(`${base}/preview?kind=bogus`, { method: 'POST' })).status, 400);
   } finally {
-    await fever.close();
+    await domain.close();
   }
 });
 
@@ -52,10 +52,10 @@ test('layouts, discreet mode and the smaller size range are kept', () => {
 });
 
 test('POST /quit closes the domain ("ryoiki kaijo"); other web pages cannot', async () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fever-quit-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zb-quit-'));
   let quits = 0;
-  const fever = createFeverServer({ port: 0, configFile: path.join(dir, 'c.json'), onQuit: () => { quits += 1; } });
-  const port = await fever.listen();
+  const domain = createDomainServer({ port: 0, configFile: path.join(dir, 'c.json'), onQuit: () => { quits += 1; } });
+  const port = await domain.listen();
   const base = `http://127.0.0.1:${port}`;
   try {
     const evil = await fetch(`${base}/quit`, { method: 'POST', headers: { Origin: 'https://example.com' } });
@@ -65,6 +65,6 @@ test('POST /quit closes the domain ("ryoiki kaijo"); other web pages cannot', as
     assert.equal(quits, 1);
     assert.equal((await (await fetch(`${base}/health`)).json()).app, 'zasatsu-bakuto');
   } finally {
-    await fever.close();
+    await domain.close();
   }
 });

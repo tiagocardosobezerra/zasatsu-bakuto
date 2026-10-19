@@ -5,14 +5,14 @@
 // display. Everything else (game, visuals) is shared with `ryoiki serve`.
 
 const { app, BrowserWindow, Menu, Tray, nativeImage, screen } = require('electron');
-const { createFeverServer } = require('./server');
+const { createDomainServer } = require('./server');
 const { drawIcon } = require('./icon');
 
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
 let tray = null;
 let win = null;
-let fever = null;
+let domain = null;
 let serverPort = null;
 
 // The slot machine icon, at 1x and 2x for crisp tray and window icons.
@@ -37,7 +37,7 @@ async function renderBrushIcon(port) {
     const big = nativeImage.createFromDataURL(dataUrl);
     if (big.isEmpty()) return;
     iconImage = big;
-    fever.setIcon(big.resize({ width: 64, height: 64, quality: 'best' }).toPNG());
+    domain.setIcon(big.resize({ width: 64, height: 64, quality: 'best' }).toPNG());
     const trayImage = nativeImage.createEmpty();
     for (const scaleFactor of [1, 2]) {
       const n = 16 * scaleFactor;
@@ -126,28 +126,28 @@ const MENU_TEXT = {
 };
 
 function buildMenu() {
-  const cfg = fever.config();
+  const cfg = domain.config();
   const choice = cfg.translation && MENU_TEXT[cfg.translation] ? cfg.translation : app.getLocale().slice(0, 2);
   const t = MENU_TEXT[choice] || MENU_TEXT.en;
   const layoutItem = (value) => ({
     label: t[value],
     type: 'radio',
     checked: cfg.layout === value,
-    click: () => fever.setConfig({ layout: value }),
+    click: () => domain.setConfig({ layout: value }),
   });
   return Menu.buildFromTemplate([
     { label: '坐殺博徒 · Idle Death Gamble', enabled: false },
     { type: 'separator' },
     { label: `遊び方 · ${t.guide}`, click: openGuide },
     { type: 'separator' },
-    { label: t.discreet, type: 'checkbox', checked: cfg.discreet, click: (item) => fever.setConfig({ discreet: item.checked }) },
+    { label: t.discreet, type: 'checkbox', checked: cfg.discreet, click: (item) => domain.setConfig({ discreet: item.checked }) },
     { label: t.layout, submenu: ['normal', 'compact', 'mini'].map(layoutItem) },
     { label: t.follow, submenu: followItems(cfg, t) },
-    { label: t.mute, type: 'checkbox', checked: cfg.muted, click: (item) => fever.setConfig({ muted: item.checked }) },
+    { label: t.mute, type: 'checkbox', checked: cfg.muted, click: (item) => domain.setConfig({ muted: item.checked }) },
     { label: t.show, type: 'checkbox', checked: win.isVisible(), click: (item) => (item.checked ? win.showInactive() : win.hide()) },
     { type: 'separator' },
     { label: t.settings, click: openSettings },
-    { label: t.demo, click: () => fever.runDemo() },
+    { label: t.demo, click: () => domain.runDemo() },
     { type: 'separator' },
     { label: `領域解除 · ${t.quit}`, click: () => app.quit() },
   ]);
@@ -155,12 +155,12 @@ function buildMenu() {
 
 // Which conversation the machine shows: automatic, or one pinned.
 function followItems(cfg, t) {
-  const { list } = fever.sessions();
-  const items = [{ label: t.auto, type: 'radio', checked: cfg.follow === 'auto', click: () => fever.setConfig({ follow: 'auto' }) }];
+  const { list } = domain.sessions();
+  const items = [{ label: t.auto, type: 'radio', checked: cfg.follow === 'auto', click: () => domain.setConfig({ follow: 'auto' }) }];
   if (list.length) items.push({ type: 'separator' });
   for (const s of list.slice(0, 12)) {
     const name = s.title ? `${s.label} · ${s.title}` : s.label;
-    items.push({ label: name.length > 60 ? `${name.slice(0, 59)}…` : name, type: 'radio', checked: cfg.follow === s.id, click: () => fever.setConfig({ follow: s.id }) });
+    items.push({ label: name.length > 60 ? `${name.slice(0, 59)}…` : name, type: 'radio', checked: cfg.follow === s.id, click: () => domain.setConfig({ follow: s.id }) });
   }
   return items;
 }
@@ -173,13 +173,13 @@ function showMenu() {
 app.whenReady().then(async () => {
   if (process.platform === 'darwin' && app.dock) app.dock.hide();
 
-  fever = createFeverServer({
+  domain = createDomainServer({
     onOpenWindow: (name) => (name === 'guide' ? openGuide() : openSettings()),
     onQuit: () => app.quit(),
   });
   let port;
   try {
-    port = await fever.listen();
+    port = await domain.listen();
   } catch (err) {
     console.error(err.code === 'EADDRINUSE' ? 'Port busy: is the domain already open?' : err);
     app.quit();
@@ -197,4 +197,4 @@ app.whenReady().then(async () => {
 });
 
 app.on('window-all-closed', (e) => e.preventDefault());
-app.on('before-quit', () => fever && fever.close());
+app.on('before-quit', () => domain && domain.close());

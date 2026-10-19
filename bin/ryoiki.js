@@ -3,7 +3,7 @@
 
 const path = require('node:path');
 const { spawn } = require('node:child_process');
-const { createFeverServer, DEFAULT_PORT } = require('../src/server');
+const { createDomainServer, DEFAULT_PORT } = require('../src/server');
 const installer = require('../src/install');
 
 const [command = 'help', ...rest] = process.argv.slice(2);
@@ -82,9 +82,9 @@ async function main() {
     }
 
     case 'serve': {
-      const fever = createFeverServer({ log: (line) => console.log(line) });
+      const domain = createDomainServer({ log: (line) => console.log(line) });
       try {
-        const port = await fever.listen();
+        const port = await domain.listen();
         console.log(`Zasatsu Bakuto server on http://127.0.0.1:${port}/  (preview: http://127.0.0.1:${port}/?preview)`);
       } catch (err) {
         console.error(err.code === 'EADDRINUSE' ? `Port ${DEFAULT_PORT} is busy. Is the domain already open?` : err.message);

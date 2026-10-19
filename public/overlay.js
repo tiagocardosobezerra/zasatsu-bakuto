@@ -5,7 +5,7 @@
   const $ = (id) => document.getElementById(id);
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const rand7 = () => 1 + Math.floor(Math.random() * 7);
-  const i18n = window.FeverI18n;
+  const i18n = window.DomainI18n;
 
   const machine = $('machine');
   const lcd = $('lcd');

@@ -257,7 +257,7 @@ npm start           # Electron overlay
 
 ## Roadmap
 
-- Theme packs (the reels, sounds and fever screen are all swappable)
+- Theme packs (the reels, sounds and jackpot screen are all swappable)
 - Adapters: Codex CLI, Gemini CLI, Cursor, Aider
 - npm package, so `npx zasatsu-bakuto` works without cloning
 - Shareable end-of-day card: spins, jackpots, best streak

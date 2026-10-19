@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createSessions, colorFor } = require('../src/sessions');
-const { createFeverServer } = require('../src/server');
+const { createDomainServer } = require('../src/server');
 const { classify } = require('../src/classify');
 const fs = require('node:fs');
 const os = require('node:os');
@@ -68,12 +68,12 @@ test('the prompt names the conversation when it has no title', () => {
 });
 
 test('a conversation that is not on screen still announces it needs you', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fever-s-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zb-s-'));
   const seen = [];
-  const fever = createFeverServer({ port: 0, configFile: path.join(dir, 'c.json'), onBroadcast: (m) => seen.push(m) });
-  fever.ingest({ hook_event_name: 'UserPromptSubmit', session_id: 'a', cwd: '/p/alpha', prompt: 'one' });
-  fever.ingest({ hook_event_name: 'UserPromptSubmit', session_id: 'b', cwd: '/p/beta', prompt: 'two' });
-  fever.ingest({ hook_event_name: 'Notification', session_id: 'a', cwd: '/p/alpha', message: 'needs permission' });
+  const domain = createDomainServer({ port: 0, configFile: path.join(dir, 'c.json'), onBroadcast: (m) => seen.push(m) });
+  domain.ingest({ hook_event_name: 'UserPromptSubmit', session_id: 'a', cwd: '/p/alpha', prompt: 'one' });
+  domain.ingest({ hook_event_name: 'UserPromptSubmit', session_id: 'b', cwd: '/p/beta', prompt: 'two' });
+  domain.ingest({ hook_event_name: 'Notification', session_id: 'a', cwd: '/p/alpha', message: 'needs permission' });
   const call = seen.find((m) => m.type === 'call');
   assert.ok(call, 'call broadcast');
   assert.equal(call.who.label, 'alpha');

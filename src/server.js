@@ -34,7 +34,7 @@ function customFiles() {
   }
 }
 
-function createFeverServer({
+function createDomainServer({
   port = DEFAULT_PORT,
   log = () => {},
   configFile = settings.CONFIG_FILE,
@@ -321,4 +321,4 @@ function createFeverServer({
   };
 }
 
-module.exports = { createFeverServer, DEFAULT_PORT };
+module.exports = { createDomainServer, DEFAULT_PORT };

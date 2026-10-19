@@ -2,7 +2,7 @@
 'use strict';
 
 // Claude Code hook entry point. Forwards the hook payload to the local
-// Fever server and gets out of the way: it never prints, never blocks and
+// server and gets out of the way: it never prints, never blocks and
 // always exits 0, even when the server is not running.
 
 const http = require('node:http');

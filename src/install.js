@@ -33,12 +33,12 @@ function readSettings(settingsPath) {
   }
 }
 
-function isFeverHook(hook) {
+function isOurHook(hook) {
   return hook && typeof hook.command === 'string' && [MARKER, ...LEGACY_MARKERS].some((m) => hook.command.includes(m));
 }
 
-// Returns a copy of `hooks` without Fever entries, plus how many were removed.
-function stripFever(hooks = {}) {
+// Returns a copy of `hooks` without our entries, plus how many were removed.
+function stripOurHooks(hooks = {}) {
   let removed = 0;
   const out = {};
   for (const [event, groups] of Object.entries(hooks)) {
@@ -49,7 +49,7 @@ function stripFever(hooks = {}) {
     const kept = [];
     for (const group of groups) {
       const inner = Array.isArray(group && group.hooks) ? group.hooks : [];
-      const rest = inner.filter((h) => !isFeverHook(h));
+      const rest = inner.filter((h) => !isOurHook(h));
       removed += inner.length - rest.length;
       if (rest.length || !inner.length) kept.push(rest.length === inner.length ? group : { ...group, hooks: rest });
     }
@@ -58,8 +58,8 @@ function stripFever(hooks = {}) {
   return { hooks: out, removed };
 }
 
-function withFever(settings, command = hookCommand()) {
-  const { hooks } = stripFever(settings.hooks);
+function withOurHooks(settings, command = hookCommand()) {
+  const { hooks } = stripOurHooks(settings.hooks);
   const handler = { type: 'command', command, async: true, timeout: 5 };
   for (const event of TOOL_EVENTS) (hooks[event] ||= []).push({ matcher: '*', hooks: [handler] });
   for (const event of OTHER_EVENTS) (hooks[event] ||= []).push({ hooks: [handler] });
@@ -78,14 +78,14 @@ function install({ settingsPath = defaultSettingsPath() } = {}) {
     backupPath = `${settingsPath}.zasatsu-bakuto-backup`;
     fs.copyFileSync(settingsPath, backupPath);
   }
-  write(settingsPath, withFever(settings));
+  write(settingsPath, withOurHooks(settings));
   return { settingsPath, backupPath };
 }
 
 function uninstall({ settingsPath = defaultSettingsPath() } = {}) {
   const { settings, existed } = readSettings(settingsPath);
   if (!existed) return { settingsPath, removed: 0 };
-  const { hooks, removed } = stripFever(settings.hooks);
+  const { hooks, removed } = stripOurHooks(settings.hooks);
   if (removed) {
     const next = { ...settings, hooks };
     if (!Object.keys(hooks).length) delete next.hooks;
@@ -94,4 +94,4 @@ function uninstall({ settingsPath = defaultSettingsPath() } = {}) {
   return { settingsPath, removed };
 }
 
-module.exports = { install, uninstall, withFever, stripFever, hookCommand, MARKER, LEGACY_MARKERS };
+module.exports = { install, uninstall, withOurHooks, stripOurHooks, hookCommand, MARKER, LEGACY_MARKERS };

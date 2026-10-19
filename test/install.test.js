@@ -8,7 +8,7 @@ const path = require('node:path');
 const { install, uninstall, MARKER } = require('../src/install');
 
 function tempSettings(content) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fever-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zb-'));
   const file = path.join(dir, 'settings.json');
   if (content !== undefined) fs.writeFileSync(file, JSON.stringify(content));
   return file;

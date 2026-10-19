@@ -179,5 +179,5 @@
   }
 
   setLang('auto');
-  window.FeverI18n = { t, put, setLang, rulesText, lang: () => lang, LANGS };
+  window.DomainI18n = { t, put, setLang, rulesText, lang: () => lang, LANGS };
 })();
