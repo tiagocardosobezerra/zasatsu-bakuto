@@ -17,7 +17,10 @@ const { iconPNG } = require('./icon');
 const DEFAULT_PORT = Number(env('PORT')) || 4111;
 const MAX_BODY = 5 * 1024 * 1024;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
-const CUSTOM_DIR = env('CUSTOM_DIR') || path.join(settings.HOME, 'custom');
+// Your own art and music: ~/.zasatsu-bakuto/custom (or $ZASATSU_CUSTOM_DIR),
+// then a custom/ folder next to the code (git-ignored). The first one wins
+// when both have a file with the same name.
+const CUSTOM_DIRS = [env('CUSTOM_DIR') || path.join(settings.HOME, 'custom'), path.join(__dirname, '..', 'custom')];
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8' };
 const MAX_CONFIG_BODY = 64 * 1024;
 // Media people may add to the custom folder.
@@ -26,12 +29,21 @@ const CUSTOM_MIME = {
   '.mp3': 'audio/mpeg', '.ogg': 'audio/ogg', '.wav': 'audio/wav', '.m4a': 'audio/mp4',
 };
 
-function customFiles() {
-  try {
-    return fs.readdirSync(CUSTOM_DIR).filter((name) => CUSTOM_MIME[path.extname(name).toLowerCase()]);
-  } catch {
-    return [];
+// name -> full path of every usable file in the custom folders.
+function customFiles(dirs = CUSTOM_DIRS) {
+  const found = new Map();
+  for (const dir of dirs) {
+    let names = [];
+    try {
+      names = fs.readdirSync(dir);
+    } catch {
+      continue;
+    }
+    for (const name of names) {
+      if (CUSTOM_MIME[path.extname(name).toLowerCase()] && !found.has(name)) found.set(name, path.join(dir, name));
+    }
   }
+  return found;
 }
 
 function createFeverServer({
@@ -263,14 +275,15 @@ function createFeverServer({
 
     if (req.method === 'GET' && url.pathname === '/custom/manifest.json') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ files: customFiles(), dir: CUSTOM_DIR }));
+      return res.end(JSON.stringify({ files: [...customFiles().keys()], dir: CUSTOM_DIRS[0], dirs: CUSTOM_DIRS }));
     }
 
     if (req.method === 'GET' && url.pathname.startsWith('/custom/')) {
       const name = path.basename(decodeURIComponent(url.pathname.slice('/custom/'.length)));
-      if (!customFiles().includes(name)) return res.writeHead(404).end();
+      const file = customFiles().get(name);
+      if (!file) return res.writeHead(404).end();
       res.writeHead(200, { 'Content-Type': CUSTOM_MIME[path.extname(name).toLowerCase()] });
-      return fs.createReadStream(path.join(CUSTOM_DIR, name)).pipe(res);
+      return fs.createReadStream(file).pipe(res);
     }
 
     if (req.method === 'GET' && url.pathname === '/icon.png') {
@@ -321,4 +334,4 @@ function createFeverServer({
   };
 }
 
-module.exports = { createFeverServer, DEFAULT_PORT };
+module.exports = { createFeverServer, customFiles, DEFAULT_PORT };

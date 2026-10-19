@@ -202,7 +202,7 @@ Zasatsu Bakuto does not ship recordings from real machines (they belong to their
 
 ## Your own art and music
 
-Zasatsu Bakuto ships no images or music from the series. If you own files you want to use, put them in `~/.zasatsu-bakuto/custom/` (or set `ZASATSU_CUSTOM_DIR`). Files are picked up by name; any of `.png .jpg .webp .gif` for images and `.mp3 .ogg .wav .m4a` for audio:
+Zasatsu Bakuto ships no images or music from the series. If you own files you want to use, put them in `~/.zasatsu-bakuto/custom/` (or set `ZASATSU_CUSTOM_DIR`), or in a `custom/` folder inside the project. That folder is in `.gitignore`, so your files never end up on GitHub. Files are picked up by name; any of `.png .jpg .webp .gif` for images and `.mp3 .ogg .wav .m4a` for audio:
 
 | File name | Used for |
 | --- | --- |
