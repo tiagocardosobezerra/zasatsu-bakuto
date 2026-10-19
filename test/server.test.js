@@ -83,3 +83,18 @@ test('always on top is on by default and can be switched off', () => {
   assert.equal(clean({ onTop: false }).onTop, false);
   assert.equal(clean({ onTop: 'no' }).onTop, true);
 });
+
+test('the page can ask the desktop app to bring the machine to the front; other pages cannot', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zb-raise-'));
+  let raises = 0;
+  const domain = createDomainServer({ port: 0, configFile: path.join(dir, 'c.json'), onRaise: () => { raises += 1; } });
+  const port = await domain.listen();
+  const base = `http://127.0.0.1:${port}`;
+  try {
+    assert.equal((await fetch(`${base}/raise`, { method: 'POST' })).status, 204);
+    assert.equal((await fetch(`${base}/raise`, { method: 'POST', headers: { Origin: 'https://example.com' } })).status, 403);
+    assert.equal(raises, 1);
+  } finally {
+    await domain.close();
+  }
+});

@@ -64,6 +64,7 @@ function createDomainServer({
   links = createLinks(),
   onOpenLink = openExternal, // opens a claude:// link to a conversation
   onPointer = () => {}, // the desktop app lets clicks through while the pointer is over a line
+  onRaise = () => {}, // the desktop app brings the overlay to the front
 } = {}) {
   const clients = new Set();
   let config = settings.load(configFile);
@@ -309,6 +310,12 @@ function createDomainServer({
       const link = links.linkFor(url.searchParams.get('session'));
       if (!link) return res.writeHead(404).end();
       onOpenLink(link);
+      return res.writeHead(204).end();
+    }
+
+    // The page asks to be brought to the front when something happens.
+    if (req.method === 'POST' && url.pathname === '/raise') {
+      onRaise();
       return res.writeHead(204).end();
     }
 

@@ -820,7 +820,7 @@
   let pointerOver = false;
   let renewedAt = 0;
   function setPointer(over) {
-    if (over && pointerOver && Date.now() - renewedAt < 1000) return;
+    if (over && pointerOver && Date.now() - renewedAt < 300) return;
     if (!over && !pointerOver) return;
     pointerOver = over;
     renewedAt = Date.now();
@@ -830,6 +830,18 @@
   document.addEventListener('mousemove', (ev) => setPointer(overLink(ev.target)));
   document.addEventListener('mouseleave', () => setPointer(false));
   addEventListener('blur', () => setPointer(false));
+  document.addEventListener('pointercancel', () => setPointer(false));
+  document.addEventListener('visibilitychange', () => document.hidden && setPointer(false));
+
+  // Something worth seeing: ask the desktop app to bring the machine to the
+  // front (it does not keep pushing itself up on a timer).
+  const RAISE_ON = new Set(['expand', 'riichi', 'jackpot', 'attention', 'call', 'round-end', 'miss']);
+  let lastRaise = 0;
+  function raiseFor(type) {
+    if (!RAISE_ON.has(type) || Date.now() - lastRaise < 1500) return;
+    lastRaise = Date.now();
+    post('/raise');
+  }
   convLines.addEventListener('click', (ev) => {
     const li = ev.target.closest('.conv.linked');
     if (!li) return;
@@ -1336,6 +1348,7 @@
   function receive(e) {
     if (e.type === 'hello') return hello(e);
     if (e.type === 'config') return applyConfig(e.config);
+    raiseFor(e.type);
     if (e.type === 'sessions') return renderSessions(e);
     if (e.type === 'usage') return renderUsage(e.usage);
     wake();

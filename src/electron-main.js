@@ -31,14 +31,19 @@ function appIcon(size) {
 // The overlay takes clicks only while the pointer is over a conversation
 // line with a link. The page renews the request as the pointer moves; if
 // renewals stop for any reason (the line vanished, the page hung), the
-// overlay lets go by itself, so it can never block the rest of the screen.
-const CLICK_HOLD_MS = 3000;
+// overlay lets go by itself after 1 s, so it can never block the screen.
+const CLICK_HOLD_MS = 1000;
 let releaseTimer = null;
+let takingClicks = false;
 function takeClicks(over) {
   if (!win || win.isDestroyed()) return;
   clearTimeout(releaseTimer);
-  win.setIgnoreMouseEvents(!over, { forward: true });
-  if (over) releaseTimer = setTimeout(() => takeClicks(false), CLICK_HOLD_MS);
+  if (over !== takingClicks) win.setIgnoreMouseEvents(!over, { forward: true });
+  takingClicks = over;
+  if (over) {
+    raise();
+    releaseTimer = setTimeout(() => takeClicks(false), CLICK_HOLD_MS);
+  }
 }
 
 function createOverlay(port) {
@@ -63,6 +68,9 @@ function createOverlay(port) {
   // line can take the click (see onPointer below).
   win.setIgnoreMouseEvents(true, { forward: true });
   win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+  win.on('show', raise);
+  win.on('hide', () => takeClicks(false));
+  win.on('blur', () => takeClicks(false));
   win.loadURL(`http://127.0.0.1:${port}/`);
   // Taskbar moved, resized or the resolution changed: follow the work area.
   screen.on('display-metrics-changed', () => {
@@ -70,14 +78,17 @@ function createOverlay(port) {
   });
 }
 
-// Always on top of other windows, but not of the system's own menus: other
-// topmost windows can end up above the overlay, so it is put back on top
-// every few seconds, without taking the focus. While the pointer is on the
-// taskbar (or was there a moment ago) it waits, so the Start menu, the tray
-// and its hidden icons stay above the machine.
-const ON_TOP_EVERY_MS = 3000;
+// Always on top of other windows, but not of the system's own menus, and
+// without fighting other always-on-top apps (desktop pets, for example).
+// There is no timer that keeps pushing the overlay up: it is raised when it
+// appears, when the game does something worth seeing (the page asks through
+// /raise) and when the pointer is over something it can click. A
+// click-through window never blocks anyone's clicks, so between those
+// moments its place in the stack does not matter. While the pointer is on
+// the taskbar (or was a moment ago) it is not raised, so the Start menu and
+// the tray stay above it.
 const TASKBAR_QUIET_MS = 10000;
-let onTopTimer = null;
+let onTop = true;
 let lastOnTaskbar = 0;
 function pointerOnTaskbar() {
   const point = screen.getCursorScreenPoint();
@@ -85,22 +96,27 @@ function pointerOnTaskbar() {
   const inside = (r) => point.x >= r.x && point.x < r.x + r.width && point.y >= r.y && point.y < r.y + r.height;
   return inside(bounds) && !inside(workArea);
 }
+// Only remembers when the pointer was on the taskbar; it moves nothing.
+setInterval(() => {
+  if (pointerOnTaskbar()) lastOnTaskbar = Date.now();
+}, 500).unref();
+
 function applyOnTop(on) {
   if (!win || win.isDestroyed()) return;
-  clearInterval(onTopTimer);
-  win.setAlwaysOnTop(on !== false, 'floating');
-  if (on === false) return;
-  let lastTop = Date.now();
-  // The pointer is checked often; the overlay is moved up only every 3 s.
-  onTopTimer = setInterval(() => {
-    if (!win || win.isDestroyed() || !win.isVisible()) return;
-    const now = Date.now();
-    if (pointerOnTaskbar()) lastOnTaskbar = now;
-    if (now - lastOnTaskbar < TASKBAR_QUIET_MS || now - lastTop < ON_TOP_EVERY_MS) return;
-    lastTop = now;
-    win.setAlwaysOnTop(true, 'floating');
-    win.moveTop();
-  }, 500);
+  onTop = on !== false;
+  // 'dock' keeps the overlay above the taskbar's level on Windows, which
+  // 'floating' does not; it still never covers the taskbar, which lies
+  // outside the overlay's work area.
+  win.setAlwaysOnTop(onTop, 'dock');
+  if (onTop) raise();
+}
+
+function raise() {
+  if (!onTop || !win || win.isDestroyed() || !win.isVisible()) return;
+  if (pointerOnTaskbar()) lastOnTaskbar = Date.now();
+  if (Date.now() - lastOnTaskbar < TASKBAR_QUIET_MS) return;
+  win.setAlwaysOnTop(true, 'dock');
+  win.moveTop();
 }
 
 // Chromium remembers zoom per host, and every window here is 127.0.0.1, so a
@@ -206,6 +222,7 @@ app.whenReady().then(async () => {
     onQuit: () => app.quit(),
     onOpenLink: (link) => shell.openExternal(link),
     onPointer: takeClicks,
+    onRaise: raise,
     onBroadcast: (message) => message.type === 'config' && applyOnTop(message.config.onTop),
   });
   let port;
