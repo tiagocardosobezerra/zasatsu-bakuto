@@ -1,12 +1,10 @@
 <p align="center">
-  <b>🇧🇷 Português</b> · <a href="README.en.md">🇺🇸 English</a>
-</p>
-
-<p align="center">
   <img src="docs/icon.png" width="128" alt="Ícone do Zasatsu Bakuto: o sinal de mão da Expansão de Domínio do Hakari">
 </p>
 
 <h1 align="center">Zasatsu Bakuto (坐殺博徒)</h1>
+
+<p align="center"><b>Português</b> | <a href="README.en.md">English</a></p>
 
 <p align="center">
   <b>A Expansão de Domínio do Kinji Hakari, Idle Death Gamble, jogada pelo seu agente de IA.</b><br>

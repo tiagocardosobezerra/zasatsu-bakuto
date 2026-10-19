@@ -1,12 +1,10 @@
 <p align="center">
-  <a href="README.md">🇧🇷 Português</a> · <b>🇺🇸 English</b>
-</p>
-
-<p align="center">
   <img src="docs/icon.png" width="128" alt="Zasatsu Bakuto icon: Hakari's Domain Expansion hand sign">
 </p>
 
 <h1 align="center">Zasatsu Bakuto (坐殺博徒)</h1>
+
+<p align="center"><a href="README.md">Português</a> | <b>English</b></p>
 
 <p align="center">
   <b>Kinji Hakari's Domain Expansion, Idle Death Gamble, played by your AI coding agent.</b><br>
