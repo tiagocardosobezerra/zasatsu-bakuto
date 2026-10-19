@@ -1646,7 +1646,7 @@ body.layout-mini .riichi-result .tr { font-size: 7px; }
 .conv {
   display: grid; grid-template-columns: 10px minmax(0, auto) minmax(0, 1fr) auto; align-items: center; column-gap: 6px;
   padding: 3px 7px; border-radius: 7px;
-  background: rgba(255, 255, 255, .04); box-shadow: inset 3px 0 0 var(--c);
+  background: rgba(255, 255, 255, .04);
   font-size: 11px; color: var(--ink); line-height: 1.25;
   transition: background .25s ease;
 }
@@ -1690,3 +1690,9 @@ body.layout-mini .conv .name { max-width: none; }
 .conv.linked .name::after { content: ' ↗'; font-weight: 400; opacity: .55; }
 .conv.opening { animation: conv-open .6s ease; }
 @keyframes conv-open { 30% { background: color-mix(in srgb, var(--c) 55%, transparent); } }
+
+/* Top of the machine: the title on the left, mode and domain on the right,
+   both centred on one line, each with its translation underneath. */
+.crest { align-items: center; }
+.badges { gap: 3px; }
+.domain-state { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; }

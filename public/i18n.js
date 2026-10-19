@@ -102,7 +102,6 @@
     // Everything else on screen
     crHint: ['CR機: カードリーダー対応のパチンコ台 (確変あり)', { en: 'CR machine: card-reader pachinko, the kind allowed to have increased probability (確変)', pt: 'Máquina CR: pachinko de cartão (card reader), o tipo que pode ter probabilidade aumentada (確変)', es: 'Máquina CR: pachinko con lector de tarjeta, el tipo que puede tener probabilidad aumentada (確変)' }],
     titleName: ['私鉄純愛列車', { en: 'Private Pure Love Train', pt: 'Trem do Amor Puro', es: 'Tren del Amor Puro' }],
-    titleSub: ['坐殺博徒 · 1/239', { en: 'Idle Death Gamble · Ver. 1/239', pt: 'Idle Death Gamble · Ver. 1/239', es: 'Idle Death Gamble · Ver. 1/239' }],
     introVer: ['CR 私鉄純愛列車 Ver. 1/239', { en: 'Private Pure Love Train · jackpot 1 in 239', pt: 'Trem do Amor Puro · jackpot 1 em 239', es: 'Tren del Amor Puro · premio 1 en 239' }],
     odds: ['1/239', { en: 'Jackpot odds: 1 in 239', pt: 'Chance de jackpot: 1 em 239', es: 'Probabilidad: 1 en 239' }],
     sfxDo: ['ドッ', { en: 'THOOM', pt: 'TUM', es: 'PUM' }],

@@ -528,7 +528,6 @@
     i18n.put($('cutin-title'), 'cutinTitle');
     i18n.put($('cutin-line'), 'cutinLine');
     i18n.put($('title-name'), 'titleName');
-    i18n.put($('title-sub'), 'titleSub');
     i18n.put($('intro-ver'), 'introVer');
     i18n.put($('intro-odds'), 'odds');
     i18n.put($('sfx-do'), 'sfxDo');
