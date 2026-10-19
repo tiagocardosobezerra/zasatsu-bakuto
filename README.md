@@ -94,7 +94,7 @@ Clique com o botão direito no ícone da bandeja → **Configurações…** (ou 
 * **Modo discreto:** máquina mini, sem som, nada em tela cheia e um pouco transparente. Desligou, tudo volta como estava.
 * **Máquinas:** **Uma para todas** (padrão), em que toda conversa gira a mesma máquina e o placar fica salvo, ou **Uma por conversa**, em que cada conversa tem a sua e a tela segue a última em que você escreveu.
 * **Linhas de conversa:** uma linha por conversa em andamento, até 1, 2 ou 3, ou **Ilimitado** (padrão), que cresce até a borda da tela e mostra "mais N conversas" no que não couber.
-* **Na tela:** formato (**Normal**, **Compacto** ou **Mini**), tamanho, canto, opacidade, **sempre na frente** das outras janelas (ligado por padrão; ela volta para a frente sozinha se outra janela cobrir) e escurecer quando parada.
+* **Na tela:** formato (**Normal**, **Compacto** ou **Mini**), tamanho, canto, opacidade, **sempre na frente** das outras janelas (ligado por padrão: fica acima das janelas e volta para a frente sozinha se outra cobrir, mas nunca por cima da barra de tarefas, do menu Iniciar ou dos ícones da bandeja) e escurecer quando parada.
 * **O que aparece:** Expansão de Domínio e jackpot em tela cheia, só na máquina ou desligados; movimento; e cada parte da máquina.
 * **Som:** silenciar tudo, volume, sons da máquina, locutor japonês e suas músicas.
 * **Idioma:** o japonês fica na tela, com tradução embaixo em português ou inglês, conforme o computador, ou só japonês.

@@ -42,9 +42,10 @@ function takeClicks(over) {
 }
 
 function createOverlay(port) {
-  const { bounds } = screen.getPrimaryDisplay();
+  // The work area leaves out the taskbar, so the machine never sits on it.
+  const { workArea } = screen.getPrimaryDisplay();
   win = new BrowserWindow({
-    ...bounds,
+    ...workArea,
     transparent: true,
     frame: false,
     resizable: false,
@@ -63,23 +64,43 @@ function createOverlay(port) {
   win.setIgnoreMouseEvents(true, { forward: true });
   win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   win.loadURL(`http://127.0.0.1:${port}/`);
+  // Taskbar moved, resized or the resolution changed: follow the work area.
+  screen.on('display-metrics-changed', () => {
+    if (win && !win.isDestroyed()) win.setBounds(screen.getPrimaryDisplay().workArea);
+  });
 }
 
-// Always on top: other "topmost" windows (a full-screen video, some apps)
-// can still end up above the overlay, so while the setting is on it is put
-// back on top every few seconds, without taking the focus.
+// Always on top of other windows, but not of the system's own menus: other
+// topmost windows can end up above the overlay, so it is put back on top
+// every few seconds, without taking the focus. While the pointer is on the
+// taskbar (or was there a moment ago) it waits, so the Start menu, the tray
+// and its hidden icons stay above the machine.
 const ON_TOP_EVERY_MS = 3000;
+const TASKBAR_QUIET_MS = 10000;
 let onTopTimer = null;
+let lastOnTaskbar = 0;
+function pointerOnTaskbar() {
+  const point = screen.getCursorScreenPoint();
+  const { bounds, workArea } = screen.getDisplayNearestPoint(point);
+  const inside = (r) => point.x >= r.x && point.x < r.x + r.width && point.y >= r.y && point.y < r.y + r.height;
+  return inside(bounds) && !inside(workArea);
+}
 function applyOnTop(on) {
   if (!win || win.isDestroyed()) return;
   clearInterval(onTopTimer);
-  win.setAlwaysOnTop(on !== false, 'screen-saver');
+  win.setAlwaysOnTop(on !== false, 'floating');
   if (on === false) return;
+  let lastTop = Date.now();
+  // The pointer is checked often; the overlay is moved up only every 3 s.
   onTopTimer = setInterval(() => {
     if (!win || win.isDestroyed() || !win.isVisible()) return;
-    win.setAlwaysOnTop(true, 'screen-saver');
+    const now = Date.now();
+    if (pointerOnTaskbar()) lastOnTaskbar = now;
+    if (now - lastOnTaskbar < TASKBAR_QUIET_MS || now - lastTop < ON_TOP_EVERY_MS) return;
+    lastTop = now;
+    win.setAlwaysOnTop(true, 'floating');
     win.moveTop();
-  }, ON_TOP_EVERY_MS);
+  }, 500);
 }
 
 // Chromium remembers zoom per host, and every window here is 127.0.0.1, so a

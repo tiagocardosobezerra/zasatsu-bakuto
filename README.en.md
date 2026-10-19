@@ -94,7 +94,7 @@ Right-click the tray icon → **Settings…** (or double-click it), or run `ryoi
 * **Discreet mode:** mini machine, no sound, nothing full screen, a little translucent. Switch it off and everything comes back as it was.
 * **Machines:** **One for all** (default), where every conversation spins the same machine and the totals are saved, or **One per conversation**, where each has its own and the screen follows the one you last wrote to.
 * **Conversation lines:** one line per conversation in progress, up to 1, 2 or 3, or **Unlimited** (default), which grows up to the edge of the screen and shows "N more conversations" for the rest.
-* **On screen:** layout (**Normal**, **Compact** or **Mini**), size, corner, opacity, **always on top** of other windows (on by default; it comes back to the front by itself if another window covers it) and dimming when idle.
+* **On screen:** layout (**Normal**, **Compact** or **Mini**), size, corner, opacity, **always on top** of other windows (on by default: it stays above windows and comes back to the front if one covers it, but never over the taskbar, the Start menu or the tray icons) and dimming when idle.
 * **What appears:** Domain Expansion and jackpot full screen, on the machine only or off; motion; and each part of the machine.
 * **Sound:** mute everything, volume, machine sounds, Japanese announcer and your music files.
 * **Language:** Japanese stays on screen, with a translation underneath in English or Portuguese, following your computer, or Japanese only.
