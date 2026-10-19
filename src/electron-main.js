@@ -57,12 +57,29 @@ function createOverlay(port) {
     webPreferences: { backgroundThrottling: false },
   });
   lockZoom(win);
-  win.setAlwaysOnTop(true, 'screen-saver');
+  applyOnTop(domain.config().onTop);
   // Click-through, but the page still hears the pointer, so a conversation
   // line can take the click (see onPointer below).
   win.setIgnoreMouseEvents(true, { forward: true });
   win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   win.loadURL(`http://127.0.0.1:${port}/`);
+}
+
+// Always on top: other "topmost" windows (a full-screen video, some apps)
+// can still end up above the overlay, so while the setting is on it is put
+// back on top every few seconds, without taking the focus.
+const ON_TOP_EVERY_MS = 3000;
+let onTopTimer = null;
+function applyOnTop(on) {
+  if (!win || win.isDestroyed()) return;
+  clearInterval(onTopTimer);
+  win.setAlwaysOnTop(on !== false, 'screen-saver');
+  if (on === false) return;
+  onTopTimer = setInterval(() => {
+    if (!win || win.isDestroyed() || !win.isVisible()) return;
+    win.setAlwaysOnTop(true, 'screen-saver');
+    win.moveTop();
+  }, ON_TOP_EVERY_MS);
 }
 
 // Chromium remembers zoom per host, and every window here is 127.0.0.1, so a
@@ -112,8 +129,8 @@ const openGuide = () => openPage('guide', 'guide.html', 'Idle Death Gamble · �
 
 // Tray menu in the computer's language.
 const MENU_TEXT = {
-  en: { guide: 'How to play (guide)', lines: 'Conversation lines', off: 'Off', all: 'Unlimited', machines: 'Machines', shared: 'One for all', each: 'One per conversation', settings: 'Settings…', demo: 'Play demo', discreet: 'Discreet mode', layout: 'Layout', normal: 'Normal', compact: 'Compact', mini: 'Mini', mute: 'Mute', show: 'Show overlay', quit: 'Quit' },
-  pt: { guide: 'Como jogar (guia)', lines: 'Linhas de conversa', off: 'Desligado', all: 'Ilimitado', machines: 'Máquinas', shared: 'Uma para todas', each: 'Uma por conversa', settings: 'Configurações…', demo: 'Tocar a demo', discreet: 'Modo discreto', layout: 'Formato', normal: 'Normal', compact: 'Compacto', mini: 'Mini', mute: 'Silenciar', show: 'Mostrar overlay', quit: 'Sair' },
+  en: { guide: 'How to play (guide)', lines: 'Conversation lines', off: 'Off', all: 'Unlimited', machines: 'Machines', shared: 'One for all', each: 'One per conversation', onTop: 'Always on top', settings: 'Settings…', demo: 'Play demo', discreet: 'Discreet mode', layout: 'Layout', normal: 'Normal', compact: 'Compact', mini: 'Mini', mute: 'Mute', show: 'Show overlay', quit: 'Quit' },
+  pt: { guide: 'Como jogar (guia)', lines: 'Linhas de conversa', off: 'Desligado', all: 'Ilimitado', machines: 'Máquinas', shared: 'Uma para todas', each: 'Uma por conversa', onTop: 'Sempre na frente', settings: 'Configurações…', demo: 'Tocar a demo', discreet: 'Modo discreto', layout: 'Formato', normal: 'Normal', compact: 'Compacto', mini: 'Mini', mute: 'Silenciar', show: 'Mostrar overlay', quit: 'Sair' },
 };
 
 function buildMenu() {
@@ -135,6 +152,7 @@ function buildMenu() {
     { type: 'separator' },
     { label: t.discreet, type: 'checkbox', checked: cfg.discreet, click: (item) => domain.setConfig({ discreet: item.checked }) },
     { label: t.mute, type: 'checkbox', checked: cfg.muted, click: (item) => domain.setConfig({ muted: item.checked }) },
+    { label: t.onTop, type: 'checkbox', checked: cfg.onTop !== false, click: (item) => domain.setConfig({ onTop: item.checked }) },
     { label: t.show, type: 'checkbox', checked: win.isVisible(), click: (item) => (item.checked ? win.showInactive() : win.hide()) },
     { type: 'separator' },
     {
@@ -167,6 +185,7 @@ app.whenReady().then(async () => {
     onQuit: () => app.quit(),
     onOpenLink: (link) => shell.openExternal(link),
     onPointer: takeClicks,
+    onBroadcast: (message) => message.type === 'config' && applyOnTop(message.config.onTop),
   });
   let port;
   try {

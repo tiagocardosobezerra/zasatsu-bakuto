@@ -77,3 +77,9 @@ test('conversation lines: off, 1 to 3, or unlimited (old values above 3 become u
   assert.equal(clean({ lines: -1 }).lines, 'all');
   assert.equal(clean({ lines: 'lots' }).lines, 'all');
 });
+
+test('always on top is on by default and can be switched off', () => {
+  assert.equal(clean({}).onTop, true);
+  assert.equal(clean({ onTop: false }).onTop, false);
+  assert.equal(clean({ onTop: 'no' }).onTop, true);
+});
