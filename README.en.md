@@ -104,7 +104,7 @@ The tray menu has the most used shortcuts in the same order.
 
 ### Plan usage
 
-Claude Code's status line receives your plan usage, and the machine shows it as two pies: **Session (5 h)** and **Week**, with how much is used and when it resets. The colour goes from green to gold (60%) and red (85%). It only shows on plans with limits (Pro, Max, Team); with an API key the row stays hidden. To hide it, switch off **Plan usage** in Settings → What appears.
+Claude Code's status line receives your plan usage, and the machine shows it as two pies: **Session (5 h)** and **Week**, with how much is used and when it resets. The colour goes from green to gold (60%) and red (85%). It only shows on plans with limits (Pro, Max, Team); with an API key the row stays hidden. **These numbers come from the status line, which Claude Code in a terminal runs and the desktop app does not.** `ryoiki status` tells you when the status line last ran. To hide it, switch off **Plan usage** in Settings → What appears.
 
 ### Sound and motion
 

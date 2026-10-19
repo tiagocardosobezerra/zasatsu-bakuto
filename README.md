@@ -104,7 +104,7 @@ O menu da bandeja tem os atalhos mais usados na mesma ordem.
 
 ### Uso do plano
 
-A linha de status do Claude Code recebe o uso do seu plano, e a máquina mostra em dois gráficos de pizza: **Sessão (5 h)** e **Semana**, com quanto já foi usado e quando renova. A cor vai de verde para dourado (60%) e vermelho (85%). Só aparece em planos com limite (Pro, Max, Team); com chave de API, a linha fica escondida. Para esconder, desligue **Uso do plano** em Configurações → O que aparece.
+A linha de status do Claude Code recebe o uso do seu plano, e a máquina mostra em dois gráficos de pizza: **Sessão (5 h)** e **Semana**, com quanto já foi usado e quando renova. A cor vai de verde para dourado (60%) e vermelho (85%). Só aparece em planos com limite (Pro, Max, Team); com chave de API, a linha fica escondida. **Esses números vêm da linha de status, que o Claude Code do terminal roda e o app desktop não.** O `ryoiki status` diz quando a linha de status foi chamada pela última vez. Para esconder, desligue **Uso do plano** em Configurações → O que aparece.
 
 ### Som e movimento
 

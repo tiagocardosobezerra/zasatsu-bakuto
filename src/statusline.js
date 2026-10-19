@@ -90,6 +90,16 @@ process.stdin.on('end', async () => {
   } catch {
     /* not JSON: still print a line */
   }
+  // Leaves a note of the last call (when, and whether limits came), so
+  // `ryoiki status` can tell whether Claude Code runs the status line.
+  try {
+    const os = require('node:os');
+    const path = require('node:path');
+    const home = process.env.ZASATSU_HOME || path.join(os.homedir(), '.zasatsu-bakuto');
+    require('node:fs').writeFileSync(path.join(home, 'statusline-last.json'), JSON.stringify({ at: new Date().toISOString(), limits: Boolean(snapshot && snapshot.rate_limits) }));
+  } catch {
+    /* only a note */
+  }
   const sent = postUsage(snapshot);
   const line = original && typeof original.command === 'string' ? await runOriginal(raw) : ownLine(snapshot);
   await sent;

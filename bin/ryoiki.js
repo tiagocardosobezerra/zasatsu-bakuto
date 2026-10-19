@@ -130,8 +130,19 @@ async function main() {
       return console.log(url);
     }
 
-    case 'status':
-      return console.log((await isRunning()) ? `領域展開 · The domain is open on port ${DEFAULT_PORT}.` : '領域解除 · The domain is closed.');
+    case 'status': {
+      console.log((await isRunning()) ? `領域展開 · The domain is open on port ${DEFAULT_PORT}.` : '領域解除 · The domain is closed.');
+      // Plan usage comes from Claude Code's status line, which only some
+      // Claude Code apps run (the terminal does; the desktop app does not).
+      let note = null;
+      try {
+        note = JSON.parse(require('node:fs').readFileSync(path.join(require('../src/config').HOME, 'statusline-last.json'), 'utf8'));
+      } catch {
+        /* never called */
+      }
+      if (!note) return console.log('Plan usage: the status line has not been called yet. Claude Code in a terminal runs it; the desktop app does not.');
+      return console.log(`Plan usage: last status line at ${new Date(note.at).toLocaleString()}${note.limits ? '' : ' (no plan limits in it: API key or a non-subscription account)'}.`);
+    }
 
     default:
       return console.log(HELP);
