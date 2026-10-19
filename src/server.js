@@ -313,6 +313,29 @@ function createDomainServer({
       return res.writeHead(204).end();
     }
 
+    // The overlay's note of every sound it played (see overlay.js).
+    if (req.method === 'POST' && url.pathname === '/sound-log') {
+      return readJson(req, MAX_CONFIG_BODY, (body) => {
+        if (!Array.isArray(body)) return res.writeHead(400).end();
+        const file = path.join(path.dirname(configFile), 'sound-log.json');
+        let log = [];
+        try {
+          log = JSON.parse(fs.readFileSync(file, 'utf8'));
+        } catch {
+          /* first entries */
+        }
+        const discreet = Boolean(config.discreet);
+        const muted = Boolean(config.muted);
+        for (const e of body.slice(0, 200)) log.push({ ...e, discreet, mutedSetting: muted });
+        try {
+          fs.writeFileSync(file, JSON.stringify(log.slice(-500)));
+        } catch {
+          /* only a note */
+        }
+        res.writeHead(204).end();
+      });
+    }
+
     // The page asks to be brought to the front when something happens.
     if (req.method === 'POST' && url.pathname === '/raise') {
       onRaise();

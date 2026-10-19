@@ -466,6 +466,31 @@
     },
   };
 
+  // ---------- Sound log ----------
+  // Every sound the machine plays is noted (what, when, and whether it was
+  // muted at that moment) and sent to the app, which keeps the last ones in
+  // ~/.zasatsu-bakuto/sound-log.json. If a sound ever plays while muted,
+  // the log says exactly which one.
+  const soundLog = [];
+  const INTERNAL = new Set(['out', 'tone', 'hiss', 'ready', 'unlock', 'setMuted', 'tick']);
+  for (const [name, fn] of Object.entries(sound)) {
+    if (typeof fn !== 'function' || INTERNAL.has(name)) continue;
+    sound[name] = function logged(...args) {
+      soundLog.push({ at: Date.now(), what: name, muted: this.muted, master: this.master ? this.master.gain.value : null });
+      return fn.apply(this, args);
+    };
+  }
+  const customPlay = custom.play;
+  custom.play = function logged(key, opts) {
+    soundLog.push({ at: Date.now(), what: `music:${key}`, muted: sound.muted, music: musicOn() });
+    return customPlay.call(this, key, opts);
+  };
+  setInterval(() => {
+    if (!soundLog.length) return;
+    const batch = soundLog.splice(0, soundLog.length);
+    fetch('/sound-log', { method: 'POST', body: JSON.stringify(batch) }).catch(() => {});
+  }, 2000);
+
   // ---------- Reels ----------
   function setSymbol(reel, s) {
     const art = custom.url(`reel-${s}`);
