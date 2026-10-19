@@ -43,6 +43,7 @@ Você soube que os testes passaram e que outra conversa precisava de você sem a
 | **×2 / ×3 / ×4** | Uma ferramenta falhou e o agente está se recuperando |
 | **あなたの番 · nome** | O agente está esperando sua permissão ou sua resposta |
 | O domínio fecha | Todas as conversas terminaram a vez |
+| Dois gráficos de pizza: Sessão e Semana | Quanto do seu plano já foi usado (vem do Claude Code no terminal) |
 
 ## Comece em 3 passos
 

@@ -43,6 +43,7 @@ You knew the tests passed and that another conversation needed you, without open
 | **×2 / ×3 / ×4** | A tool failed and the agent is recovering |
 | **あなたの番 · name** | The agent is waiting for your permission or your answer |
 | The domain closes | Every conversation finished its turn |
+| Two pies: Session and Week | How much of your plan is used (comes from Claude Code in a terminal) |
 
 ## Get started in 3 steps
 
