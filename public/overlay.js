@@ -714,6 +714,7 @@
     const list = (lastSessions ? lastSessions.list : []).filter((s) => ACTIVE_STATES.has(s.state) || now - s.lastAt < RECENT_MS);
     const box = $('conv-lines');
     const show = linesWanted > 0 && list.length > 0;
+    if (pointerOver) setPointer(false);
     box.hidden = !show;
     $('who-row').hidden = show;
     box.innerHTML = '';
@@ -774,16 +775,25 @@
   // A line with a link opens its conversation in the Claude app. The desktop
   // overlay is click-through, so it asks to take clicks while the pointer is
   // over such a line.
+  // Taking clicks is dangerous: the overlay covers the whole screen, so it
+  // must let go as soon as the pointer is not on such a line. Every pointer
+  // move anywhere re-checks; while over a line the request is renewed, and
+  // the desktop app lets go by itself if renewals stop (see onPointer).
   const post = (url) => fetch(url, { method: 'POST' }).catch(() => {});
   const convLines = $('conv-lines');
   let pointerOver = false;
+  let renewedAt = 0;
   function setPointer(over) {
-    if (over === pointerOver) return;
+    if (over && pointerOver && Date.now() - renewedAt < 1000) return;
+    if (!over && !pointerOver) return;
     pointerOver = over;
+    renewedAt = Date.now();
     post(`/pointer?over=${over ? 1 : 0}`);
   }
-  convLines.addEventListener('mousemove', (ev) => setPointer(Boolean(ev.target.closest('.conv.linked'))));
-  convLines.addEventListener('mouseleave', () => setPointer(false));
+  const overLink = (target) => Boolean(target && target.closest && target.closest('.conv.linked')) && !document.body.classList.contains('fever-on');
+  document.addEventListener('mousemove', (ev) => setPointer(overLink(ev.target)));
+  document.addEventListener('mouseleave', () => setPointer(false));
+  addEventListener('blur', () => setPointer(false));
   convLines.addEventListener('click', (ev) => {
     const li = ev.target.closest('.conv.linked');
     if (!li) return;
@@ -881,6 +891,7 @@
     void fever.offsetWidth;
     fever.classList.add('on');
     document.body.classList.add('fever-on');
+    setPointer(false);
     // The domain holds while the cards line up, then breaks.
     setTimeout(() => {
       fever.classList.add('broken');

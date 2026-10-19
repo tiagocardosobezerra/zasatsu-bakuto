@@ -28,6 +28,19 @@ function appIcon(size) {
   return image;
 }
 
+// The overlay takes clicks only while the pointer is over a conversation
+// line with a link. The page renews the request as the pointer moves; if
+// renewals stop for any reason (the line vanished, the page hung), the
+// overlay lets go by itself, so it can never block the rest of the screen.
+const CLICK_HOLD_MS = 3000;
+let releaseTimer = null;
+function takeClicks(over) {
+  if (!win || win.isDestroyed()) return;
+  clearTimeout(releaseTimer);
+  win.setIgnoreMouseEvents(!over, { forward: true });
+  if (over) releaseTimer = setTimeout(() => takeClicks(false), CLICK_HOLD_MS);
+}
+
 function createOverlay(port) {
   const { bounds } = screen.getPrimaryDisplay();
   win = new BrowserWindow({
@@ -153,7 +166,7 @@ app.whenReady().then(async () => {
     onOpenWindow: (name) => (name === 'guide' ? openGuide() : openSettings()),
     onQuit: () => app.quit(),
     onOpenLink: (link) => shell.openExternal(link),
-    onPointer: (over) => win && !win.isDestroyed() && win.setIgnoreMouseEvents(!over, { forward: true }),
+    onPointer: takeClicks,
   });
   let port;
   try {
