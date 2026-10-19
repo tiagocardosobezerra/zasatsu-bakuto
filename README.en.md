@@ -20,6 +20,7 @@ Zasatsu Bakuto (坐殺博徒, *Idle Death Gamble*) is a small pachinko machine t
 * **Tells you when tests pass or break.** Running `npm test`, `pytest`, `go test` or `cargo test` becomes a リーチ. Green tests can hit the 4:11 jackpot; red tests are a ハズレ.
 * **Tells you when the agent needs you.** A request for permission or an answer shows as **あなたの番 · conversation name**, with a chime.
 * **Follows every conversation at once.** Each conversation in progress gets a line with its project, name, what it is doing and its last action. The list grows and shrinks by itself, and clicking a line with ↗ opens that conversation in the Claude app.
+* **Shows how much of your plan you have used.** Two pies on the machine: the 5-hour session and the week, with the time left until each resets.
 * **Stays out of your way.** The overlay lets clicks through, never blocks or slows the agent, and has a **discreet mode** (small, silent, translucent) for the work computer.
 * **Is faithful to the manga.** The rules come from the CR私鉄純愛列車 rule sheet Hakari shows in chapter 183 and the fights in chapters 182 to 190. Japanese always stays on screen, with a translation underneath in English or Portuguese.
 
@@ -64,7 +65,7 @@ npm link
 ryoiki install
 ```
 
-Adds the hooks to `~/.claude/settings.json` and keeps a backup. To connect a single project instead, use `ryoiki install --settings .claude/settings.json`.
+Adds the hooks and the status line to `~/.claude/settings.json` and keeps a backup. If you already had a status line, it keeps showing as before; Zasatsu only reads the plan usage behind it and gives yours back on `ryoiki uninstall`. To connect a single project instead, use `ryoiki install --settings .claude/settings.json`.
 
 ### 3. Open the domain
 
@@ -100,6 +101,10 @@ Right-click the tray icon → **Settings…** (or double-click it), or run `ryoi
 * **Language:** Japanese stays on screen, with a translation underneath in English or Portuguese, following your computer, or Japanese only.
 
 The tray menu has the most used shortcuts in the same order.
+
+### Plan usage
+
+Claude Code's status line receives your plan usage, and the machine shows it as two pies: **Session (5 h)** and **Week**, with how much is used and when it resets. The colour goes from green to gold (60%) and red (85%). It only shows on plans with limits (Pro, Max, Team); with an API key the row stays hidden. To hide it, switch off **Plan usage** in Settings → What appears.
 
 ### Sound and motion
 

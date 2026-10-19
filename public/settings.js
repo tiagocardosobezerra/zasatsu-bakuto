@@ -12,7 +12,7 @@
       settings: 'settings', game: 'Game', machine: 'On screen', corner: 'Corner', tl: 'Top left', tr: 'Top right', bl: 'Bottom left', br: 'Bottom right',
       size: 'Size', opacity: 'Opacity', idleDim: 'Dim after 90 s without activity', onTop: 'Always on top of other windows', appears: 'What appears',
       expansion: 'Domain Expansion 領域展開', jackpot: 'Jackpot 大当たり', full: 'Full screen', compact: 'On the machine', off: 'Off',
-      showCrest: 'Title and mode', showLamps: 'Lamps', showIndicators: '保留 / 疑似連 row', showTicker: 'Current tool', showStats: 'Counters',
+      showCrest: 'Title and mode', showLamps: 'Lamps', showIndicators: '保留 / 疑似連 row', showTicker: 'Current tool', showStats: 'Counters', showUsage: 'Plan usage (session and week)',
       language: 'Language', translation: 'Translation under the Japanese', langAuto: 'Computer language', langJa: 'Japanese only (日本語のみ)',
       sound: 'Sound', volume: 'Volume', effects: 'Machine sounds', music: 'Your music files (round / expansion)', muted: 'Mute everything',
       art: 'Your art and music', folder: 'Folder:',
@@ -32,7 +32,7 @@
       settings: 'configurações', game: 'Jogo', machine: 'Na tela', corner: 'Canto', tl: 'Superior esquerdo', tr: 'Superior direito', bl: 'Inferior esquerdo', br: 'Inferior direito',
       size: 'Tamanho', opacity: 'Opacidade', idleDim: 'Escurecer após 90 s sem atividade', onTop: 'Sempre na frente das outras janelas', appears: 'O que aparece',
       expansion: 'Expansão de Domínio 領域展開', jackpot: 'Jackpot 大当たり', full: 'Tela cheia', compact: 'Só na máquina', off: 'Desligado',
-      showCrest: 'Título e modo', showLamps: 'Luzes', showIndicators: 'Linha 保留 / 疑似連', showTicker: 'Ferramenta atual', showStats: 'Contadores',
+      showCrest: 'Título e modo', showLamps: 'Luzes', showIndicators: 'Linha 保留 / 疑似連', showTicker: 'Ferramenta atual', showStats: 'Contadores', showUsage: 'Uso do plano (sessão e semana)',
       language: 'Idioma', translation: 'Tradução embaixo do japonês', langAuto: 'Idioma do computador', langJa: 'Só japonês (日本語のみ)',
       sound: 'Som', volume: 'Volume', effects: 'Sons da máquina', music: 'Suas músicas (rodada / expansão)', muted: 'Silenciar tudo',
       art: 'Sua arte e música', folder: 'Pasta:',
@@ -179,7 +179,7 @@
   $('reset').addEventListener('click', () => {
     save({
       position: 'br', scale: 1, opacity: 1, intro: 'smart', jackpot: 'full', idleDim: true, onTop: true, muted: false,
-      show: { crest: true, lamps: true, indicators: true, ticker: true, stats: true },
+      show: { crest: true, lamps: true, indicators: true, ticker: true, stats: true, usage: true },
       sound: { volume: 0.6, effects: true, music: true, voice: true },
       motion: 'auto',
       translation: 'auto',

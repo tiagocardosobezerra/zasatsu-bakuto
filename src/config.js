@@ -46,7 +46,7 @@ const DEFAULTS = {
   onTop: true, // keep the machine above every other window
   muted: false,
   discreet: false, // one switch for work: mini, silent, nothing full screen
-  show: { crest: true, lamps: true, indicators: true, ticker: true, stats: true },
+  show: { crest: true, lamps: true, indicators: true, ticker: true, stats: true, usage: true },
   sound: { volume: 0.6, effects: true, music: true, voice: true },
   translation: 'auto', // auto | en | pt | ja (Japanese only)
   machines: 'shared', // shared: one machine for every conversation · each: one per conversation

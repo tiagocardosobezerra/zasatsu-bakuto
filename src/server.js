@@ -119,8 +119,26 @@ function createDomainServer({
     return followed ? whoOf(followed) : null;
   }
 
+  // The plan's usage limits, sent by the status line (src/statusline.js):
+  // the 5-hour session and the 7-day week, each { used: %, resetsAt: s }.
+  let usage = null;
+  function usageWindow(w) {
+    if (!w || typeof w !== 'object') return null;
+    const used = Number(w.used);
+    if (!Number.isFinite(used) || used < 0 || used > 1000) return null;
+    const resetsAt = Number.isFinite(Number(w.resetsAt)) && w.resetsAt !== null ? Number(w.resetsAt) : null;
+    if (resetsAt !== null && resetsAt * 1000 < Date.now()) return null; // that window already reset
+    return { used, resetsAt };
+  }
+  function usageMessage() {
+    if (!usage) return { type: 'usage', usage: null };
+    const session = usageWindow(usage.session);
+    const week = usageWindow(usage.week);
+    return { type: 'usage', usage: session || week ? { session, week, at: usage.at } : null };
+  }
+
   function hello() {
-    return { ...shown().snapshot(), config, who: currentWho(), sessions: sessionsMessage() };
+    return { ...shown().snapshot(), config, who: currentWho(), sessions: sessionsMessage(), usage: usageMessage().usage };
   }
 
   // Resolve timers fire later; they always emit through the game that asked.
@@ -261,6 +279,18 @@ function createDomainServer({
       });
     }
 
+    if (req.method === 'POST' && url.pathname === '/usage') {
+      return readJson(req, MAX_CONFIG_BODY, (body) => {
+        if (!body) return res.writeHead(400).end();
+        const session = usageWindow(body.session);
+        const week = usageWindow(body.week);
+        if (!session && !week) return res.writeHead(400).end();
+        usage = { session, week, at: Date.now() };
+        broadcast(usageMessage());
+        res.writeHead(204).end();
+      });
+    }
+
     if (req.method === 'POST' && url.pathname === '/demo') {
       runDemo();
       return res.writeHead(204).end();
@@ -372,6 +402,7 @@ function createDomainServer({
     setConfig,
     sessions: () => sessionsMessage(),
     config: () => config,
+    usage: () => usageMessage().usage,
     listen: () =>
       new Promise((resolve, reject) => {
         server.once('error', reject);

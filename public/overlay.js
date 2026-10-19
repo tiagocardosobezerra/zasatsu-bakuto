@@ -81,7 +81,7 @@
   // ---------- Settings (server config; URL parameters win, for OBS) ----------
   let cfg = {
     position: 'br', scale: 1, layout: 'normal', opacity: 1, intro: 'smart', jackpot: 'full', idleDim: true, muted: false,
-    show: { crest: true, lamps: true, indicators: true, ticker: true, stats: true },
+    show: { crest: true, lamps: true, indicators: true, ticker: true, stats: true, usage: true },
     sound: { volume: 0.6, effects: true, music: true, voice: true },
     translation: 'auto',
     motion: 'auto',
@@ -114,6 +114,7 @@
     linesWanted = lines === 'all' || lines === undefined || Number(lines) > 3 ? Infinity : Math.max(0, Number(lines) || 0);
     renderSessions();
     translateStatic();
+    if (lastUsage) renderUsage();
     const pos = params.get('pos') || cfg.position;
     machine.dataset.pos = ['br', 'bl', 'tr', 'tl'].includes(pos) ? pos : 'br';
     const root = document.documentElement.style;
@@ -840,6 +841,54 @@
   // Finished conversations leave the list after a while.
   setInterval(() => lastSessions && renderSessions(), 15000);
 
+  // ---------- Plan usage ----------
+  // How much of the plan's 5-hour session and of the week is used, as two
+  // pies. The numbers come from Claude Code's status line; with no plan
+  // limits (an API key, for example) the row stays hidden.
+  let lastUsage = null;
+  const USAGE_KEYS = { session: 'usageSession', week: 'usageWeek' };
+
+  function resetText(resetsAt) {
+    if (!resetsAt) return null;
+    const ms = resetsAt * 1000 - Date.now();
+    if (ms <= 0) return null;
+    const min = Math.round(ms / 60000);
+    if (min < 60 * 24) {
+      const h = Math.floor(min / 60);
+      return { key: 'usageResets', t: h ? `${h}h${String(min % 60).padStart(2, '0')}` : `${min} min` };
+    }
+    const lang = i18n.lang() || 'en';
+    const when = new Intl.DateTimeFormat(lang === 'pt' ? 'pt-BR' : 'en', { weekday: 'short', hour: '2-digit', minute: '2-digit' }).format(new Date(resetsAt * 1000));
+    return { key: 'usageResetsOn', t: when };
+  }
+
+  function renderUsage(usage) {
+    if (usage !== undefined) lastUsage = usage;
+    const box = $('usage');
+    const windows = lastUsage || {};
+    let any = false;
+    for (const el of box.querySelectorAll('.use')) {
+      const k = el.dataset.k;
+      const w = windows[k];
+      const live = w && (!w.resetsAt || w.resetsAt * 1000 > Date.now());
+      el.hidden = !live;
+      if (!live) continue;
+      any = true;
+      const used = Math.max(0, Math.min(100, w.used));
+      el.style.setProperty('--p', used.toFixed(1));
+      el.dataset.level = used >= 85 ? 'high' : used >= 60 ? 'mid' : 'low';
+      el.querySelector('.pct').textContent = `${Math.round(w.used)}%`;
+      i18n.put(el.querySelector('.lbl'), USAGE_KEYS[k]);
+      const rs = resetText(w.resetsAt);
+      const rsEl = el.querySelector('.rs');
+      if (rs) i18n.put(rsEl, rs.key, { t: rs.t });
+      else rsEl.textContent = '';
+    }
+    box.hidden = !any;
+  }
+  // Reset times count down; finished windows disappear.
+  setInterval(() => lastUsage && renderUsage(), 30000);
+
   // ---------- Round countdown (4:11) ----------
   let roundEndsAt = null;
   // The round song, from where it would be now: the round lasts 4:11, so
@@ -1263,6 +1312,7 @@
       setWho(e.who);
     }
     if (e.sessions) renderSessions(e.sessions);
+    if (e.usage !== undefined) renderUsage(e.usage);
     updateStats(e.stats);
     applyMode(e.mode, e.jitanLeft, e.odds);
     applyDomain(e.domain);
@@ -1287,6 +1337,7 @@
     if (e.type === 'hello') return hello(e);
     if (e.type === 'config') return applyConfig(e.config);
     if (e.type === 'sessions') return renderSessions(e);
+    if (e.type === 'usage') return renderUsage(e.usage);
     wake();
     if (e.label) $('domain-state').title = e.label;
     if (e.who) setWho(e.who);

@@ -20,6 +20,7 @@ O Zasatsu Bakuto (坐殺博徒, *Idle Death Gamble*) é uma pequena máquina de 
 * **Avisa quando os testes passam ou quebram.** Rodar `npm test`, `pytest`, `go test` ou `cargo test` vira リーチ. Teste verde pode dar o jackpot de 4:11; teste vermelho é ハズレ.
 * **Diz quando o agente precisa de você.** Pedido de permissão ou de resposta aparece como **あなたの番 · nome da conversa**, com um toque de aviso.
 * **Acompanha todas as conversas ao mesmo tempo.** Cada conversa em andamento ganha uma linha com o projeto, o nome, o que está fazendo e a última ação. A lista cresce e diminui sozinha, e um clique numa linha com ↗ abre aquela conversa no app do Claude.
+* **Mostra quanto do seu plano você já usou.** Dois gráficos de pizza na máquina: a sessão de 5 horas e a semana, com o tempo que falta para renovar.
 * **Não atrapalha.** O overlay deixa o clique passar, nunca bloqueia nem atrasa o agente, e tem um **modo discreto** (pequeno, sem som, translúcido) para o computador do trabalho.
 * **É fiel ao mangá.** As regras vêm da folha de regras do CR私鉄純愛列車 que o Hakari mostra no capítulo 183 e das lutas dos capítulos 182 a 190. O japonês fica sempre na tela, com tradução embaixo em português ou inglês.
 
@@ -64,7 +65,7 @@ O `npm link` cria o comando `ryoiki`. O npm 11 pode pedir para você aprovar o s
 ryoiki install
 ```
 
-Adiciona os hooks em `~/.claude/settings.json` e guarda um backup. Para ligar só num projeto, use `ryoiki install --settings .claude/settings.json`.
+Adiciona os hooks e a linha de status em `~/.claude/settings.json` e guarda um backup. Se você já tinha uma linha de status, ela continua aparecendo igual; o Zasatsu só lê o uso do plano por trás dela e devolve a sua no `ryoiki uninstall`. Para ligar só num projeto, use `ryoiki install --settings .claude/settings.json`.
 
 ### 3. Abra o domínio
 
@@ -100,6 +101,10 @@ Clique com o botão direito no ícone da bandeja → **Configurações…** (ou 
 * **Idioma:** o japonês fica na tela, com tradução embaixo em português ou inglês, conforme o computador, ou só japonês.
 
 O menu da bandeja tem os atalhos mais usados na mesma ordem.
+
+### Uso do plano
+
+A linha de status do Claude Code recebe o uso do seu plano, e a máquina mostra em dois gráficos de pizza: **Sessão (5 h)** e **Semana**, com quanto já foi usado e quando renova. A cor vai de verde para dourado (60%) e vermelho (85%). Só aparece em planos com limite (Pro, Max, Team); com chave de API, a linha fica escondida. Para esconder, desligue **Uso do plano** em Configurações → O que aparece.
 
 ### Som e movimento
 

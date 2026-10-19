@@ -1715,3 +1715,52 @@ body.layout-compact .badges { gap: 6px; }
 .conv.more { display: block; text-align: center; font-size: 10px; color: var(--muted); background: transparent; padding: 1px 0; }
 .conv.more .ja, .conv.more .tr { display: inline; }
 .conv.more .tr { margin-left: 4px; }
+
+/* =========================================================
+   Plan usage: two pies, the 5-hour session and the week
+   ========================================================= */
+.usage[hidden], .use[hidden] { display: none; }
+.usage { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.use {
+  --p: 0; --pc: #9ff0b8;
+  display: flex; align-items: center; gap: 8px; min-width: 0;
+  padding: 5px 8px; border-radius: 9px; background: rgba(255, 255, 255, .04);
+}
+.use[data-level="mid"] { --pc: var(--gold); }
+.use[data-level="high"] { --pc: var(--hot); }
+.use .pie {
+  flex: none; width: 30px; height: 30px; border-radius: 50%;
+  background: conic-gradient(var(--pc) calc(var(--p) * 1%), rgba(255, 255, 255, .12) 0);
+  -webkit-mask: radial-gradient(circle, transparent 46%, #000 48%);
+  mask: radial-gradient(circle, transparent 46%, #000 48%);
+}
+.use[data-level="high"] .pie { filter: drop-shadow(0 0 4px var(--hot)); }
+.use .t { display: grid; grid-template-columns: auto 1fr; column-gap: 6px; align-items: baseline; min-width: 0; line-height: 1.15; }
+.use .pct { grid-row: 1 / span 2; font-family: var(--font-mono); font-weight: 800; font-size: 17px; color: var(--pc); }
+.use .lbl { font-size: 11px; font-weight: 800; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.use .lbl .ja, .use .lbl .tr { display: inline; }
+.use .lbl .tr { margin-left: 4px; font-size: 9px; font-weight: 600; color: var(--muted); -webkit-text-fill-color: var(--muted); text-shadow: none; }
+.use .rs { grid-column: 2; font-size: 9px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.use .rs .ja { display: none; }
+.use .rs .tr { display: inline; font-size: 9px; color: var(--muted); -webkit-text-fill-color: var(--muted); text-shadow: none; }
+body.no-tr .use .rs .ja { display: inline; }
+body.hide-usage .usage { display: none; }
+/* Compact: same row, a little smaller */
+body.layout-compact .usage { margin-top: 6px; gap: 6px; }
+body.layout-compact .use { padding: 4px 6px; gap: 6px; }
+body.layout-compact .use .pie { width: 24px; height: 24px; }
+body.layout-compact .use .pct { font-size: 14px; }
+/* Mini: two small pies with the number and the name */
+body.layout-mini .usage { margin-top: 5px; gap: 4px; }
+body.layout-mini .use { padding: 3px 5px; gap: 5px; }
+body.layout-mini .use .pie { width: 18px; height: 18px; }
+body.layout-mini .use .pct { font-size: 12px; }
+body.layout-mini .use .lbl { font-size: 9px; }
+body.layout-mini .use .lbl .tr { font-size: 8px; }
+body.layout-mini .use .rs { display: none; }
+/* One line each: name, then when it resets; never wrapped */
+.use .t { grid-template-columns: auto minmax(0, 1fr); }
+.use .lbl, .use .rs { display: block; min-width: 0; }
+.use .lbl .tr, .use .rs .tr { white-space: nowrap; }
+/* Narrow layouts: the translation goes under the Japanese, as elsewhere */
+body.layout-compact .use .lbl .tr, body.layout-mini .use .lbl .tr { display: block; margin-left: 0; }
