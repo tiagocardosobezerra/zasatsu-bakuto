@@ -4,7 +4,8 @@
 // (its own domain, stage and riichi), a stable colour and a name, and the
 // overlay shows the session it is following:
 //   auto:   the conversation you last sent a message to; it moves on when
-//           that one is done or has been quiet for a while
+//           that one is done or has been quiet for a while, but never in
+//           the middle of its 4:11 jackpot round
 //   pinned: one session chosen in the tray menu
 
 const { createGame } = require('./game');
@@ -78,6 +79,8 @@ function createSessions({ makeGame = () => createGame(), now = Date.now } = {}) 
     }
     if (followed === s.id) return false;
     const current = map.get(followed);
+    // The jackpot round is the show: stay until its 4:11 is over.
+    if (current.game.snapshot().domain === 'round') return false;
     const leave = signal.kind === 'turn-start' || current.state === 'done' || now() - current.lastAt > QUIET_MS;
     if (leave && signal.kind !== 'turn-end') {
       followed = s.id;

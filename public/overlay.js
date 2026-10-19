@@ -408,10 +408,14 @@
       this.stop(key);
       const a = new Audio(url);
       a.volume = cfg.sound.volume;
+      // A song shorter than the round starts over, so the music lasts all 4:11.
+      a.loop = Boolean(until);
       a.play().catch(() => {});
       this.audio.set(key, a);
-      if (until) setTimeout(() => this.stop(key), Math.max(0, until - Date.now()));
+      // Only stop this very song: a later round may have started another one.
+      if (until) setTimeout(() => this.audio.get(key) === a && this.stop(key), Math.max(0, until - Date.now()));
     },
+    playing(key) { return this.audio.has(key); },
     stop(key) {
       const a = this.audio.get(key);
       if (a) a.pause();
@@ -1125,6 +1129,8 @@
     applyStage(e.stage);
     if (e.domain === 'round' && e.roundEndsAt) {
       roundEndsAt = e.roundEndsAt;
+      // Back on a conversation that is mid-round (or the page reloaded): the music goes on.
+      if (!custom.playing('round')) custom.play('round', { until: e.roundEndsAt });
       setScene('round');
       setCabinet(null, 'unlimited');
     } else {

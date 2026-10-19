@@ -81,3 +81,25 @@ test('a conversation that is not on screen still announces it needs you', () => 
   assert.equal(last.followed, 'b');
   assert.equal(last.list.find((x) => x.id === 'a').state, 'waiting');
 });
+
+test('auto follow stays on a conversation in its 4:11 jackpot round, then moves on', () => {
+  let t = 0;
+  let round = true;
+  const fakeGame = (id) => ({
+    handle: () => [],
+    tick: () => [],
+    snapshot: () => ({ domain: id === 'a' && round ? 'round' : 'open' }),
+  });
+  const ids = ['a', 'b'];
+  const s = createSessions({ now: () => t, makeGame: () => fakeGame(ids.shift()) });
+  s.ingest(sig('a', 'turn-start'));
+  t += 1000;
+  s.ingest(sig('a', 'turn-end'));
+  t += 1000;
+  assert.equal(s.ingest(sig('b', 'turn-start')).switched, false, 'you wrote to b, but a is mid-round');
+  assert.equal(s.followed().id, 'a');
+  round = false;
+  t += 1000;
+  assert.equal(s.ingest(sig('b', 'tool-done')).switched, true, 'round over, a is done');
+  assert.equal(s.followed().id, 'b');
+});
