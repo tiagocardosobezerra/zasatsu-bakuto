@@ -121,7 +121,7 @@
     for (const part of Object.keys(cfg.show)) document.body.classList.toggle(`hide-${part}`, !cfg.show[part]);
     root.setProperty('--scale', String(fitScale()));
     if (!cfg.idleDim) machine.classList.remove('idle');
-    sound.muted = cfg.muted || params.has('mute') || !cfg.sound.effects || cfg.sound.volume === 0;
+    sound.setMuted(cfg.muted || params.has('mute') || !cfg.sound.effects || cfg.sound.volume === 0);
     sound.volume = cfg.sound.volume;
     sound.voiceOn = cfg.sound.voice !== false && !params.has('novoice');
     if (!musicOn()) ['round', 'expand'].forEach((k) => custom.stop(k));
@@ -185,9 +185,29 @@
     muted: false,
     volume: 0.6,
     noise: null,
+    // Every sound goes through one master volume, so muting silences what is
+    // already scheduled too (a fanfare or ball clatter can be queued seconds
+    // ahead), not only what starts afterwards.
+    master: null,
+    files: new Set(), // your own sound files that are playing
+    setMuted(muted) {
+      this.muted = muted;
+      if (this.master) {
+        const t = this.ctx.currentTime;
+        this.master.gain.cancelScheduledValues(t);
+        this.master.gain.setValueAtTime(muted ? 0 : 1, t);
+      }
+      if (!muted) return;
+      for (const a of this.files) a.pause();
+      this.files.clear();
+      if ('speechSynthesis' in window) speechSynthesis.cancel();
+    },
     unlock() {
       if (!this.ctx) {
         try { this.ctx = new AudioContext(); } catch { return; }
+        this.master = this.ctx.createGain();
+        this.master.gain.value = this.muted ? 0 : 1;
+        this.master.connect(this.ctx.destination);
         const len = this.ctx.sampleRate;
         this.noise = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
         const d = this.noise.getChannelData(0);
@@ -203,7 +223,7 @@
     out(vol) {
       const gain = this.ctx.createGain();
       gain.gain.value = vol * this.volume * 1.25;
-      gain.connect(this.ctx.destination);
+      gain.connect(this.master);
       return gain;
     },
     tone(freq, dur, { type = 'square', vol = 0.04, at = 0, to, vibrato, filter } = {}) {
@@ -259,6 +279,8 @@
       if (!url || this.muted) return false;
       const a = new Audio(url);
       a.volume = this.volume;
+      this.files.add(a);
+      a.addEventListener('ended', () => this.files.delete(a), { once: true });
       a.play().catch(() => {});
       return true;
     },
