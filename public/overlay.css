@@ -304,9 +304,16 @@ body.preview {
 /* Jackpot round: unlimited cursed energy */
 .scene.round {
   display: grid; place-content: center; text-align: center;
-  background:
-    repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,210,63,.20) 0deg 10deg, transparent 10deg 20deg),
-    radial-gradient(circle at 50% 50%, #ffcf4a 0%, #e0611b 45%, #3a0a00 100%);
+  background: radial-gradient(circle at 50% 50%, #ffcf4a 0%, #e0611b 45%, #3a0a00 100%);
+  overflow: hidden;
+  isolation: isolate;
+}
+/* The rays turn slowly, like the ones on the full-screen jackpot */
+.scene.round::before {
+  content: ''; position: absolute; left: 50%; top: 50%; z-index: -1;
+  width: 260%; aspect-ratio: 1; translate: -50% -50%;
+  background: repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,210,63,.20) 0deg 10deg, transparent 10deg 20deg);
+  animation: spin 14s linear infinite;
 }
 .lcd[data-scene="round"] .scene.round { animation: energy 1.2s ease-in-out infinite alternate; }
 @keyframes energy { to { filter: hue-rotate(-18deg) brightness(1.15); } }
@@ -1215,7 +1222,7 @@ ruby rt { font-family: var(--font-jp); font-weight: 700; letter-spacing: .1em; }
 /* Less motion (Settings → Motion, or the system): no shaking, spinning or
    flashing. The lamps keep glowing so the machine still looks alive. */
 body.reduce #intro .burst, body.reduce #fever .rays, body.reduce #fever .flash, body.reduce #fever .pillar,
-body.reduce .gogo, body.reduce .scene.round, body.reduce .cutin.go { animation: none !important; }
+body.reduce .gogo, body.reduce .scene.round, body.reduce .scene.round::before, body.reduce .cutin.go { animation: none !important; }
 body.reduce #machine.miss, body.reduce #machine.riichi, body.reduce #machine.attention { animation: none !important; }
 
 /* R4: 先読み edge flash and the ×N stamp */
