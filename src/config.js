@@ -48,7 +48,8 @@ const DEFAULTS = {
   show: { crest: true, lamps: true, indicators: true, ticker: true, stats: true },
   sound: { volume: 0.6, effects: true, music: true, voice: true },
   translation: 'auto', // auto | en | pt | es | ja (Japanese only)
-  lines: 4, // most conversation lines on the machine; it shows one per active conversation (0 hides them)
+  machines: 'shared', // shared: one machine for every conversation · each: one per conversation
+  lines: 'all', // conversation lines: one per active conversation, up to 1, 2, 3 or 'all' (as many as fit on screen); 0 hides them
   motion: 'auto', // auto (follow the system) | full | reduced
 };
 
@@ -59,6 +60,7 @@ const ENUMS = {
   translation: ['auto', 'en', 'pt', 'es', 'ja'],
   motion: ['auto', 'full', 'reduced'],
   layout: ['normal', 'compact', 'mini'],
+  machines: ['shared', 'each'],
 };
 const RANGES = { scale: [0.3, 2], opacity: [0.3, 1], volume: [0, 1] };
 
@@ -71,7 +73,8 @@ function clean(input) {
     if (Number.isFinite(n)) out[key] = Math.min(RANGES[key][1], Math.max(RANGES[key][0], n));
   }
   for (const key of ['idleDim', 'muted', 'discreet']) if (typeof src[key] === 'boolean') out[key] = src[key];
-  if (Number.isInteger(src.lines) && src.lines >= 0 && src.lines <= 6) out.lines = src.lines;
+  if (src.lines === 'all' || (Number.isInteger(src.lines) && src.lines > 3)) out.lines = 'all';
+  else if (Number.isInteger(src.lines) && src.lines >= 0) out.lines = src.lines;
   for (const key of Object.keys(DEFAULTS.show)) {
     if (src.show && typeof src.show[key] === 'boolean') out.show[key] = src.show[key];
   }

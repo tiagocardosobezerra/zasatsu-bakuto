@@ -43,7 +43,7 @@ O que ele não faz:
 - **Fiel ao mangá.** As regras vêm da folha de regras do CR私鉄純愛列車 que o Hakari mostra no capítulo 183 e das lutas dos capítulos 182 a 190: chance de 1/239, 疑似連, avisos 緑 < 赤 < 金 < 虹, os quatro cenários de riichi, 確変/時短, 潜伏確変 e a rodada de jackpot de 4:11 com técnica reversa automática. A tabela completa está [mais abaixo](#as-regras-do-domínio).
 - **Japonês primeiro, com tradução embaixo de cada linha** no idioma do seu computador (Português, English, Español), até nas onomatopeias, no estilo scanlation.
 - **Três tamanhos**: Normal, Compacto e Mini (cerca de 230 px de largura, uma linha de status).
-- **Uma máquina para todas as conversas**: qualquer conversa do Claude Code gira os mesmos rolos e soma no mesmo placar, e cada conversa em andamento ganha uma linha na máquina. A lista cresce e diminui sozinha, e clicar numa linha (↗) abre aquela conversa no app do Claude. Só uma リーチ por vez, e o domínio só fecha quando todas param. O placar e o 確変 ficam salvos quando você fecha o app.
+- **Uma máquina para todas as conversas**: qualquer conversa do Claude Code gira os mesmos rolos e soma no mesmo placar, e cada conversa em andamento ganha uma linha na máquina. A lista cresce e diminui sozinha, e clicar numa linha (↗) abre aquela conversa no app do Claude. Só uma リーチ por vez, e o domínio só fecha quando todas param. O placar e o 確変 ficam salvos quando você fecha o app. Se preferir, dá para ter uma máquina por conversa.
 - **Sons de pachinko sintetizados** (キュイン, chuva de bolinhas, batida do shutter, fanfarra) e um locutor japonês opcional. Todo som e imagem pode ser trocado por arquivos seus.
 - **Guia embutido** (bandeja → 遊び方 · guia) que explica o jogo passo a passo, com glossário.
 - **Aberto para outras IAs**: Claude Code vem pronto; qualquer outro agente liga por uma API local simples ([como](#funciona-com-outras-ias)).
@@ -176,7 +176,8 @@ Clique com o botão direito no ícone da bandeja → **Configurações…** (ou 
 
 - **Modo discreto** (também no menu da bandeja): máquina mini, sem som, nada em tela cheia, um pouco transparente. Ele fica por cima das suas configurações sem mudar nenhuma; desligou, tudo volta. Feito para o computador do trabalho.
 - **Máquina**: layout (**Normal**, **Compacto** sem lâmpadas e contadores, **Mini** só com a tela e uma linha de status, cerca de 230 px), canto, tamanho (30 a 200%), opacidade, escurecer quando parada. A máquina nunca passa de uns 60% da altura da tela.
-- **Linhas de conversa** (também no menu da bandeja): máximo de linhas na máquina, uma por conversa em andamento (Desligado, 1 a 6; o Mini mostra até 3).
+- **Máquinas** (também no menu da bandeja): **Uma para todas** (padrão), em que toda conversa gira a mesma máquina e o placar fica salvo, ou **Uma por conversa**, em que cada conversa tem a sua e a tela segue a última em que você escreveu.
+- **Linhas de conversa** (também no menu da bandeja): uma linha por conversa em andamento, até 1, 2 ou 3, ou **Ilimitado** (padrão), que vai crescendo até o limite da tela e mostra "mais N conversas" no que não couber.
 - **O que aparece**: Expansão de Domínio em tela cheia / na máquina / desligada; jackpot em tela cheia / na máquina / desligado; título, lâmpadas, linha de 保留/疑似連, ferramenta atual, contadores.
 - **Som**: volume, sons da máquina, suas músicas, silenciar tudo.
 - **Prévias**: toca a Expansão de Domínio, um jackpot garantido ou a demo completa.

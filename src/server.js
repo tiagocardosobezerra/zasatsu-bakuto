@@ -9,6 +9,7 @@ const path = require('node:path');
 const { classify } = require('./classify');
 const { createGame } = require('./game');
 const { createMachine } = require('./machine');
+const { createEach } = require('./each');
 const { createLinks } = require('./links');
 const { demoScript, previewScript, seeded, DEMO_SEED } = require('./demo');
 const settings = require('./config');
@@ -59,14 +60,22 @@ function createDomainServer({
   onOpenWindow = null, // set by the desktop app: opens its settings / guide window
   onQuit = () => process.exit(0), // "ryoiki kaijo"; the desktop app quits Electron instead
   makeGame = (saved) => createGame({ saved }),
+  each = createEach(),
   links = createLinks(),
   onOpenLink = openExternal, // opens a claude:// link to a conversation
   onPointer = () => {}, // the desktop app lets clicks through while the pointer is over a line
 } = {}) {
   const clients = new Set();
   let config = settings.load(configFile);
-  // One machine for every conversation; its totals and 確変/時短 survive restarts.
+  // Two ways to play, chosen in the settings ("machines"):
+  //   shared: one machine for every conversation; its totals and 確変/時短
+  //           survive restarts
+  //   each:   one machine per conversation; the overlay follows one of them
+  // Both are kept up to date, so switching is instant.
   const machine = createMachine({ game: makeGame(readSaved(machineFile)) });
+  const perConversation = () => config.machines === 'each';
+  // Shown in "each" mode until a conversation has talked to us.
+  const idleGame = createGame();
   const { sessions } = machine;
   let lastSaved = JSON.stringify(machine.game.saved());
 
@@ -92,7 +101,8 @@ function createDomainServer({
   // While the demo plays it gets its own seeded machine; real hook events
   // still reach the real machine but are not shown until the demo ends.
   let demoGame = null;
-  const shown = () => demoGame || machine.game;
+  const liveGame = () => (perConversation() ? each.game() || idleGame : machine.game);
+  const shown = () => demoGame || liveGame();
 
   // Who an event came from, for the overlay's conversation lines.
   const whoOf = (s) => (s ? { id: s.id, label: s.label, title: s.title, color: s.color } : null);
@@ -102,8 +112,15 @@ function createDomainServer({
     return { type: 'sessions', list: sessions.list().map((s) => ({ ...s, link: links.has(s.id) })) };
   }
 
+  function currentWho() {
+    if (demoGame) return null;
+    if (!perConversation()) return lastWho;
+    const followed = each.followed() && sessions.find(each.followed());
+    return followed ? whoOf(followed) : null;
+  }
+
   function hello() {
-    return { ...shown().snapshot(), config, who: demoGame ? null : lastWho, sessions: sessionsMessage() };
+    return { ...shown().snapshot(), config, who: currentWho(), sessions: sessionsMessage() };
   }
 
   // Resolve timers fire later; they always emit through the game that asked.
@@ -128,16 +145,25 @@ function createDomainServer({
     const signal = classify(payload);
     if (!signal) return [];
     const { session, events } = machine.handle(signal);
-    lastWho = whoOf(session);
-    if (demoGame) {
+    const own = each.handle(signal, session, sessions);
+    const who = whoOf(session);
+    lastWho = who;
+    let played = events;
+    if (perConversation()) {
+      played = own.events;
+      if (own.switched && !demoGame) broadcast({ ...hello(), type: 'hello' });
+      if (own.onScreen && !demoGame) emit(own.events, own.game, who);
+      // A conversation that is not on screen still says it needs you.
+      else for (const e of own.events) if (e.type === 'attention') broadcast({ type: 'call', who, detail: e.detail });
+    } else if (demoGame) {
       // The demo has the screen; a conversation that needs you still says so.
-      for (const e of events) if (e.type === 'attention') broadcast({ type: 'call', who: lastWho, detail: e.detail });
+      for (const e of events) if (e.type === 'attention') broadcast({ type: 'call', who, detail: e.detail });
     } else {
-      emit(events, machine.game, lastWho);
+      emit(events, machine.game, who);
     }
     persist();
     broadcast(sessionsMessage());
-    return events;
+    return played;
   }
 
   const ticker = setInterval(() => {
@@ -147,6 +173,7 @@ function createDomainServer({
       persist();
       broadcast(sessionsMessage());
     }
+    for (const { game, events: own } of each.tick()) emit(own, game, currentWho());
     if (demoGame) emit(demoGame.tick(), demoGame);
   }, 1000);
   ticker.unref();
@@ -185,6 +212,7 @@ function createDomainServer({
       log(`could not save settings: ${err.message}`);
     }
     broadcast({ type: 'config', config });
+    if (patch && 'machines' in patch && !demoGame) broadcast({ ...hello(), type: 'hello' });
     return config;
   }
 

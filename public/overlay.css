@@ -1705,3 +1705,6 @@ body.layout-compact .badges { gap: 6px; }
    they move under it, still side by side and on the right. */
 .crest { flex-wrap: wrap; row-gap: 4px; }
 .badges { margin-left: auto; }
+.conv.more { display: block; text-align: center; font-size: 10px; color: var(--muted); background: transparent; padding: 1px 0; }
+.conv.more .ja, .conv.more .tr { display: inline; }
+.conv.more .tr { margin-left: 4px; }

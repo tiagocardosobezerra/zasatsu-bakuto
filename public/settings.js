@@ -20,7 +20,7 @@
       smart: 'Smart', smartHint: '<b>Smart</b>: full screen the first time, and again after 10 quiet minutes; on the machine the rest of the time.',
       guideTitle: '遊び方 · How to play', guideHint: 'What every effect on the machine means, step by step.', guideOpen: 'Open the guide',
       discreet: 'Discreet mode', discreetHint: 'For work: mini machine, no sound, nothing full screen. Your other settings come back when you switch it off.',
-      layout: 'Layout', layoutNormal: 'Normal', layoutCompact: 'Compact', layoutMini: 'Mini', lines: 'Conversation lines', linesHint: 'One line per conversation in progress, up to this many. Mini shows up to 3.',
+      layout: 'Layout', layoutNormal: 'Normal', layoutCompact: 'Compact', layoutMini: 'Mini', lines: 'Conversation lines', linesHint: 'One line per conversation in progress, up to this many. Unlimited: as many as fit on the screen.', linesAll: 'Unlimited', machines: 'Machines', machinesShared: 'One for all', machinesEach: 'One per conversation', machinesHint: 'One for all: every conversation spins the same machine and adds to the same totals, saved when you close the app. One per conversation: each has its own machine, and the screen follows the one you last wrote to.',
       motion: 'Motion', motionAuto: 'Follow the system', motionFull: 'Full', motionReduced: 'Reduced', motionNote: 'Your system asks apps for less motion, so the full-screen effects show on the machine instead. Pick Full to see them anyway.',
       voice: 'Japanese announcer (リーチ! 大当たり!)', voiceMissing: 'No Japanese voice on this computer. Windows: Settings → Time & language → Speech → Add voices → Japanese.', voiceOk: 'Japanese voice found: ',
       previewExpand: 'Preview 領域展開', previewJackpot: 'Preview 大当たり', demo: 'Play the demo', reset: 'Reset to defaults',
@@ -40,7 +40,7 @@
       smart: 'Inteligente', smartHint: '<b>Inteligente</b>: tela cheia na primeira vez e de novo depois de 10 minutos parado; nas outras, só na máquina.',
       guideTitle: '遊び方 · Como jogar', guideHint: 'O que cada efeito da máquina significa, passo a passo.', guideOpen: 'Abrir o guia',
       discreet: 'Modo discreto', discreetHint: 'Para o trabalho: máquina mini, sem som, nada em tela cheia. Suas outras configurações voltam quando você desligar.',
-      layout: 'Formato', layoutNormal: 'Normal', layoutCompact: 'Compacto', layoutMini: 'Mini', lines: 'Linhas de conversa', linesHint: 'Uma linha por conversa em andamento, até este número. O Mini mostra até 3.',
+      layout: 'Formato', layoutNormal: 'Normal', layoutCompact: 'Compacto', layoutMini: 'Mini', lines: 'Linhas de conversa', linesHint: 'Uma linha por conversa em andamento, até este número. Ilimitado: quantas couberem na tela.', linesAll: 'Ilimitado', machines: 'Máquinas', machinesShared: 'Uma para todas', machinesEach: 'Uma por conversa', machinesHint: 'Uma para todas: toda conversa gira a mesma máquina e soma no mesmo placar, salvo quando você fecha o app. Uma por conversa: cada uma tem a sua máquina, e a tela segue a última conversa em que você escreveu.',
       motion: 'Movimento', motionAuto: 'Seguir o sistema', motionFull: 'Completo', motionReduced: 'Reduzido', motionNote: 'Seu sistema está pedindo menos movimento aos apps, por isso os efeitos de tela cheia aparecem só na máquina. Escolha Completo para vê-los mesmo assim.',
       voice: 'Locutor japonês (リーチ! 大当たり!)', voiceMissing: 'Nenhuma voz japonesa neste computador. Windows: Configurações → Hora e idioma → Fala → Adicionar vozes → Japonês.', voiceOk: 'Voz japonesa encontrada: ',
       previewExpand: 'Prévia 領域展開', previewJackpot: 'Prévia 大当たり', demo: 'Tocar a demo', reset: 'Restaurar padrão',
@@ -60,7 +60,7 @@
       smart: 'Inteligente', smartHint: '<b>Inteligente</b>: pantalla completa la primera vez y de nuevo tras 10 minutos sin actividad; el resto, solo en la máquina.',
       guideTitle: '遊び方 · Cómo jugar', guideHint: 'Qué significa cada efecto de la máquina, paso a paso.', guideOpen: 'Abrir la guía',
       discreet: 'Modo discreto', discreetHint: 'Para el trabajo: máquina mini, sin sonido, nada a pantalla completa. Tus otros ajustes vuelven al desactivarlo.',
-      layout: 'Formato', layoutNormal: 'Normal', layoutCompact: 'Compacto', layoutMini: 'Mini', lines: 'Líneas de conversación', linesHint: 'Una línea por conversación en curso, hasta este número. El Mini muestra hasta 3.',
+      layout: 'Formato', layoutNormal: 'Normal', layoutCompact: 'Compacto', layoutMini: 'Mini', lines: 'Líneas de conversación', linesHint: 'Una línea por conversación en curso, hasta este número. Ilimitado: cuantas quepan en la pantalla.', linesAll: 'Ilimitado', machines: 'Máquinas', machinesShared: 'Una para todas', machinesEach: 'Una por conversación', machinesHint: 'Una para todas: cada conversación gira la misma máquina y suma al mismo marcador, guardado al cerrar la app. Una por conversación: cada una tiene su máquina, y la pantalla sigue la última conversación en la que escribiste.',
       motion: 'Movimiento', motionAuto: 'Seguir el sistema', motionFull: 'Completo', motionReduced: 'Reducido', motionNote: 'Tu sistema pide menos movimiento a las apps, así que los efectos de pantalla completa aparecen solo en la máquina. Elige Completo para verlos igualmente.',
       voice: 'Locutor japonés (リーチ! 大当たり!)', voiceMissing: 'No hay voz japonesa en este equipo. Windows: Configuración → Hora e idioma → Voz → Agregar voces → Japonés.', voiceOk: 'Voz japonesa encontrada: ',
       previewExpand: 'Vista previa 領域展開', previewJackpot: 'Vista previa 大当たり', demo: 'Reproducir la demo', reset: 'Restablecer',
@@ -159,7 +159,7 @@
   }
   $('idleDim').addEventListener('change', () => save({ idleDim: $('idleDim').checked }));
   document.querySelectorAll('.seg').forEach((seg) => seg.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
-    const value = 'num' in seg.dataset ? Number(b.dataset.v) : b.dataset.v;
+    const value = 'num' in seg.dataset && b.dataset.v !== 'all' ? Number(b.dataset.v) : b.dataset.v;
     config[seg.dataset.key] = value;
     render();
     save({ [seg.dataset.key]: value });

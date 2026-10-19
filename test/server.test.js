@@ -68,3 +68,12 @@ test('POST /quit closes the domain ("ryoiki kaijo"); other web pages cannot', as
     await domain.close();
   }
 });
+
+test('conversation lines: off, 1 to 3, or unlimited (old values above 3 become unlimited)', () => {
+  assert.equal(clean({}).lines, 'all');
+  for (const n of [0, 1, 2, 3]) assert.equal(clean({ lines: n }).lines, n);
+  assert.equal(clean({ lines: 'all' }).lines, 'all');
+  assert.equal(clean({ lines: 6 }).lines, 'all');
+  assert.equal(clean({ lines: -1 }).lines, 'all');
+  assert.equal(clean({ lines: 'lots' }).lines, 'all');
+});

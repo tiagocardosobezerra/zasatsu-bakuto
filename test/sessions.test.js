@@ -135,3 +135,37 @@ test('totals and 確変 survive a restart; a domain in progress does not', () =>
   assert.equal(expand.odds, 24);
   assert.equal(expand.domain, 'open', 'a fresh domain, not the one from before');
 });
+
+test('one machine per conversation: each has its own totals; the screen follows the one you wrote to', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zb-each-'));
+  const configFile = path.join(dir, 'c.json');
+  fs.writeFileSync(configFile, JSON.stringify({ machines: 'each' }));
+  const seen = [];
+  const domain = createDomainServer({ port: 0, configFile, onBroadcast: (m) => seen.push(m) });
+  const ev = (id, name, extra = {}) => ({ hook_event_name: name, session_id: id, cwd: `/p/${id}`, ...extra });
+  domain.ingest(ev('a', 'UserPromptSubmit', { prompt: 'one' }));
+  domain.ingest(ev('a', 'PostToolUse', { tool_name: 'Read', tool_input: {} }));
+  domain.ingest(ev('b', 'UserPromptSubmit', { prompt: 'two' }));
+  const hello = seen.filter((m) => m.type === 'hello').pop();
+  assert.equal(hello.who.id, 'b', 'you wrote to b: the screen follows it');
+  assert.equal(hello.stats.spins, 0, "b's own machine, not a's");
+  domain.ingest(ev('a', 'Notification', { message: 'needs permission' }));
+  const call = seen.filter((m) => m.type === 'call').pop();
+  assert.equal(call.who.id, 'a', 'a is not on screen but still says it needs you');
+});
+
+test('switching between one machine and one per conversation updates the screen', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zb-switch-'));
+  const seen = [];
+  const domain = createDomainServer({ port: 0, configFile: path.join(dir, 'c.json'), onBroadcast: (m) => seen.push(m) });
+  domain.ingest({ hook_event_name: 'UserPromptSubmit', session_id: 'a', cwd: '/p/a', prompt: 'one' });
+  domain.ingest({ hook_event_name: 'PostToolUse', session_id: 'a', cwd: '/p/a', tool_name: 'Read', tool_input: {} });
+  domain.ingest({ hook_event_name: 'UserPromptSubmit', session_id: 'b', cwd: '/p/b', prompt: 'two' });
+  domain.ingest({ hook_event_name: 'PostToolUse', session_id: 'b', cwd: '/p/b', tool_name: 'Read', tool_input: {} });
+  domain.setConfig({ machines: 'each' });
+  let hello = seen.filter((m) => m.type === 'hello').pop();
+  assert.equal(hello.stats.spins, 1, "b's own machine");
+  domain.setConfig({ machines: 'shared' });
+  hello = seen.filter((m) => m.type === 'hello').pop();
+  assert.equal(hello.stats.spins, 2, 'the shared machine counts both');
+});

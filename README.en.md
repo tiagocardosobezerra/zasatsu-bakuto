@@ -43,7 +43,7 @@ What it is not:
 - **Faithful to the manga.** The rules come from the CR私鉄純愛列車 rule sheet Hakari shows in chapter 183 and the fights in chapters 182–190: 1/239 odds, 疑似連, 緑 < 赤 < 金 < 虹 notices, the four riichi scenarios, 確変/時短, 潜伏確変 and the 4:11 jackpot round with automatic reverse cursed technique. The full table is [below](#the-rules-of-the-domain).
 - **Japanese first, with a translation under every line** in your computer's language (English, Português, Español), down to the sound effects, scanlation style.
 - **Three sizes**: Normal, Compact, and Mini (about 230 px wide, one status line).
-- **One machine for every conversation**: any Claude Code conversation spins the same reels and adds to the same totals, and each conversation in progress gets a line on the machine. The list grows and shrinks by itself, and clicking a line (↗) opens that conversation in the Claude app. One riichi at a time, and the domain only closes when all of them stop. Totals and 確変 are saved when you close the app.
+- **One machine for every conversation**: any Claude Code conversation spins the same reels and adds to the same totals, and each conversation in progress gets a line on the machine. The list grows and shrinks by itself, and clicking a line (↗) opens that conversation in the Claude app. One riichi at a time, and the domain only closes when all of them stop. Totals and 確変 are saved when you close the app. If you prefer, you can have one machine per conversation instead.
 - **Synthesised pachinko sounds** (キュイン, ball clatter, shutter clank, fanfare) and an optional Japanese announcer. Every sound and image can be replaced with your own files.
 - **Built-in guide** (tray → 遊び方 · guide) that explains the game step by step, with a glossary.
 - **Open to other AIs**: Claude Code works out of the box; any other agent connects through a simple local API ([how](#does-it-work-with-other-ais)).
@@ -176,7 +176,8 @@ Right-click the tray icon → **Settings…** (or double-click it), or run `ryoi
 
 - **Discreet mode** (also in the tray menu): mini machine, no sound, nothing full screen, a bit transparent. It sits on top of your settings without changing them; switch it off and everything comes back. Made for work computers.
 - **Machine**: layout (**Normal**, **Compact** without lamps and counters, **Mini** with just the screen and one status line, about 230 px wide), corner, size (30–200%), opacity, dim when idle. The machine never takes more than about 60% of the screen height.
-- **Conversation lines** (also in the tray menu): the most lines on the machine, one per conversation in progress (Off, 1 to 6; Mini shows up to 3).
+- **Machines** (also in the tray menu): **One for all** (default), where every conversation spins the same machine and the totals are saved, or **One per conversation**, where each has its own and the screen follows the one you last wrote to.
+- **Conversation lines** (also in the tray menu): one line per conversation in progress, up to 1, 2 or 3, or **Unlimited** (default), which grows up to the edge of the screen and shows "N more conversations" for the rest.
 - **What appears**: Domain Expansion full screen / on the machine / off; jackpot full screen / on the machine / off; title, lamps, 保留/疑似連 row, current tool, counters
 - **Sound**: volume, machine sounds, your music files, mute everything
 - **Previews**: play the Domain Expansion, a guaranteed jackpot, or the full demo

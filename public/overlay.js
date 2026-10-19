@@ -109,8 +109,9 @@
     document.body.classList.toggle('reduce', reduced());
     const layout = params.get('layout') || cfg.layout || 'normal';
     for (const l of ['normal', 'compact', 'mini']) document.body.classList.toggle(`layout-${l}`, l === layout);
-    const lines = params.has('lines') ? Number(params.get('lines')) : cfg.lines;
-    linesWanted = Math.max(0, Math.min(layout === 'mini' ? 3 : 6, Number.isInteger(lines) ? lines : 4));
+    // 1, 2 or 3 lines, or 'all': as many as fit on the screen.
+    const lines = params.has('lines') ? params.get('lines') : cfg.lines;
+    linesWanted = lines === 'all' || lines === undefined || Number(lines) > 3 ? Infinity : Math.max(0, Number(lines) || 0);
     renderSessions();
     translateStatic();
     const pos = params.get('pos') || cfg.position;
@@ -129,7 +130,8 @@
   // or scaled displays still have room to work.
   function fitScale() {
     const wanted = Number(params.get('scale')) || cfg.scale;
-    const natural = machine.offsetHeight || 480;
+    // Conversation lines do not shrink the machine: they fill the space left.
+    const natural = (machine.offsetHeight - $('conv-lines').offsetHeight) || 480;
     const width = machine.offsetWidth || 400;
     return Math.min(wanted, (innerHeight * 0.6) / natural, (innerWidth * 0.45) / width);
   }
@@ -680,7 +682,7 @@
   // conversation (or 0 lines) a single line names the last one to act.
   let currentWho = null;
   let lastSessions = null;
-  let linesWanted = 4;
+  let linesWanted = Infinity;
   const RECENT_MS = 2 * 60 * 1000; // a finished conversation keeps its line this long
   const ACTIVE_STATES = new Set(['working', 'riichi', 'waiting']);
   const STATE_KEYS = { idle: 'stIdle', working: 'stWorking', riichi: 'stRiichi', waiting: 'stWaiting', done: 'stDone', round: 'stRound' };
@@ -746,7 +748,27 @@
       }
       box.appendChild(li);
     }
+    fitLines(list.length);
     markCurrent();
+  }
+
+  // Lines never push the machine off the screen: the last ones give way to
+  // a "+N more" line.
+  const SCREEN_MARGIN = 16;
+  function fitLines(total) {
+    const box = $('conv-lines');
+    const fits = () => machine.getBoundingClientRect().height <= innerHeight - SCREEN_MARGIN * 2;
+    let shown = box.children.length;
+    if (shown >= total && fits()) return;
+    const more = document.createElement('li');
+    more.className = 'conv more';
+    box.appendChild(more);
+    i18n.put(more, 'moreConv', { n: total - shown });
+    while (shown > 1 && !fits()) {
+      box.removeChild(box.children[shown - 1]);
+      shown -= 1;
+      i18n.put(more, 'moreConv', { n: total - shown });
+    }
   }
 
   // A line with a link opens its conversation in the Claude app. The desktop
