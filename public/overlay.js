@@ -129,7 +129,7 @@
       custom.setVolume(cfg.sound.volume);
       // Sound back on (discreet mode off, unmuted) in the middle of a round:
       // the round song picks up again for the time that is left.
-      if (roundEndsAt && roundEndsAt > Date.now() && !custom.playing('round')) custom.play('round', { until: roundEndsAt });
+      if (roundEndsAt && roundEndsAt > Date.now() && !custom.playing('round')) playRoundSong(roundEndsAt);
     }
   }
   // The machine never takes more than ~60% of the screen height, so small
@@ -415,7 +415,8 @@
     url(key) { return this.images.get(key); },
     sound(key) { return this.sounds.get(key); },
     // Music: the round song and the expansion theme.
-    play(key, { until } = {}) {
+    // `from`: seconds already played (picking a round back up mid-way).
+    play(key, { until, from = 0 } = {}) {
       const url = this.sounds.get(key);
       if (!url || !musicOn()) return;
       this.stop(key);
@@ -423,6 +424,11 @@
       a.volume = cfg.sound.volume;
       // A song shorter than the round starts over, so the music lasts all 4:11.
       a.loop = Boolean(until);
+      if (from > 0) {
+        a.addEventListener('loadedmetadata', () => {
+          a.currentTime = Number.isFinite(a.duration) && a.duration > 0 ? from % a.duration : from;
+        }, { once: true });
+      }
       a.play().catch(() => {});
       this.audio.set(key, a);
       // Only stop this very song: a later round may have started another one.
@@ -814,6 +820,13 @@
 
   // ---------- Round countdown (4:11) ----------
   let roundEndsAt = null;
+  // The round song, from where it would be now: the round lasts 4:11, so
+  // time already gone = 4:11 minus what is left.
+  const ROUND_SECONDS = 4 * 60 + 11;
+  function playRoundSong(endsAt) {
+    const gone = ROUND_SECONDS - Math.max(0, (endsAt - Date.now()) / 1000);
+    custom.play('round', { until: endsAt, from: Math.max(0, gone) });
+  }
   setInterval(() => {
     if (!roundEndsAt) return;
     const left = Math.max(0, roundEndsAt - Date.now());
@@ -1235,7 +1248,7 @@
     if (e.domain === 'round' && e.roundEndsAt) {
       roundEndsAt = e.roundEndsAt;
       // Back on a conversation that is mid-round (or the page reloaded): the music goes on.
-      if (!custom.playing('round')) custom.play('round', { until: e.roundEndsAt });
+      if (!custom.playing('round')) playRoundSong(e.roundEndsAt);
       setScene('round');
       setCabinet(null, 'unlimited');
     } else {
