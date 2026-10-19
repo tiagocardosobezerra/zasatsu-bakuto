@@ -125,6 +125,12 @@
     sound.volume = cfg.sound.volume;
     sound.voiceOn = cfg.sound.voice !== false && !params.has('novoice');
     if (!musicOn()) ['round', 'expand'].forEach((k) => custom.stop(k));
+    else {
+      custom.setVolume(cfg.sound.volume);
+      // Sound back on (discreet mode off, unmuted) in the middle of a round:
+      // the round song picks up again for the time that is left.
+      if (roundEndsAt && roundEndsAt > Date.now() && !custom.playing('round')) custom.play('round', { until: roundEndsAt });
+    }
   }
   // The machine never takes more than ~60% of the screen height, so small
   // or scaled displays still have room to work.
@@ -423,6 +429,7 @@
       if (until) setTimeout(() => this.audio.get(key) === a && this.stop(key), Math.max(0, until - Date.now()));
     },
     playing(key) { return this.audio.has(key); },
+    setVolume(v) { for (const a of this.audio.values()) a.volume = v; },
     stop(key) {
       const a = this.audio.get(key);
       if (a) a.pause();
