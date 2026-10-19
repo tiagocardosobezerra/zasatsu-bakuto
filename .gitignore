@@ -1,4 +1,3 @@
 node_modules/
 *.log
-# Your own art and music (see README). Never commit it: it may be copyrighted.
-custom/
+

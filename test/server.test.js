@@ -68,16 +68,3 @@ test('POST /quit closes the domain ("ryoiki kaijo"); other web pages cannot', as
     await fever.close();
   }
 });
-
-test('custom files come from both folders; the first folder wins on a name clash', () => {
-  const { customFiles } = require('../src/server');
-  const a = fs.mkdtempSync(path.join(os.tmpdir(), 'zb-ca-'));
-  const b = fs.mkdtempSync(path.join(os.tmpdir(), 'zb-cb-'));
-  fs.writeFileSync(path.join(a, 'round.mp3'), 'a');
-  fs.writeFileSync(path.join(b, 'round.mp3'), 'b');
-  fs.writeFileSync(path.join(b, 'intro.png'), 'b');
-  fs.writeFileSync(path.join(b, 'notes.txt'), 'b');
-  const found = customFiles([a, b, path.join(a, 'missing')]);
-  assert.deepEqual([...found.keys()].sort(), ['intro.png', 'round.mp3']);
-  assert.equal(found.get('round.mp3'), path.join(a, 'round.mp3'));
-});

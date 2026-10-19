@@ -202,7 +202,7 @@ O app não traz gravações de máquinas reais (elas pertencem aos fabricantes).
 
 ## Suas artes e músicas
 
-O app não traz imagens nem músicas da obra. Se você tem arquivos que quer usar, coloque em `~/.zasatsu-bakuto/custom/` (ou defina `ZASATSU_CUSTOM_DIR`), ou numa pasta `custom/` dentro do projeto. Essa pasta está no `.gitignore`, então seus arquivos nunca vão parar no GitHub. Os arquivos são reconhecidos pelo nome; vale `.png .jpg .webp .gif` para imagens e `.mp3 .ogg .wav .m4a` para áudio:
+O app não traz imagens nem músicas da obra. Se você tem arquivos que quer usar, coloque em `~/.zasatsu-bakuto/custom/` (ou defina `ZASATSU_CUSTOM_DIR`). Os arquivos são reconhecidos pelo nome; vale `.png .jpg .webp .gif` para imagens e `.mp3 .ogg .wav .m4a` para áudio:
 
 | Nome do arquivo | Usado para |
 | --- | --- |
