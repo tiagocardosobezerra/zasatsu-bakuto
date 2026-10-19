@@ -104,3 +104,5 @@ table.glossary { width: 100%; border-collapse: collapse; font-size: 14px; }
 /* Reel and dot colours as classes (the page's CSP forbids inline styles) */
 .c1 { --c: #2563eb; } .c3 { --c: #e01b2f; } .c4 { --c: #18a34a; } .c7 { --c: #00a5c8; }
 .ca { --c: #f59e0b; } .cb { --c: #8b5cf6; } .cc { --c: #22d3ee; } .cd { --c: #a3e635; }
+/* Conversation lines, as on the machine */
+.conv-demo { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border-radius: 7px; background: rgba(255,255,255,.05); }

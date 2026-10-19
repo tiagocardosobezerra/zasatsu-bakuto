@@ -48,7 +48,7 @@ const DEFAULTS = {
   show: { crest: true, lamps: true, indicators: true, ticker: true, stats: true },
   sound: { volume: 0.6, effects: true, music: true, voice: true },
   translation: 'auto', // auto | en | pt | es | ja (Japanese only)
-  follow: 'auto', // auto, or the id of the conversation to show
+  lines: 4, // most conversation lines on the machine; it shows one per active conversation (0 hides them)
   motion: 'auto', // auto (follow the system) | full | reduced
 };
 
@@ -71,7 +71,7 @@ function clean(input) {
     if (Number.isFinite(n)) out[key] = Math.min(RANGES[key][1], Math.max(RANGES[key][0], n));
   }
   for (const key of ['idleDim', 'muted', 'discreet']) if (typeof src[key] === 'boolean') out[key] = src[key];
-  if (typeof src.follow === 'string' && src.follow.length > 0 && src.follow.length <= 128) out.follow = src.follow;
+  if (Number.isInteger(src.lines) && src.lines >= 0 && src.lines <= 6) out.lines = src.lines;
   for (const key of Object.keys(DEFAULTS.show)) {
     if (src.show && typeof src.show[key] === 'boolean') out.show[key] = src.show[key];
   }

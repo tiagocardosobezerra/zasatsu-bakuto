@@ -8,7 +8,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { classify } = require('./classify');
 const { createGame } = require('./game');
-const { createSessions } = require('./sessions');
+const { createMachine } = require('./machine');
 const { demoScript, previewScript, seeded, DEMO_SEED } = require('./demo');
 const settings = require('./config');
 const { env } = require('./env');
@@ -33,20 +33,43 @@ function customFiles() {
   }
 }
 
+// The machine saved by an earlier run, if any.
+function readSaved(file) {
+  try {
+    return JSON.parse(fs.readFileSync(file, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
 function createDomainServer({
   port = DEFAULT_PORT,
   log = () => {},
   configFile = settings.CONFIG_FILE,
+  machineFile = path.join(path.dirname(configFile), 'machine.json'),
   onBroadcast = () => {},
   onOpenWindow = null, // set by the desktop app: opens its settings / guide window
   onQuit = () => process.exit(0), // "ryoiki kaijo"; the desktop app quits Electron instead
-  sessions = createSessions(),
+  makeGame = (saved) => createGame({ saved }),
 } = {}) {
   const clients = new Set();
   let config = settings.load(configFile);
-  sessions.follow(config.follow);
-  // Shown when no conversation has talked to us yet.
-  const idleGame = createGame();
+  // One machine for every conversation; its totals and 確変/時短 survive restarts.
+  const machine = createMachine({ game: makeGame(readSaved(machineFile)) });
+  const { sessions } = machine;
+  let lastSaved = JSON.stringify(machine.game.saved());
+
+  function persist() {
+    const now = JSON.stringify(machine.game.saved());
+    if (now === lastSaved) return;
+    lastSaved = now;
+    try {
+      fs.mkdirSync(path.dirname(machineFile), { recursive: true });
+      fs.writeFileSync(machineFile, `${now}\n`);
+    } catch (err) {
+      log(`could not save the machine: ${err.message}`);
+    }
+  }
 
   function broadcast(message) {
     onBroadcast(message);
@@ -58,19 +81,18 @@ function createDomainServer({
   // While the demo plays it gets its own seeded machine; real hook events
   // still reach the real machine but are not shown until the demo ends.
   let demoGame = null;
-  const followedGame = () => (sessions.followed() ? sessions.followed().game : idleGame);
-  const shown = () => demoGame || followedGame();
+  const shown = () => demoGame || machine.game;
 
-  // Who an event belongs to, for the overlay's identity line.
+  // Who an event came from, for the overlay's conversation lines.
   const whoOf = (s) => (s ? { id: s.id, label: s.label, title: s.title, color: s.color } : null);
+  let lastWho = null;
 
   function sessionsMessage() {
-    const f = sessions.followed();
-    return { type: 'sessions', followed: f ? f.id : null, pinned: sessions.pinned(), list: sessions.list() };
+    return { type: 'sessions', list: sessions.list() };
   }
 
   function hello() {
-    return { ...shown().snapshot(), config, who: demoGame ? null : whoOf(sessions.followed()), sessions: sessionsMessage() };
+    return { ...shown().snapshot(), config, who: demoGame ? null : lastWho, sessions: sessionsMessage() };
   }
 
   // Resolve timers fire later; they always emit through the game that asked.
@@ -83,6 +105,7 @@ function createDomainServer({
         const timer = setTimeout(() => {
           resolveTimers.delete(timer);
           emit(source.resolve(e.token), source, who);
+          if (source === machine.game) persist();
         }, e.resolveIn);
         resolveTimers.add(timer);
       }
@@ -93,25 +116,26 @@ function createDomainServer({
   function ingest(payload) {
     const signal = classify(payload);
     if (!signal) return [];
-    const { session, events, switched } = sessions.ingest(signal);
-    const who = whoOf(session);
-    if (switched && !demoGame) broadcast({ ...hello(), type: 'hello' });
-    if (session === sessions.followed()) emit(events, session.game, who);
-    // A conversation that is not on screen still gets to say it needs you.
-    if (session !== sessions.followed() || demoGame) {
-      for (const e of events) if (e.type === 'attention') broadcast({ type: 'call', who, detail: e.detail });
+    const { session, events } = machine.handle(signal);
+    lastWho = whoOf(session);
+    if (demoGame) {
+      // The demo has the screen; a conversation that needs you still says so.
+      for (const e of events) if (e.type === 'attention') broadcast({ type: 'call', who: lastWho, detail: e.detail });
+    } else {
+      emit(events, machine.game, lastWho);
     }
+    persist();
     broadcast(sessionsMessage());
     return events;
   }
 
   const ticker = setInterval(() => {
-    let changed = false;
-    for (const { session, events } of sessions.tick()) {
-      changed = true;
-      emit(events, session.game, whoOf(session));
+    const events = machine.tick();
+    if (events.length) {
+      emit(events, machine.game, lastWho);
+      persist();
+      broadcast(sessionsMessage());
     }
-    if (changed) broadcast(sessionsMessage());
     if (demoGame) emit(demoGame.tick(), demoGame);
   }, 1000);
   ticker.unref();
@@ -119,11 +143,11 @@ function createDomainServer({
   // Plays a scripted session on its own machine, then hands the overlay
   // back to the real one.
   let demoTimers = [];
-  function play(machine, steps, tailMs) {
+  function play(demo, steps, tailMs) {
     demoTimers.forEach(clearTimeout);
-    demoGame = machine;
-    broadcast({ ...machine.snapshot(), config, who: null, sessions: sessionsMessage() });
-    demoTimers = steps.map(({ delay, payload }) => setTimeout(() => emit(machine.handle(classify(payload)), machine), delay));
+    demoGame = demo;
+    broadcast({ ...demo.snapshot(), config, who: null, sessions: sessionsMessage() });
+    demoTimers = steps.map(({ delay, payload }) => setTimeout(() => emit(demo.handle(classify(payload)), demo), delay));
     const end = steps[steps.length - 1].delay + tailMs;
     demoTimers.push(setTimeout(() => {
       demoGame = null;
@@ -138,8 +162,8 @@ function createDomainServer({
   // Short previews for the settings page: the Domain Expansion, or a
   // guaranteed jackpot.
   function runPreview(kind) {
-    const machine = createGame({ random: () => 0.99, pickSymbol: () => 7 });
-    play(machine, previewScript(kind), kind === 'jackpot' ? 9000 : 4000);
+    const demo = createGame({ random: () => 0.99, pickSymbol: () => 7 });
+    play(demo, previewScript(kind), kind === 'jackpot' ? 9000 : 4000);
   }
 
   function setConfig(patch) {
@@ -150,11 +174,6 @@ function createDomainServer({
       log(`could not save settings: ${err.message}`);
     }
     broadcast({ type: 'config', config });
-    if (patch && 'follow' in patch) {
-      sessions.follow(config.follow);
-      if (!demoGame) broadcast({ ...hello(), type: 'hello' });
-      broadcast(sessionsMessage());
-    }
     return config;
   }
 

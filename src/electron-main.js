@@ -97,9 +97,9 @@ const openGuide = () => openPage('guide', 'guide.html', 'Idle Death Gamble · �
 
 // Tray menu in the computer's language.
 const MENU_TEXT = {
-  en: { guide: 'How to play (guide)', follow: 'Follow conversation', auto: 'Automatic (last one you wrote to)', none: '—', settings: 'Settings…', demo: 'Play demo', discreet: 'Discreet mode', layout: 'Layout', normal: 'Normal', compact: 'Compact', mini: 'Mini', mute: 'Mute', show: 'Show overlay', quit: 'Quit' },
-  pt: { guide: 'Como jogar (guia)', follow: 'Seguir conversa', auto: 'Automático (a última que você escreveu)', none: '—', settings: 'Configurações…', demo: 'Tocar a demo', discreet: 'Modo discreto', layout: 'Formato', normal: 'Normal', compact: 'Compacto', mini: 'Mini', mute: 'Silenciar', show: 'Mostrar overlay', quit: 'Sair' },
-  es: { guide: 'Cómo jugar (guía)', follow: 'Seguir conversación', auto: 'Automático (la última a la que escribiste)', none: '—', settings: 'Ajustes…', demo: 'Reproducir la demo', discreet: 'Modo discreto', layout: 'Formato', normal: 'Normal', compact: 'Compacto', mini: 'Mini', mute: 'Silenciar', show: 'Mostrar overlay', quit: 'Salir' },
+  en: { guide: 'How to play (guide)', lines: 'Conversation lines', off: 'Off', settings: 'Settings…', demo: 'Play demo', discreet: 'Discreet mode', layout: 'Layout', normal: 'Normal', compact: 'Compact', mini: 'Mini', mute: 'Mute', show: 'Show overlay', quit: 'Quit' },
+  pt: { guide: 'Como jogar (guia)', lines: 'Linhas de conversa', off: 'Desligado', settings: 'Configurações…', demo: 'Tocar a demo', discreet: 'Modo discreto', layout: 'Formato', normal: 'Normal', compact: 'Compacto', mini: 'Mini', mute: 'Silenciar', show: 'Mostrar overlay', quit: 'Sair' },
+  es: { guide: 'Cómo jugar (guía)', lines: 'Líneas de conversación', off: 'Apagado', settings: 'Ajustes…', demo: 'Reproducir la demo', discreet: 'Modo discreto', layout: 'Formato', normal: 'Normal', compact: 'Compacto', mini: 'Mini', mute: 'Silenciar', show: 'Mostrar overlay', quit: 'Salir' },
 };
 
 function buildMenu() {
@@ -119,7 +119,10 @@ function buildMenu() {
     { type: 'separator' },
     { label: t.discreet, type: 'checkbox', checked: cfg.discreet, click: (item) => domain.setConfig({ discreet: item.checked }) },
     { label: t.layout, submenu: ['normal', 'compact', 'mini'].map(layoutItem) },
-    { label: t.follow, submenu: followItems(cfg, t) },
+    {
+      label: t.lines,
+      submenu: [0, 1, 2, 3, 4, 6].map((n) => ({ label: n ? String(n) : t.off, type: 'radio', checked: cfg.lines === n, click: () => domain.setConfig({ lines: n }) })),
+    },
     { label: t.mute, type: 'checkbox', checked: cfg.muted, click: (item) => domain.setConfig({ muted: item.checked }) },
     { label: t.show, type: 'checkbox', checked: win.isVisible(), click: (item) => (item.checked ? win.showInactive() : win.hide()) },
     { type: 'separator' },
@@ -128,18 +131,6 @@ function buildMenu() {
     { type: 'separator' },
     { label: `領域解除 · ${t.quit}`, click: () => app.quit() },
   ]);
-}
-
-// Which conversation the machine shows: automatic, or one pinned.
-function followItems(cfg, t) {
-  const { list } = domain.sessions();
-  const items = [{ label: t.auto, type: 'radio', checked: cfg.follow === 'auto', click: () => domain.setConfig({ follow: 'auto' }) }];
-  if (list.length) items.push({ type: 'separator' });
-  for (const s of list.slice(0, 12)) {
-    const name = s.title ? `${s.label} · ${s.title}` : s.label;
-    items.push({ label: name.length > 60 ? `${name.slice(0, 59)}…` : name, type: 'radio', checked: cfg.follow === s.id, click: () => domain.setConfig({ follow: s.id }) });
-  }
-  return items;
 }
 
 // Built fresh each time, so it always matches the current settings.

@@ -1,19 +1,14 @@
 'use strict';
 
-// One machine per conversation. Each Claude Code session gets its own game
-// (its own domain, stage and riichi), a stable colour and a name, and the
-// overlay shows the session it is following:
-//   auto:   the conversation you last sent a message to; it moves on when
-//           that one is done or has been quiet for a while, but never in
-//           the middle of its 4:11 jackpot round
-//   pinned: one session chosen in the tray menu
+// The conversations playing the machine. There is one machine for all of
+// them (see machine.js); this keeps what the overlay's conversation lines
+// show: a stable colour, the project and title, what each one is doing and
+// its last action.
 
-const { createGame } = require('./game');
+const ACTIVE_MS = 15 * 60 * 1000; // a conversation silent this long no longer holds the domain open
+const FORGET_MS = 3 * 60 * 60 * 1000; // conversations idle this long are dropped
 
-const QUIET_MS = 2 * 60 * 1000; // a followed session this quiet can be left
-const FORGET_MS = 3 * 60 * 60 * 1000; // sessions idle this long are dropped
-
-// A stable, readable colour per session id.
+// A stable, readable colour per conversation id.
 function colorFor(id) {
   let h = 0;
   for (const ch of String(id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
@@ -37,97 +32,45 @@ const STATE_BY_KIND = {
   attention: 'waiting',
   'turn-end': 'done',
 };
+const BUSY = new Set(['working', 'riichi', 'waiting']);
 
-function createSessions({ makeGame = () => createGame(), now = Date.now } = {}) {
+function createSessions({ now = Date.now } = {}) {
   const map = new Map();
-  let followed = null;
-  let pinned = null;
+  let seq = 0; // orders conversations that act in the same millisecond
 
   function summary(s) {
-    const domain = s.game.snapshot().domain;
-    const state = domain === 'round' && (s.state === 'working' || s.state === 'riichi') ? 'round' : s.state;
-    return { id: s.id, label: s.label, title: s.title, color: s.color, state, lastAt: s.lastAt };
+    return { id: s.id, label: s.label, title: s.title, color: s.color, state: s.state, detail: s.detail, lastAt: s.lastAt };
   }
 
-  function get(signal) {
+  // Records what a conversation just did and returns it.
+  function note(signal) {
     let s = map.get(signal.session);
     if (!s) {
-      s = { id: signal.session, label: signal.label, title: null, color: colorFor(signal.session), state: 'idle', lastAt: now(), game: makeGame() };
+      s = { id: signal.session, label: signal.label, title: null, color: colorFor(signal.session), state: 'idle', detail: null, lastAt: now() };
       map.set(s.id, s);
     }
     if (signal.label) s.label = signal.label;
     if (signal.title) s.title = signal.title;
+    if (STATE_BY_KIND[signal.kind]) s.state = STATE_BY_KIND[signal.kind];
+    if (signal.detail && signal.kind !== 'attention') s.detail = signal.detail;
+    s.lastAt = now();
+    s.seq = ++seq;
+    for (const [id, other] of map) if (now() - other.lastAt > FORGET_MS) map.delete(id);
     return s;
   }
 
-  function prune() {
-    for (const [id, s] of map) {
-      if (id !== followed && id !== pinned && now() - s.lastAt > FORGET_MS) map.delete(id);
-    }
-  }
-
-  // Decide whether the overlay should switch to session `s`.
-  function considerFollow(s, signal) {
-    if (pinned && map.has(pinned)) {
-      if (followed === pinned) return false;
-      followed = pinned;
-      return true;
-    }
-    if (!followed || !map.has(followed)) {
-      followed = s.id;
-      return true;
-    }
-    if (followed === s.id) return false;
-    const current = map.get(followed);
-    // The jackpot round is the show: stay until its 4:11 is over.
-    if (current.game.snapshot().domain === 'round') return false;
-    const leave = signal.kind === 'turn-start' || current.state === 'done' || now() - current.lastAt > QUIET_MS;
-    if (leave && signal.kind !== 'turn-end') {
-      followed = s.id;
-      return true;
-    }
-    return false;
-  }
-
-  function ingest(signal) {
-    const s = get(signal);
-    const events = s.game.handle(signal);
-    if (STATE_BY_KIND[signal.kind]) s.state = STATE_BY_KIND[signal.kind];
-    s.lastAt = now();
-    const switched = considerFollow(s, signal);
-    prune();
-    return { session: s, events, switched };
-  }
-
-  function tick() {
-    const out = [];
-    for (const s of map.values()) {
-      const events = s.game.tick();
-      if (events.length) out.push({ session: s, events });
-    }
-    return out;
-  }
-
-  // 'auto', or a session id to pin. Returns true when the followed session changed.
-  function follow(choice) {
-    pinned = choice && choice !== 'auto' ? choice : null;
-    if (pinned && map.has(pinned) && followed !== pinned) {
-      followed = pinned;
-      return true;
-    }
-    return false;
+  // Conversations still in the middle of a turn, other than `except`.
+  function busy(except) {
+    return [...map.values()].filter((s) => s.id !== except && BUSY.has(s.state) && now() - s.lastAt < ACTIVE_MS);
   }
 
   return {
-    ingest,
-    tick,
-    follow,
-    followed: () => (followed && map.get(followed)) || null,
+    note,
+    busy,
     find: (id) => map.get(id) || null,
-    list: () => [...map.values()].sort((a, b) => b.lastAt - a.lastAt).map(summary),
-    pinned: () => pinned,
+    list: () => [...map.values()].sort((a, b) => b.lastAt - a.lastAt || b.seq - a.seq).map(summary),
     summary,
   };
 }
 
-module.exports = { createSessions, colorFor };
+module.exports = { createSessions, colorFor, ACTIVE_MS };

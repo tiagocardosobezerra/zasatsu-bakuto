@@ -92,13 +92,13 @@
       </div>
     </header>
 
-    <!-- Which conversation this machine is showing, and the others -->
-    <div class="who-row">
+    <!-- The conversations playing this machine: one line each, newest first.
+         The Mini layout (or 0 lines) shows only the last one to act. -->
+    <div class="who-row" id="who-row">
       <span class="who-dot" id="who-dot"></span>
       <span class="who-text"><b id="who-label"></b><span id="who-title"></span></span>
-      <span class="who-pin" id="who-pin" hidden></span>
-      <span class="sess-dots" id="sess-dots"></span>
     </div>
+    <ol class="conv-lines" id="conv-lines" hidden></ol>
 
     <div class="lcd" id="lcd" data-scene="stage">
       <!-- Neutral stage: the station platform -->

@@ -109,6 +109,9 @@
     document.body.classList.toggle('reduce', reduced());
     const layout = params.get('layout') || cfg.layout || 'normal';
     for (const l of ['normal', 'compact', 'mini']) document.body.classList.toggle(`layout-${l}`, l === layout);
+    const lines = params.has('lines') ? Number(params.get('lines')) : cfg.lines;
+    linesWanted = Math.max(0, Math.min(layout === 'mini' ? 3 : 6, Number.isInteger(lines) ? lines : 4));
+    renderSessions();
     translateStatic();
     const pos = params.get('pos') || cfg.position;
     machine.dataset.pos = ['br', 'bl', 'tr', 'tl'].includes(pos) ? pos : 'br';
@@ -584,6 +587,7 @@
     lastDomain = domain;
     machine.dataset.domain = domain;
     i18n.put($('domain-state'), { open: 'domainOpen', round: 'domainRound', closed: 'domainClosed' }[domain] || 'domainClosed');
+    if (lastSessions) renderSessions();
   }
 
   let lastStage = { holds: [], best: null, consecutive: 0, guaranteed: false };
@@ -668,13 +672,19 @@
     }, 90000);
   }
 
-  // ---------- Which conversation ----------
-  // The identity line names the conversation on screen; the dots on the
-  // right are the other conversations and what they are doing.
+  // ---------- The conversations ----------
+  // One machine plays for every conversation. Each active one gets a line:
+  // its colour, project, title, what it is doing and its last action, so the
+  // list grows and shrinks with the conversations in progress (up to the
+  // "lines" setting). One that finished stays a little while, faded. The
+  // line of the conversation that just acted lights up. With no active
+  // conversation (or 0 lines) a single line names the last one to act.
   let currentWho = null;
   let lastSessions = null;
+  let linesWanted = 4;
+  const RECENT_MS = 2 * 60 * 1000; // a finished conversation keeps its line this long
+  const ACTIVE_STATES = new Set(['working', 'riichi', 'waiting']);
   const STATE_KEYS = { idle: 'stIdle', working: 'stWorking', riichi: 'stRiichi', waiting: 'stWaiting', done: 'stDone', round: 'stRound' };
-  const hintOf = (key) => { const { ja, tr } = i18n.t(key); return tr ? `${ja} (${tr})` : ja; };
 
   function setWho(who) {
     if (who) currentWho = who;
@@ -684,32 +694,59 @@
       dot.style.removeProperty('--c');
       $('who-label').textContent = '';
       i18n.put($('who-title'), 'whoNone');
-      return;
+    } else {
+      dot.style.setProperty('--c', w.color);
+      $('who-label').textContent = w.label;
+      $('who-title').textContent = w.title ? `“${w.title}”` : '';
+      machine.style.setProperty('--who', w.color);
     }
-    dot.style.setProperty('--c', w.color);
-    $('who-label').textContent = w.label;
-    $('who-title').textContent = w.title ? `“${w.title}”` : '';
-    machine.style.setProperty('--who', w.color);
+    markCurrent();
+  }
+
+  function markCurrent() {
+    for (const li of $('conv-lines').children) li.classList.toggle('now', Boolean(currentWho) && li.dataset.id === currentWho.id);
   }
 
   function renderSessions(msg) {
-    if (!msg) return;
-    lastSessions = msg;
-    const box = $('sess-dots');
+    if (msg) lastSessions = msg;
+    const now = Date.now();
+    const list = (lastSessions ? lastSessions.list : []).filter((s) => ACTIVE_STATES.has(s.state) || now - s.lastAt < RECENT_MS);
+    const box = $('conv-lines');
+    const show = linesWanted > 0 && list.length > 0;
+    box.hidden = !show;
+    $('who-row').hidden = show;
     box.innerHTML = '';
-    for (const s of msg.list.filter((x) => x.id !== msg.followed).slice(0, 6)) {
+    if (!show) return;
+    const inRound = machine.dataset.domain === 'round';
+    for (const s of list.slice(0, linesWanted)) {
+      const li = document.createElement('li');
+      li.className = 'conv';
+      li.dataset.id = s.id;
+      const state = inRound && (s.state === 'working' || s.state === 'riichi') ? 'round' : s.state;
+      li.dataset.state = state;
+      li.style.setProperty('--c', s.color);
       const dot = document.createElement('i');
-      dot.style.setProperty('--c', s.color);
-      dot.dataset.state = s.state;
-      dot.title = `${s.label}${s.title ? ` · ${s.title}` : ''} — ${hintOf(STATE_KEYS[s.state] || 'stIdle')}`;
-      box.appendChild(dot);
+      dot.className = 'dot';
+      const name = document.createElement('b');
+      name.className = 'name';
+      name.textContent = s.label;
+      const title = document.createElement('span');
+      title.className = 'title';
+      title.textContent = s.title ? `“${s.title}”` : '';
+      const chip = document.createElement('span');
+      chip.className = 'st';
+      i18n.put(chip, STATE_KEYS[state] || 'stIdle');
+      const act = document.createElement('span');
+      act.className = 'act';
+      act.textContent = s.detail || '';
+      li.append(dot, name, title, chip, act);
+      box.appendChild(li);
     }
-    const followed = msg.list.find((x) => x.id === msg.followed);
-    if (followed) setWho(followed);
-    const pin = $('who-pin');
-    pin.hidden = !msg.pinned;
-    if (msg.pinned) i18n.put(pin, 'pinnedTag');
+    markCurrent();
   }
+
+  // Finished conversations leave the list after a while.
+  setInterval(() => lastSessions && renderSessions(), 15000);
 
   // ---------- Round countdown (4:11) ----------
   let roundEndsAt = null;

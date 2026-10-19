@@ -28,7 +28,7 @@ When an AI agent works for minutes at a time, you end up doing one of two things
 | **×2 / ×3 / ×4** | A tool call failed and the agent is recovering |
 | **YOUR TURN**, with the conversation's name | The agent is waiting for your permission or your answer |
 | Domain closes | The agent finished its turn |
-| Coloured dots next to the name | Your other Claude Code conversations and what each one is doing |
+| One line per conversation in progress | Project, name, what each conversation is doing and its last action; the one that just acted lights up |
 
 So you can read docs, answer chat, or make coffee, and still know **when the tests pass, when something breaks, and when the agent needs you**. And because every test run is a gamble at 1/239 with Hakari's own rules, waiting for the agent becomes fun instead of dead time.
 
@@ -43,7 +43,7 @@ What it is not:
 - **Faithful to the manga.** The rules come from the CR私鉄純愛列車 rule sheet Hakari shows in chapter 183 and the fights in chapters 182–190: 1/239 odds, 疑似連, 緑 < 赤 < 金 < 虹 notices, the four riichi scenarios, 確変/時短, 潜伏確変 and the 4:11 jackpot round with automatic reverse cursed technique. The full table is [below](#the-rules-of-the-domain).
 - **Japanese first, with a translation under every line** in your computer's language (English, Português, Español), down to the sound effects, scanlation style.
 - **Three sizes**: Normal, Compact, and Mini (about 230 px wide, one status line).
-- **Knows which conversation is which**: the machine shows the project and title of the conversation it follows, and dots for the others. Follow one automatically or pin one from the tray.
+- **One machine for every conversation**: any Claude Code conversation spins the same reels and adds to the same totals, and each conversation in progress gets a line on the machine. The list grows and shrinks by itself. One riichi at a time, and the domain only closes when all of them stop. Totals and 確変 are saved when you close the app.
 - **Synthesised pachinko sounds** (キュイン, ball clatter, shutter clank, fanfare) and an optional Japanese announcer. Every sound and image can be replaced with your own files.
 - **Built-in guide** (tray → 遊び方 · guide) that explains the game step by step, with a glossary.
 - **Open to other AIs**: Claude Code works out of the box; any other agent connects through a simple local API ([how](#does-it-work-with-other-ais)).
@@ -172,10 +172,11 @@ Test results are read from the hook payload: a failed Bash call is red, and test
 
 ## Settings
 
-Right-click the tray icon → **Settings…** (or double-click it), or run `ryoiki settings`. Changes apply right away and are saved in `~/.zasatsu-bakuto/config.json`.
+Right-click the tray icon → **Settings…** (or double-click it), or run `ryoiki settings`. Changes apply right away and are saved in `~/.zasatsu-bakuto/config.json`. The machine's totals and mode are kept in `~/.zasatsu-bakuto/machine.json`.
 
 - **Discreet mode** (also in the tray menu): mini machine, no sound, nothing full screen, a bit transparent. It sits on top of your settings without changing them; switch it off and everything comes back. Made for work computers.
 - **Machine**: layout (**Normal**, **Compact** without lamps and counters, **Mini** with just the screen and one status line, about 230 px wide), corner, size (30–200%), opacity, dim when idle. The machine never takes more than about 60% of the screen height.
+- **Conversation lines** (also in the tray menu): the most lines on the machine, one per conversation in progress (Off, 1 to 6; Mini shows up to 3).
 - **What appears**: Domain Expansion full screen / on the machine / off; jackpot full screen / on the machine / off; title, lamps, 保留/疑似連 row, current tool, counters
 - **Sound**: volume, machine sounds, your music files, mute everything
 - **Previews**: play the Domain Expansion, a guaranteed jackpot, or the full demo

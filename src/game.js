@@ -71,7 +71,10 @@ const CHANCE_UP = {
 
 const DOOR_TOOLS = new Set(['Edit', 'Write', 'MultiEdit', 'NotebookEdit']);
 
-function createGame({ random = Math.random, now = Date.now, pickSymbol } = {}) {
+// `saved` is what `saved()` returned before: totals and the probability mode
+// carry over when the app restarts. A domain, riichi or round in progress
+// does not.
+function createGame({ random = Math.random, now = Date.now, pickSymbol, saved = null } = {}) {
   const stats = { spins: 0, jackpots: 0, misses: 0, domains: 0, renchan: 0, bestRenchan: 0 };
   let mode = 'normal'; // normal | increased | faster | hidden
   let jitanLeft = 0; // spins left in faster spins (also shown during hidden)
@@ -82,6 +85,17 @@ function createGame({ random = Math.random, now = Date.now, pickSymbol } = {}) {
   let turnActive = false;
   let token = 0;
   let last = { label: 'agent', session: 'default' };
+  if (saved && typeof saved === 'object') restore(saved);
+
+  function restore(data) {
+    for (const key of Object.keys(stats)) {
+      const v = data.stats && data.stats[key];
+      if (Number.isInteger(v) && v >= 0) stats[key] = v;
+    }
+    if (['normal', 'increased', 'faster', 'hidden'].includes(data.mode)) mode = data.mode;
+    if (Number.isInteger(data.jitanLeft) && data.jitanLeft >= 0 && data.jitanLeft <= 100) jitanLeft = data.jitanLeft;
+    if ((mode === 'faster') && !jitanLeft) mode = 'normal';
+  }
 
   function freshStage() {
     return { holds: [], best: null, consecutive: 0 };
@@ -291,6 +305,8 @@ function createGame({ random = Math.random, now = Date.now, pickSymbol } = {}) {
           turnActive = false;
           out.push(event('turn-end'));
           break;
+        case 'riichi-expire':
+          break;
         default:
           out.push(event('status', { detail: signal.detail }));
       }
@@ -341,6 +357,12 @@ function createGame({ random = Math.random, now = Date.now, pickSymbol } = {}) {
         out.push(event('attention', { detail: signal.detail }));
         break;
 
+      // The conversation that started the tests ended its turn while others
+      // keep the domain open: its riichi expires, the domain stays.
+      case 'riichi-expire':
+        if (riichi && riichi.kind === 'test') out.push(miss('expired'));
+        break;
+
       case 'turn-end':
         turnActive = false;
         if (riichi && riichi.kind === 'test') out.push(miss('expired'));
@@ -381,6 +403,8 @@ function createGame({ random = Math.random, now = Date.now, pickSymbol } = {}) {
     tick,
     stats: () => ({ ...stats }),
     snapshot: () => event('hello'),
+    saved: () => ({ stats: { ...stats }, mode, jitanLeft }),
+    riichiKind: () => (riichi ? riichi.kind : null),
   };
 }
 
