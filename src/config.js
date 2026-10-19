@@ -1,14 +1,38 @@
 'use strict';
 
-// User settings, stored in ~/.agent-fever/config.json (or $FEVER_HOME).
+// User settings, stored in ~/.zasatsu-bakuto/config.json (or $ZASATSU_HOME).
 // Unknown keys and out-of-range values are dropped, so a bad file never
 // breaks the overlay.
 
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { env } = require('./env');
 
-const HOME = process.env.FEVER_HOME || path.join(os.homedir(), '.agent-fever');
+const LEGACY_HOME = path.join(os.homedir(), '.agent-fever');
+
+// Moves the folder used before the rename (settings and custom art/music)
+// to the new place, once. Never overwrites: if the new folder already
+// exists, the old one is left alone.
+function migrateHome(from, to) {
+  if (!fs.existsSync(from) || fs.existsSync(to)) return false;
+  try {
+    fs.renameSync(from, to);
+  } catch {
+    // A file is busy or the folders are on different drives: copy instead.
+    fs.cpSync(from, to, { recursive: true });
+  }
+  return true;
+}
+
+const HOME = env('HOME') || path.join(os.homedir(), '.zasatsu-bakuto');
+if (!env('HOME')) {
+  try {
+    migrateHome(LEGACY_HOME, HOME);
+  } catch {
+    // Settings fall back to the defaults; nothing else depends on this.
+  }
+}
 const CONFIG_FILE = path.join(HOME, 'config.json');
 
 const DEFAULTS = {
@@ -83,4 +107,4 @@ function save(config, file = CONFIG_FILE) {
   fs.writeFileSync(file, `${JSON.stringify(config, null, 2)}\n`);
 }
 
-module.exports = { DEFAULTS, HOME, CONFIG_FILE, clean, merge, load, save };
+module.exports = { migrateHome, LEGACY_HOME, DEFAULTS, HOME, CONFIG_FILE, clean, merge, load, save };

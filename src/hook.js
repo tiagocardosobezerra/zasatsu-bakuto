@@ -7,7 +7,7 @@
 
 const http = require('node:http');
 
-const port = Number(process.env.FEVER_PORT) || 4111;
+const port = Number(process.env.ZASATSU_PORT || process.env.FEVER_PORT) || 4111;
 const chunks = [];
 
 const done = () => process.exit(0);

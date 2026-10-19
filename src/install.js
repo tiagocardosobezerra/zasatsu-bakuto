@@ -1,13 +1,15 @@
 'use strict';
 
-// Adds/removes Fever hooks in a Claude Code settings file. Leaves every
-// other setting and hook alone; Fever entries are found by MARKER.
+// Adds/removes our hooks in a Claude Code settings file. Leaves every
+// other setting and hook alone; our entries are found by MARKER (or the
+// marker used before the rename, so old installs are cleaned up too).
 
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
-const MARKER = '--agent-fever';
+const MARKER = '--zasatsu-bakuto';
+const LEGACY_MARKERS = ['--agent-fever'];
 const TOOL_EVENTS = ['PreToolUse', 'PostToolUse', 'PostToolUseFailure'];
 const OTHER_EVENTS = ['SessionStart', 'UserPromptSubmit', 'Notification', 'Stop'];
 
@@ -27,12 +29,12 @@ function readSettings(settingsPath) {
   try {
     return { settings: JSON.parse(text), existed: true };
   } catch {
-    throw new Error(`${settingsPath} is not valid JSON. Fix it first; Fever did not change it.`);
+    throw new Error(`${settingsPath} is not valid JSON. Fix it first; nothing was changed.`);
   }
 }
 
 function isFeverHook(hook) {
-  return hook && typeof hook.command === 'string' && hook.command.includes(MARKER);
+  return hook && typeof hook.command === 'string' && [MARKER, ...LEGACY_MARKERS].some((m) => hook.command.includes(m));
 }
 
 // Returns a copy of `hooks` without Fever entries, plus how many were removed.
@@ -73,7 +75,7 @@ function install({ settingsPath = defaultSettingsPath() } = {}) {
   const { settings, existed } = readSettings(settingsPath);
   let backupPath = null;
   if (existed) {
-    backupPath = `${settingsPath}.fever-backup`;
+    backupPath = `${settingsPath}.zasatsu-bakuto-backup`;
     fs.copyFileSync(settingsPath, backupPath);
   }
   write(settingsPath, withFever(settings));
@@ -92,4 +94,4 @@ function uninstall({ settingsPath = defaultSettingsPath() } = {}) {
   return { settingsPath, removed };
 }
 
-module.exports = { install, uninstall, withFever, stripFever, hookCommand, MARKER };
+module.exports = { install, uninstall, withFever, stripFever, hookCommand, MARKER, LEGACY_MARKERS };

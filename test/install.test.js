@@ -38,7 +38,7 @@ test('install keeps other settings and hooks, and is idempotent', () => {
   assert.ok(fs.existsSync(backupPath));
 });
 
-test('uninstall removes only Fever hooks', () => {
+test('uninstall removes only our hooks', () => {
   const file = tempSettings(existing);
   install({ settingsPath: file });
   assert.equal(uninstall({ settingsPath: file }).removed, 7);
@@ -56,4 +56,15 @@ test('install refuses to touch invalid JSON', () => {
   fs.writeFileSync(file, '{ nope');
   assert.throws(() => install({ settingsPath: file }), /not valid JSON/);
   assert.equal(fs.readFileSync(file, 'utf8'), '{ nope');
+});
+
+test('hooks from before the rename (--agent-fever) are replaced, not doubled', () => {
+  const legacy = { type: 'command', command: 'node "/old/src/hook.js" --agent-fever', async: true };
+  const file = tempSettings({ hooks: { Stop: [{ hooks: [legacy] }], PreToolUse: [{ matcher: '*', hooks: [legacy] }] } });
+  install({ settingsPath: file });
+  const all = Object.values(read(file).hooks).flat().flatMap((g) => g.hooks);
+  assert.equal(all.filter((h) => h.command.includes('--agent-fever')).length, 0);
+  assert.equal(feverCount(read(file)), 7);
+  assert.equal(uninstall({ settingsPath: file }).removed, 7);
+  assert.equal(read(file).hooks, undefined);
 });

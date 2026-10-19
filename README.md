@@ -172,7 +172,7 @@ O resultado dos testes é lido do payload do hook: um Bash que falha é vermelho
 
 ## Configurações
 
-Clique com o botão direito no ícone da bandeja → **Configurações…** (ou dois cliques nele), ou rode `ryoiki settings`. As mudanças valem na hora e ficam salvas em `~/.agent-fever/config.json`.
+Clique com o botão direito no ícone da bandeja → **Configurações…** (ou dois cliques nele), ou rode `ryoiki settings`. As mudanças valem na hora e ficam salvas em `~/.zasatsu-bakuto/config.json`.
 
 - **Modo discreto** (também no menu da bandeja): máquina mini, sem som, nada em tela cheia, um pouco transparente. Ele fica por cima das suas configurações sem mudar nenhuma; desligou, tudo volta. Feito para o computador do trabalho.
 - **Máquina**: layout (**Normal**, **Compacto** sem lâmpadas e contadores, **Mini** só com a tela e uma linha de status, cerca de 230 px), canto, tamanho (30 a 200%), opacidade, escurecer quando parada. A máquina nunca passa de uns 60% da altura da tela.
@@ -202,7 +202,7 @@ O app não traz gravações de máquinas reais (elas pertencem aos fabricantes).
 
 ## Suas artes e músicas
 
-O app não traz imagens nem músicas da obra. Se você tem arquivos que quer usar, coloque em `~/.agent-fever/custom/` (ou defina `FEVER_CUSTOM_DIR`). Os arquivos são reconhecidos pelo nome; vale `.png .jpg .webp .gif` para imagens e `.mp3 .ogg .wav .m4a` para áudio:
+O app não traz imagens nem músicas da obra. Se você tem arquivos que quer usar, coloque em `~/.zasatsu-bakuto/custom/` (ou defina `ZASATSU_CUSTOM_DIR`). Os arquivos são reconhecidos pelo nome; vale `.png .jpg .webp .gif` para imagens e `.mp3 .ogg .wav .m4a` para áudio:
 
 | Nome do arquivo | Usado para |
 | --- | --- |

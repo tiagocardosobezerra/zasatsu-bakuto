@@ -30,7 +30,7 @@ const HELP = `
   options
     --settings <file> use another Claude Code settings file (e.g. .claude/settings.json)
     --foreground      keep "ryoiki tenkai" attached to this terminal
-    FEVER_PORT=<n>    change the port (default ${DEFAULT_PORT})
+    ZASATSU_PORT=<n>  change the port (default ${DEFAULT_PORT})
 `;
 
 const NOT_OPEN = 'The domain is not open. Open it with "ryoiki tenkai" (or "ryoiki serve").';

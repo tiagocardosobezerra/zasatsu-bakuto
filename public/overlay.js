@@ -368,8 +368,8 @@
   };
   if ('speechSynthesis' in window) speechSynthesis.onvoiceschanged = () => { sound.jaVoice = null; };
 
-  // ---------- Your own art and music (~/.agent-fever/custom) ----------
-  // Fever ships no official assets. People who own them can drop files in
+  // ---------- Your own art and music (~/.zasatsu-bakuto/custom) ----------
+  // The app ships no official assets. People who own them can drop files in
   // the custom folder; see README.
   const AUDIO_EXT = /\.(mp3|ogg|wav|m4a)$/i;
   const custom = {

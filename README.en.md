@@ -172,7 +172,7 @@ Test results are read from the hook payload: a failed Bash call is red, and test
 
 ## Settings
 
-Right-click the tray icon → **Settings…** (or double-click it), or run `ryoiki settings`. Changes apply right away and are saved in `~/.agent-fever/config.json`.
+Right-click the tray icon → **Settings…** (or double-click it), or run `ryoiki settings`. Changes apply right away and are saved in `~/.zasatsu-bakuto/config.json`.
 
 - **Discreet mode** (also in the tray menu): mini machine, no sound, nothing full screen, a bit transparent. It sits on top of your settings without changing them; switch it off and everything comes back. Made for work computers.
 - **Machine**: layout (**Normal**, **Compact** without lamps and counters, **Mini** with just the screen and one status line, about 230 px wide), corner, size (30–200%), opacity, dim when idle. The machine never takes more than about 60% of the screen height.
@@ -202,7 +202,7 @@ Zasatsu Bakuto does not ship recordings from real machines (they belong to their
 
 ## Your own art and music
 
-Zasatsu Bakuto ships no images or music from the series. If you own files you want to use, put them in `~/.agent-fever/custom/` (or set `FEVER_CUSTOM_DIR`). Files are picked up by name; any of `.png .jpg .webp .gif` for images and `.mp3 .ogg .wav .m4a` for audio:
+Zasatsu Bakuto ships no images or music from the series. If you own files you want to use, put them in `~/.zasatsu-bakuto/custom/` (or set `ZASATSU_CUSTOM_DIR`). Files are picked up by name; any of `.png .jpg .webp .gif` for images and `.mp3 .ogg .wav .m4a` for audio:
 
 | File name | Used for |
 | --- | --- |

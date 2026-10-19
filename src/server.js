@@ -11,12 +11,13 @@ const { createGame } = require('./game');
 const { createSessions } = require('./sessions');
 const { demoScript, previewScript, seeded, DEMO_SEED } = require('./demo');
 const settings = require('./config');
+const { env } = require('./env');
 const { iconPNG } = require('./icon');
 
-const DEFAULT_PORT = Number(process.env.FEVER_PORT) || 4111;
+const DEFAULT_PORT = Number(env('PORT')) || 4111;
 const MAX_BODY = 5 * 1024 * 1024;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
-const CUSTOM_DIR = process.env.FEVER_CUSTOM_DIR || path.join(settings.HOME, 'custom');
+const CUSTOM_DIR = env('CUSTOM_DIR') || path.join(settings.HOME, 'custom');
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8' };
 const MAX_CONFIG_BODY = 64 * 1024;
 // Media people may add to the custom folder.
