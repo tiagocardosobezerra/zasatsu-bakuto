@@ -1696,3 +1696,12 @@ body.layout-mini .conv .name { max-width: none; }
 .crest { align-items: center; }
 .badges { gap: 3px; }
 .domain-state { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.1; }
+/* Mode and domain side by side, to the right of the title */
+.badges { display: flex; flex-direction: row-reverse; align-items: center; gap: 8px; }
+.badges .ja, .badges .tr { white-space: nowrap; }
+body.layout-compact .title .jp { font-size: 18px; }
+body.layout-compact .badges { gap: 6px; }
+/* If the badges do not fit next to the title (Compact, long translations),
+   they move under it, still side by side and on the right. */
+.crest { flex-wrap: wrap; row-gap: 4px; }
+.badges { margin-left: auto; }
