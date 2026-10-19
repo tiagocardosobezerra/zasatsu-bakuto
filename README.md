@@ -59,26 +59,41 @@ Você precisa do [Node.js](https://nodejs.org) 20 ou mais novo e do [Claude Code
 git clone https://github.com/tiagocardosobezerra/zasatsu-bakuto.git
 cd zasatsu-bakuto
 npm install
-node bin/fever.js install     # adiciona os hooks em ~/.claude/settings.json (guarda um backup)
-node bin/fever.js start       # overlay + ícone na bandeja
-node bin/fever.js demo        # assiste uma sessão de exemplo
+node bin/ryoiki.js install     # adiciona os hooks em ~/.claude/settings.json (guarda um backup)
+node bin/ryoiki.js tenkai      # 領域展開: abre o domínio (overlay + ícone na bandeja)
+node bin/ryoiki.js demo        # assiste uma sessão de exemplo
 ```
 
 Depois abra uma nova sessão do Claude Code e trabalhe normalmente. A máquina acorda no seu primeiro prompt.
 
-Quer o comando curto `fever`? Rode `npm link` uma vez dentro da pasta e depois use `fever start`, `fever demo`, `fever settings`, `fever guide`, `fever status`.
+Quer o comando curto? Rode `npm link` uma vez dentro da pasta. A partir daí é só conjurar:
 
-- `fever uninstall` remove só os hooks deste projeto e não mexe no resto das suas configurações.
+```bash
+ryoiki tenkai
+```
+
+| Comando | No mangá | O que faz |
+| --- | --- | --- |
+| `ryoiki tenkai` | **領域展開** Ryōiki Tenkai, Expansão de Domínio | Abre o domínio: overlay e ícone na bandeja |
+| `ryoiki kaijo` | **領域解除** Ryōiki Kaijo, desfazer o domínio | Fecha o domínio |
+| `ryoiki install` / `ryoiki uninstall` | | Liga ou desliga os hooks do Claude Code |
+| `ryoiki demo` | | Toca uma sessão de exemplo |
+| `ryoiki guide` | **遊び方** como jogar | Abre o guia com glossário |
+| `ryoiki settings` | | Abre as configurações |
+| `ryoiki status` | | Diz se o domínio está aberto |
+| `ryoiki serve` | | Só o servidor, para o OBS |
+
+- `ryoiki uninstall` remove só os hooks deste projeto e não mexe no resto das suas configurações.
 - `--settings .claude/settings.json` instala os hooks em um projeto só, em vez de no global.
 - O npm 11 pode pedir para você aprovar o script de instalação do Electron: `npm install-scripts approve electron`.
 
 ## Funciona com outras IAs?
 
-**Hoje, o suporte pronto é para o Claude Code**: o `fever install` liga tudo sozinho. Mas a máquina não depende do Claude. Ela só escuta uma API local, e **qualquer agente ou ferramenta que consiga rodar um comando ou fazer uma requisição HTTP quando algo acontece** pode jogar.
+**Hoje, o suporte pronto é para o Claude Code**: o `ryoiki install` liga tudo sozinho. Mas a máquina não depende do Claude. Ela só escuta uma API local, e **qualquer agente ou ferramenta que consiga rodar um comando ou fazer uma requisição HTTP quando algo acontece** pode jogar.
 
 | Ferramenta | Situação |
 | --- | --- |
-| **Claude Code** (terminal, app desktop, extensões de IDE) | ✅ Suporte pronto, instalação automática com `fever install` |
+| **Claude Code** (terminal, app desktop, extensões de IDE) | ✅ Suporte pronto, instalação automática com `ryoiki install` |
 | Codex CLI, Gemini CLI, Cursor, GitHub Copilot, Aider e outros | 🔌 Ainda sem adaptador pronto. Dá para ligar pela API abaixo se a ferramenta tiver hooks, scripts de evento ou notificações |
 | Seus próprios scripts, CI, agentes caseiros | 🔌 Pela API abaixo |
 
@@ -157,7 +172,7 @@ O resultado dos testes é lido do payload do hook: um Bash que falha é vermelho
 
 ## Configurações
 
-Clique com o botão direito no ícone da bandeja → **Configurações…** (ou dois cliques nele), ou rode `fever settings`. As mudanças valem na hora e ficam salvas em `~/.agent-fever/config.json`.
+Clique com o botão direito no ícone da bandeja → **Configurações…** (ou dois cliques nele), ou rode `ryoiki settings`. As mudanças valem na hora e ficam salvas em `~/.agent-fever/config.json`.
 
 - **Modo discreto** (também no menu da bandeja): máquina mini, sem som, nada em tela cheia, um pouco transparente. Ele fica por cima das suas configurações sem mudar nenhuma; desligou, tudo volta. Feito para o computador do trabalho.
 - **Máquina**: layout (**Normal**, **Compacto** sem lâmpadas e contadores, **Mini** só com a tela e uma linha de status, cerca de 230 px), canto, tamanho (30 a 200%), opacidade, escurecer quando parada. A máquina nunca passa de uns 60% da altura da tela.
@@ -202,7 +217,7 @@ Esses arquivos ficam na sua máquina; o app só entrega eles para o seu próprio
 ## Para quem faz live
 
 ```bash
-fever serve
+ryoiki serve
 ```
 
 Adicione `http://127.0.0.1:4111/` como browser source no OBS (fundo transparente). As opções vão na query string:

@@ -4,7 +4,7 @@
   "description": "A pachinko machine that plays your AI coding agent. Tool calls spin the reels, running tests is a REACH, green tests hit the JACKPOT.",
   "license": "MIT",
   "bin": {
-    "fever": "bin/fever.js"
+    "ryoiki": "bin/ryoiki.js"
   },
   "main": "src/electron-main.js",
   "files": [
@@ -13,9 +13,9 @@
     "public"
   ],
   "scripts": {
-    "start": "node bin/fever.js start",
-    "serve": "node bin/fever.js serve",
-    "demo": "node bin/fever.js demo",
+    "start": "node bin/ryoiki.js tenkai",
+    "serve": "node bin/ryoiki.js serve",
+    "demo": "node bin/ryoiki.js demo",
     "test": "node --test \"test/*.test.js\""
   },
   "engines": {

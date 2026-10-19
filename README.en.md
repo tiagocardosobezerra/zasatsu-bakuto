@@ -59,26 +59,41 @@ You need [Node.js](https://nodejs.org) 20 or newer and [Claude Code](https://cla
 git clone https://github.com/tiagocardosobezerra/zasatsu-bakuto.git
 cd zasatsu-bakuto
 npm install
-node bin/fever.js install     # adds hooks to ~/.claude/settings.json (a backup is kept)
-node bin/fever.js start       # overlay + tray icon
-node bin/fever.js demo        # watch a scripted session play out
+node bin/ryoiki.js install     # adds hooks to ~/.claude/settings.json (a backup is kept)
+node bin/ryoiki.js tenkai      # 領域展開: open the domain (overlay + tray icon)
+node bin/ryoiki.js demo        # watch a scripted session play out
 ```
 
 Then open a new Claude Code session and get to work. The machine wakes up on your first prompt.
 
-Want the short `fever` command? Run `npm link` once inside the folder, then use `fever start`, `fever demo`, `fever settings`, `fever guide`, `fever status`.
+Want the short command? Run `npm link` once inside the folder. From then on, just cast it:
 
-- `fever uninstall` removes only this project's hooks and leaves the rest of your settings alone.
+```bash
+ryoiki tenkai
+```
+
+| Command | In the manga | What it does |
+| --- | --- | --- |
+| `ryoiki tenkai` | **領域展開** Ryōiki Tenkai, Domain Expansion | Opens the domain: overlay and tray icon |
+| `ryoiki kaijo` | **領域解除** Ryōiki Kaijo, dispelling the domain | Closes the domain |
+| `ryoiki install` / `ryoiki uninstall` | | Adds or removes the Claude Code hooks |
+| `ryoiki demo` | | Plays a scripted session |
+| `ryoiki guide` | **遊び方** how to play | Opens the guide and glossary |
+| `ryoiki settings` | | Opens the settings |
+| `ryoiki status` | | Tells you whether the domain is open |
+| `ryoiki serve` | | Server only, for OBS |
+
+- `ryoiki uninstall` removes only this project's hooks and leaves the rest of your settings alone.
 - `--settings .claude/settings.json` installs the hooks for one project instead of globally.
 - npm 11 may ask you to approve Electron's install script: `npm install-scripts approve electron`.
 
 ## Does it work with other AIs?
 
-**Today, built-in support is for Claude Code**: `fever install` wires everything up. But the machine does not depend on Claude. It only listens to a local API, and **any agent or tool that can run a command or make an HTTP request when something happens** can play.
+**Today, built-in support is for Claude Code**: `ryoiki install` wires everything up. But the machine does not depend on Claude. It only listens to a local API, and **any agent or tool that can run a command or make an HTTP request when something happens** can play.
 
 | Tool | Status |
 | --- | --- |
-| **Claude Code** (terminal, desktop app, IDE extensions) | ✅ Built-in, installed automatically with `fever install` |
+| **Claude Code** (terminal, desktop app, IDE extensions) | ✅ Built-in, installed automatically with `ryoiki install` |
 | Codex CLI, Gemini CLI, Cursor, GitHub Copilot, Aider and others | 🔌 No ready-made adapter yet. Connect them through the API below if the tool has hooks, event scripts or notifications |
 | Your own scripts, CI, home-made agents | 🔌 Through the API below |
 
@@ -157,7 +172,7 @@ Test results are read from the hook payload: a failed Bash call is red, and test
 
 ## Settings
 
-Right-click the tray icon → **Settings…** (or double-click it), or run `fever settings`. Changes apply right away and are saved in `~/.agent-fever/config.json`.
+Right-click the tray icon → **Settings…** (or double-click it), or run `ryoiki settings`. Changes apply right away and are saved in `~/.agent-fever/config.json`.
 
 - **Discreet mode** (also in the tray menu): mini machine, no sound, nothing full screen, a bit transparent. It sits on top of your settings without changing them; switch it off and everything comes back. Made for work computers.
 - **Machine**: layout (**Normal**, **Compact** without lamps and counters, **Mini** with just the screen and one status line, about 230 px wide), corner, size (30–200%), opacity, dim when idle. The machine never takes more than about 60% of the screen height.
@@ -168,7 +183,7 @@ Right-click the tray icon → **Settings…** (or double-click it), or run `feve
 
 ## Sound
 
-Fever does not ship recordings from real machines (they belong to their makers). Instead it synthesises the sounds a pachinko hall is known for: the rising **キュイン** when a gold or rainbow effect appears, the steel-ball clatter of the payout, a brassy jackpot fanfare, the heavy shutter-door clank.
+Zasatsu Bakuto does not ship recordings from real machines (they belong to their makers). Instead it synthesises the sounds a pachinko hall is known for: the rising **キュイン** when a gold or rainbow effect appears, the steel-ball clatter of the payout, a brassy jackpot fanfare, the heavy shutter-door clank.
 
 - Every event can be replaced with your own file (see below), so if you own real machine sounds you can use them.
 - **Japanese announcer** (on by default): calls out リーチ!, 大当たり! and 確定! with a Japanese voice installed on the computer. Windows: Settings → Time & language → Speech → Add voices → Japanese. Without one it stays silent; the settings page says which voice it found.
@@ -187,7 +202,7 @@ Fever does not ship recordings from real machines (they belong to their makers).
 
 ## Your own art and music
 
-Fever ships no images or music from the series. If you own files you want to use, put them in `~/.agent-fever/custom/` (or set `FEVER_CUSTOM_DIR`). Files are picked up by name; any of `.png .jpg .webp .gif` for images and `.mp3 .ogg .wav .m4a` for audio:
+Zasatsu Bakuto ships no images or music from the series. If you own files you want to use, put them in `~/.agent-fever/custom/` (or set `FEVER_CUSTOM_DIR`). Files are picked up by name; any of `.png .jpg .webp .gif` for images and `.mp3 .ogg .wav .m4a` for audio:
 
 | File name | Used for |
 | --- | --- |
@@ -197,12 +212,12 @@ Fever ships no images or music from the series. If you own files you want to use
 | `reel-1.png` … `reel-7.png` | Art on each reel number |
 | `expand`, `riichi`, `kyuin`, `door`, `ball`, `consec`, `kakutei`, `jackpot`, `miss`, `heal` (`.mp3/.ogg/.wav`) | Replace the built-in sound for that event |
 
-These files stay on your machine; Fever only serves them to your own overlay on `127.0.0.1`. You are responsible for having the rights to them.
+These files stay on your machine; the app only serves them to your own overlay on `127.0.0.1`. You are responsible for having the rights to them.
 
 ## Streaming
 
 ```bash
-fever serve
+ryoiki serve
 ```
 
 Add `http://127.0.0.1:4111/` as a browser source in OBS (transparent background). Options go in the query string:

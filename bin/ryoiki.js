@@ -14,27 +14,31 @@ const option = (name) => {
 };
 
 const HELP = `
-  fever — a pachinko machine that plays your AI coding agent
+  ryoiki — 領域展開 · 坐殺博徒 (Zasatsu Bakuto, Idle Death Gamble)
+  Kinji Hakari's domain, played by your AI coding agent.
 
-  fever start         open the desktop overlay (tray icon, click-through)
-  fever serve         run the server only; add http://127.0.0.1:${DEFAULT_PORT}/ to OBS as a browser source
-  fever demo          play a scripted agent session on the running overlay
-  fever install       add Fever hooks to ~/.claude/settings.json (backup is kept)
-  fever uninstall     remove Fever hooks
-  fever guide         how to play: what every effect on the machine means
-  fever settings      open the settings page (size, what appears, sound)
-  fever status        is the server running?
+  ryoiki tenkai       領域展開 Domain Expansion: open the overlay (tray icon, click-through)
+  ryoiki kaijo        領域解除 close the domain: quit the overlay
+  ryoiki install      add the hooks to ~/.claude/settings.json (backup is kept)
+  ryoiki uninstall    remove the hooks
+  ryoiki demo         play a scripted agent session on the open domain
+  ryoiki guide        遊び方 how to play: what every effect on the machine means
+  ryoiki settings     open the settings page (size, what appears, sound)
+  ryoiki status       is the domain open?
+  ryoiki serve        server only; add http://127.0.0.1:${DEFAULT_PORT}/ to OBS as a browser source
 
   options
     --settings <file> use another Claude Code settings file (e.g. .claude/settings.json)
-    --foreground      keep "fever start" attached to this terminal
+    --foreground      keep "ryoiki tenkai" attached to this terminal
     FEVER_PORT=<n>    change the port (default ${DEFAULT_PORT})
 `;
+
+const NOT_OPEN = 'The domain is not open. Open it with "ryoiki tenkai" (or "ryoiki serve").';
 
 async function isRunning() {
   try {
     const res = await fetch(`http://127.0.0.1:${DEFAULT_PORT}/health`, { signal: AbortSignal.timeout(800) });
-    return (await res.json()).app === 'agent-fever';
+    return ['zasatsu-bakuto', 'agent-fever'].includes((await res.json()).app);
   } catch {
     return false;
   }
@@ -42,13 +46,14 @@ async function isRunning() {
 
 async function main() {
   switch (command) {
+    case 'tenkai':
     case 'start': {
-      if (await isRunning()) return console.log('Fever is already running.');
+      if (await isRunning()) return console.log('領域展開 · The domain is already open.');
       let electron;
       try {
         electron = require('electron');
       } catch {
-        console.error('Electron is missing. Run "npm install" in the agent-fever folder, or use "fever serve".');
+        console.error('Electron is missing. Run "npm install" in the zasatsu-bakuto folder, or use "ryoiki serve".');
         process.exit(1);
       }
       const main = path.join(__dirname, '..', 'src', 'electron-main.js');
@@ -60,18 +65,29 @@ async function main() {
       });
       if (!foreground) {
         child.unref();
-        console.log('Fever is running. Look for the tray icon; try "fever demo".');
+        console.log('領域展開 坐殺博徒 · Domain Expansion: Idle Death Gamble. Look for the tray icon; try "ryoiki demo".');
       }
       return;
+    }
+
+    case 'kaijo':
+    case 'stop': {
+      if (!(await isRunning())) return console.log('The domain is already closed.');
+      const res = await fetch(`http://127.0.0.1:${DEFAULT_PORT}/quit`, { method: 'POST' }).catch(() => null);
+      if (!res || !res.ok) {
+        console.error('Could not close the domain. Quit it from the tray icon.');
+        process.exit(1);
+      }
+      return console.log('領域解除 · The domain is closed.');
     }
 
     case 'serve': {
       const fever = createFeverServer({ log: (line) => console.log(line) });
       try {
         const port = await fever.listen();
-        console.log(`Fever server on http://127.0.0.1:${port}/  (preview: http://127.0.0.1:${port}/?preview)`);
+        console.log(`Zasatsu Bakuto server on http://127.0.0.1:${port}/  (preview: http://127.0.0.1:${port}/?preview)`);
       } catch (err) {
-        console.error(err.code === 'EADDRINUSE' ? `Port ${DEFAULT_PORT} is busy. Is Fever already running?` : err.message);
+        console.error(err.code === 'EADDRINUSE' ? `Port ${DEFAULT_PORT} is busy. Is the domain already open?` : err.message);
         process.exit(1);
       }
       return;
@@ -79,7 +95,7 @@ async function main() {
 
     case 'demo': {
       if (!(await isRunning())) {
-        console.error('Fever is not running. Start it with "fever start" or "fever serve".');
+        console.error(NOT_OPEN);
         process.exit(1);
       }
       await fetch(`http://127.0.0.1:${DEFAULT_PORT}/demo`, { method: 'POST' });
@@ -88,24 +104,24 @@ async function main() {
 
     case 'install': {
       const result = installer.install({ settingsPath: option('settings') });
-      console.log(`Fever hooks added to ${result.settingsPath}`);
+      console.log(`Hooks added to ${result.settingsPath}`);
       if (result.backupPath) console.log(`Backup: ${result.backupPath}`);
-      return console.log('New Claude Code sessions will play the machine. Start the overlay with "fever start".');
+      return console.log('New Claude Code sessions will play the machine. Open the domain with "ryoiki tenkai".');
     }
 
     case 'uninstall': {
       const result = installer.uninstall({ settingsPath: option('settings') });
-      return console.log(result.removed ? `Removed ${result.removed} Fever hooks from ${result.settingsPath}` : 'No Fever hooks found.');
+      return console.log(result.removed ? `Removed ${result.removed} hooks from ${result.settingsPath}` : 'No Zasatsu Bakuto hooks found.');
     }
 
     case 'settings':
     case 'guide': {
       const page = command === 'guide' ? 'guide.html' : 'settings.html';
       if (!(await isRunning())) {
-        console.error('Fever is not running. Start it with "fever start" or "fever serve".');
+        console.error(NOT_OPEN);
         process.exit(1);
       }
-      // The desktop app opens its own window; with "fever serve" use the browser.
+      // The desktop app opens its own window; with "ryoiki serve" use the browser.
       const res = await fetch(`http://127.0.0.1:${DEFAULT_PORT}/window?name=${command}`, { method: 'POST' }).catch(() => null);
       if (res && res.ok) return console.log(`Opened the ${command} window.`);
       const url = `http://127.0.0.1:${DEFAULT_PORT}/${page}`;
@@ -115,7 +131,7 @@ async function main() {
     }
 
     case 'status':
-      return console.log((await isRunning()) ? `Fever is running on port ${DEFAULT_PORT}.` : 'Fever is not running.');
+      return console.log((await isRunning()) ? `領域展開 · The domain is open on port ${DEFAULT_PORT}.` : '領域解除 · The domain is closed.');
 
     default:
       return console.log(HELP);

@@ -24,7 +24,7 @@
       motion: 'Motion', motionAuto: 'Follow the system', motionFull: 'Full', motionReduced: 'Reduced', motionNote: 'Your system asks apps for less motion, so the full-screen effects show on the machine instead. Pick Full to see them anyway.',
       voice: 'Japanese announcer (リーチ! 大当たり!)', voiceMissing: 'No Japanese voice on this computer. Windows: Settings → Time & language → Speech → Add voices → Japanese.', voiceOk: 'Japanese voice found: ',
       previewExpand: 'Preview 領域展開', previewJackpot: 'Preview 大当たり', demo: 'Play the demo', reset: 'Reset to defaults',
-      ready: 'Changes apply right away.', saved: 'Saved', saveFail: 'Could not save. Is Fever running?', notRunning: 'Fever is not running.',
+      ready: 'Changes apply right away.', saved: 'Saved', saveFail: 'Could not save. Is the domain open (ryoiki tenkai)?', notRunning: 'The domain is not open. Run "ryoiki tenkai".',
       playing: 'Playing on the overlay…', demoPlaying: 'Demo playing on the overlay (about 55 s)…', noFiles: 'No files yet.',
     },
     pt: {
@@ -44,7 +44,7 @@
       motion: 'Movimento', motionAuto: 'Seguir o sistema', motionFull: 'Completo', motionReduced: 'Reduzido', motionNote: 'Seu sistema está pedindo menos movimento aos apps, por isso os efeitos de tela cheia aparecem só na máquina. Escolha Completo para vê-los mesmo assim.',
       voice: 'Locutor japonês (リーチ! 大当たり!)', voiceMissing: 'Nenhuma voz japonesa neste computador. Windows: Configurações → Hora e idioma → Fala → Adicionar vozes → Japonês.', voiceOk: 'Voz japonesa encontrada: ',
       previewExpand: 'Prévia 領域展開', previewJackpot: 'Prévia 大当たり', demo: 'Tocar a demo', reset: 'Restaurar padrão',
-      ready: 'As mudanças valem na hora.', saved: 'Salvo', saveFail: 'Não foi possível salvar. O Fever está rodando?', notRunning: 'O Fever não está rodando.',
+      ready: 'As mudanças valem na hora.', saved: 'Salvo', saveFail: 'Não foi possível salvar. O domínio está aberto (ryoiki tenkai)?', notRunning: 'O domínio não está aberto. Rode "ryoiki tenkai".',
       playing: 'Tocando no overlay…', demoPlaying: 'Demo tocando no overlay (uns 55 s)…', noFiles: 'Nenhum arquivo ainda.',
     },
     es: {
@@ -64,7 +64,7 @@
       motion: 'Movimiento', motionAuto: 'Seguir el sistema', motionFull: 'Completo', motionReduced: 'Reducido', motionNote: 'Tu sistema pide menos movimiento a las apps, así que los efectos de pantalla completa aparecen solo en la máquina. Elige Completo para verlos igualmente.',
       voice: 'Locutor japonés (リーチ! 大当たり!)', voiceMissing: 'No hay voz japonesa en este equipo. Windows: Configuración → Hora e idioma → Voz → Agregar voces → Japonés.', voiceOk: 'Voz japonesa encontrada: ',
       previewExpand: 'Vista previa 領域展開', previewJackpot: 'Vista previa 大当たり', demo: 'Reproducir la demo', reset: 'Restablecer',
-      ready: 'Los cambios se aplican al instante.', saved: 'Guardado', saveFail: 'No se pudo guardar. ¿Fever está en marcha?', notRunning: 'Fever no está en marcha.',
+      ready: 'Los cambios se aplican al instante.', saved: 'Guardado', saveFail: 'No se pudo guardar. ¿El dominio está abierto (ryoiki tenkai)?', notRunning: 'El dominio no está abierto. Ejecuta "ryoiki tenkai".',
       playing: 'Reproduciendo en el overlay…', demoPlaying: 'Demo en el overlay (unos 55 s)…', noFiles: 'Aún no hay archivos.',
     },
   };

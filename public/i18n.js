@@ -8,7 +8,7 @@
 
   // key: [japanese, { en, pt, es }]
   const T = {
-    tickerStart: ['エージェント待機中', { en: 'Run "fever install", then open Claude Code', pt: 'Rode "fever install" e abra o Claude Code', es: 'Ejecuta "fever install" y abre Claude Code' }],
+    tickerStart: ['エージェント待機中', { en: 'Run "ryoiki install", then open Claude Code', pt: 'Rode "ryoiki install" e abra o Claude Code', es: 'Ejecuta "ryoiki install" y abre Claude Code' }],
     reconnecting: ['再接続中…', { en: 'Reconnecting…', pt: 'Reconectando…', es: 'Reconectando…' }],
     previewDemo: ['▶ 領域展開', { en: 'Play the demo session', pt: 'Tocar a sessão de demonstração', es: 'Reproducir la sesión de demostración' }],
     previewNote: ['プレビュー', { en: 'Preview. In the desktop overlay and in OBS the background is transparent.', pt: 'Prévia. No overlay da área de trabalho e no OBS o fundo é transparente.', es: 'Vista previa. En el overlay del escritorio y en OBS el fondo es transparente.' }],

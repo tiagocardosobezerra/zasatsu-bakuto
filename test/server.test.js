@@ -50,3 +50,21 @@ test('layouts, discreet mode and the smaller size range are kept', () => {
   assert.equal(clean({ layout: 'huge', scale: 0.1 }).layout, 'normal');
   assert.equal(clean({ scale: 0.1 }).scale, 0.3);
 });
+
+test('POST /quit closes the domain ("ryoiki kaijo"); other web pages cannot', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'fever-quit-'));
+  let quits = 0;
+  const fever = createFeverServer({ port: 0, configFile: path.join(dir, 'c.json'), onQuit: () => { quits += 1; } });
+  const port = await fever.listen();
+  const base = `http://127.0.0.1:${port}`;
+  try {
+    const evil = await fetch(`${base}/quit`, { method: 'POST', headers: { Origin: 'https://example.com' } });
+    assert.equal(evil.status, 403);
+    assert.equal((await fetch(`${base}/quit`, { method: 'POST' })).status, 204);
+    await new Promise((r) => setTimeout(r, 120));
+    assert.equal(quits, 1);
+    assert.equal((await (await fetch(`${base}/health`)).json()).app, 'zasatsu-bakuto');
+  } finally {
+    await fever.close();
+  }
+});

@@ -1,8 +1,8 @@
 'use strict';
 
-// Desktop shell: runs the Fever server in-process and shows the overlay in
+// Desktop shell: runs the server in-process and shows the overlay in
 // a transparent, click-through, always-on-top window over the primary
-// display. Everything else (game, visuals) is shared with `fever serve`.
+// display. Everything else (game, visuals) is shared with `ryoiki serve`.
 
 const { app, BrowserWindow, Menu, Tray, nativeImage, screen } = require('electron');
 const { createFeverServer } = require('./server');
@@ -149,7 +149,7 @@ function buildMenu() {
     { label: t.settings, click: openSettings },
     { label: t.demo, click: () => fever.runDemo() },
     { type: 'separator' },
-    { label: t.quit, click: () => app.quit() },
+    { label: `領域解除 · ${t.quit}`, click: () => app.quit() },
   ]);
 }
 
@@ -173,12 +173,15 @@ function showMenu() {
 app.whenReady().then(async () => {
   if (process.platform === 'darwin' && app.dock) app.dock.hide();
 
-  fever = createFeverServer({ onOpenWindow: (name) => (name === 'guide' ? openGuide() : openSettings()) });
+  fever = createFeverServer({
+    onOpenWindow: (name) => (name === 'guide' ? openGuide() : openSettings()),
+    onQuit: () => app.quit(),
+  });
   let port;
   try {
     port = await fever.listen();
   } catch (err) {
-    console.error(err.code === 'EADDRINUSE' ? 'Port busy: is Fever already running?' : err);
+    console.error(err.code === 'EADDRINUSE' ? 'Port busy: is the domain already open?' : err);
     app.quit();
     return;
   }

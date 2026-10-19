@@ -39,6 +39,7 @@ function createFeverServer({
   configFile = settings.CONFIG_FILE,
   onBroadcast = () => {},
   onOpenWindow = null, // set by the desktop app: opens its settings / guide window
+  onQuit = () => process.exit(0), // "ryoiki kaijo"; the desktop app quits Electron instead
   sessions = createSessions(),
 } = {}) {
   const clients = new Set();
@@ -217,6 +218,11 @@ function createFeverServer({
       return res.writeHead(204).end();
     }
 
+    if (req.method === 'POST' && url.pathname === '/quit') {
+      res.writeHead(204).end();
+      return setTimeout(onQuit, 50);
+    }
+
     if (req.method === 'POST' && url.pathname === '/preview') {
       const kind = url.searchParams.get('kind');
       if (!['expand', 'jackpot'].includes(kind)) return res.writeHead(400).end();
@@ -273,7 +279,7 @@ function createFeverServer({
 
     if (req.method === 'GET' && url.pathname === '/health') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
-      return res.end(JSON.stringify({ app: 'agent-fever', clients: clients.size }));
+      return res.end(JSON.stringify({ app: 'zasatsu-bakuto', clients: clients.size }));
     }
 
     if (req.method === 'GET') {
