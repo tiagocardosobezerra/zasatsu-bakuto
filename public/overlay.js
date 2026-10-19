@@ -740,10 +740,36 @@
       act.className = 'act';
       act.textContent = s.detail || '';
       li.append(dot, name, title, chip, act);
+      if (s.link) {
+        li.classList.add('linked');
+        const { ja, tr } = i18n.t('openConv');
+        li.title = tr ? `${ja} · ${tr}` : ja;
+      }
       box.appendChild(li);
     }
     markCurrent();
   }
+
+  // A line with a link opens its conversation in the Claude app. The desktop
+  // overlay is click-through, so it asks to take clicks while the pointer is
+  // over such a line.
+  const post = (url) => fetch(url, { method: 'POST' }).catch(() => {});
+  const convLines = $('conv-lines');
+  let pointerOver = false;
+  function setPointer(over) {
+    if (over === pointerOver) return;
+    pointerOver = over;
+    post(`/pointer?over=${over ? 1 : 0}`);
+  }
+  convLines.addEventListener('mousemove', (ev) => setPointer(Boolean(ev.target.closest('.conv.linked'))));
+  convLines.addEventListener('mouseleave', () => setPointer(false));
+  convLines.addEventListener('click', (ev) => {
+    const li = ev.target.closest('.conv.linked');
+    if (!li) return;
+    li.classList.add('opening');
+    setTimeout(() => li.classList.remove('opening'), 600);
+    post(`/open?session=${encodeURIComponent(li.dataset.id)}`);
+  });
 
   // Finished conversations leave the list after a while.
   setInterval(() => lastSessions && renderSessions(), 15000);

@@ -35,7 +35,7 @@ So you can read docs, answer chat, or make coffee, and still know **when the tes
 What it is not:
 
 - It never blocks, slows or changes the agent. It only listens to Claude Code's official hooks, asynchronously.
-- It sends nothing anywhere. Everything runs on `127.0.0.1`. No telemetry, no account.
+- It sends nothing anywhere. Everything runs on `127.0.0.1`. No telemetry, no account. For the conversation links it reads, on your computer, only each conversation's id from the Claude app's files.
 - It does not get in your way: the overlay is click-through, and there is a **discreet mode** (small, silent, translucent) for the work computer.
 
 ## Highlights
@@ -43,7 +43,7 @@ What it is not:
 - **Faithful to the manga.** The rules come from the CR私鉄純愛列車 rule sheet Hakari shows in chapter 183 and the fights in chapters 182–190: 1/239 odds, 疑似連, 緑 < 赤 < 金 < 虹 notices, the four riichi scenarios, 確変/時短, 潜伏確変 and the 4:11 jackpot round with automatic reverse cursed technique. The full table is [below](#the-rules-of-the-domain).
 - **Japanese first, with a translation under every line** in your computer's language (English, Português, Español), down to the sound effects, scanlation style.
 - **Three sizes**: Normal, Compact, and Mini (about 230 px wide, one status line).
-- **One machine for every conversation**: any Claude Code conversation spins the same reels and adds to the same totals, and each conversation in progress gets a line on the machine. The list grows and shrinks by itself. One riichi at a time, and the domain only closes when all of them stop. Totals and 確変 are saved when you close the app.
+- **One machine for every conversation**: any Claude Code conversation spins the same reels and adds to the same totals, and each conversation in progress gets a line on the machine. The list grows and shrinks by itself, and clicking a line (↗) opens that conversation in the Claude app. One riichi at a time, and the domain only closes when all of them stop. Totals and 確変 are saved when you close the app.
 - **Synthesised pachinko sounds** (キュイン, ball clatter, shutter clank, fanfare) and an optional Japanese announcer. Every sound and image can be replaced with your own files.
 - **Built-in guide** (tray → 遊び方 · guide) that explains the game step by step, with a glossary.
 - **Open to other AIs**: Claude Code works out of the box; any other agent connects through a simple local API ([how](#does-it-work-with-other-ais)).

@@ -35,7 +35,7 @@ Assim você lê documentação, responde o chat ou pega um café, e mesmo assim 
 O que ele não faz:
 
 - Nunca bloqueia, atrasa ou muda o agente. Ele só escuta os hooks oficiais do Claude Code, de forma assíncrona.
-- Não envia nada para lugar nenhum. Tudo roda em `127.0.0.1`. Sem telemetria, sem conta.
+- Não envia nada para lugar nenhum. Tudo roda em `127.0.0.1`. Sem telemetria, sem conta. Para os links das conversas, ele lê no seu PC só o ID de cada conversa nos arquivos do app do Claude.
 - Não atrapalha: o overlay deixa o clique passar, e existe um **modo discreto** (pequeno, sem som, translúcido) para o computador do trabalho.
 
 ## Destaques
@@ -43,7 +43,7 @@ O que ele não faz:
 - **Fiel ao mangá.** As regras vêm da folha de regras do CR私鉄純愛列車 que o Hakari mostra no capítulo 183 e das lutas dos capítulos 182 a 190: chance de 1/239, 疑似連, avisos 緑 < 赤 < 金 < 虹, os quatro cenários de riichi, 確変/時短, 潜伏確変 e a rodada de jackpot de 4:11 com técnica reversa automática. A tabela completa está [mais abaixo](#as-regras-do-domínio).
 - **Japonês primeiro, com tradução embaixo de cada linha** no idioma do seu computador (Português, English, Español), até nas onomatopeias, no estilo scanlation.
 - **Três tamanhos**: Normal, Compacto e Mini (cerca de 230 px de largura, uma linha de status).
-- **Uma máquina para todas as conversas**: qualquer conversa do Claude Code gira os mesmos rolos e soma no mesmo placar, e cada conversa em andamento ganha uma linha na máquina. A lista cresce e diminui sozinha. Só uma リーチ por vez, e o domínio só fecha quando todas param. O placar e o 確変 ficam salvos quando você fecha o app.
+- **Uma máquina para todas as conversas**: qualquer conversa do Claude Code gira os mesmos rolos e soma no mesmo placar, e cada conversa em andamento ganha uma linha na máquina. A lista cresce e diminui sozinha, e clicar numa linha (↗) abre aquela conversa no app do Claude. Só uma リーチ por vez, e o domínio só fecha quando todas param. O placar e o 確変 ficam salvos quando você fecha o app.
 - **Sons de pachinko sintetizados** (キュイン, chuva de bolinhas, batida do shutter, fanfarra) e um locutor japonês opcional. Todo som e imagem pode ser trocado por arquivos seus.
 - **Guia embutido** (bandeja → 遊び方 · guia) que explica o jogo passo a passo, com glossário.
 - **Aberto para outras IAs**: Claude Code vem pronto; qualquer outro agente liga por uma API local simples ([como](#funciona-com-outras-ias)).

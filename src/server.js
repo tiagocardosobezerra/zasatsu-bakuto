@@ -9,6 +9,7 @@ const path = require('node:path');
 const { classify } = require('./classify');
 const { createGame } = require('./game');
 const { createMachine } = require('./machine');
+const { createLinks } = require('./links');
 const { demoScript, previewScript, seeded, DEMO_SEED } = require('./demo');
 const settings = require('./config');
 const { env } = require('./env');
@@ -33,6 +34,13 @@ function customFiles() {
   }
 }
 
+// Hands a claude:// link to the operating system (used by "ryoiki serve").
+function openExternal(link) {
+  const { spawn } = require('node:child_process');
+  const opener = process.platform === 'win32' ? ['cmd', ['/c', 'start', '', link]] : [process.platform === 'darwin' ? 'open' : 'xdg-open', [link]];
+  spawn(opener[0], opener[1], { stdio: 'ignore', detached: true }).unref();
+}
+
 // The machine saved by an earlier run, if any.
 function readSaved(file) {
   try {
@@ -51,6 +59,9 @@ function createDomainServer({
   onOpenWindow = null, // set by the desktop app: opens its settings / guide window
   onQuit = () => process.exit(0), // "ryoiki kaijo"; the desktop app quits Electron instead
   makeGame = (saved) => createGame({ saved }),
+  links = createLinks(),
+  onOpenLink = openExternal, // opens a claude:// link to a conversation
+  onPointer = () => {}, // the desktop app lets clicks through while the pointer is over a line
 } = {}) {
   const clients = new Set();
   let config = settings.load(configFile);
@@ -88,7 +99,7 @@ function createDomainServer({
   let lastWho = null;
 
   function sessionsMessage() {
-    return { type: 'sessions', list: sessions.list() };
+    return { type: 'sessions', list: sessions.list().map((s) => ({ ...s, link: links.has(s.id) })) };
   }
 
   function hello() {
@@ -232,6 +243,19 @@ function createDomainServer({
       if (!['settings', 'guide'].includes(name)) return res.writeHead(400).end();
       if (!onOpenWindow) return res.writeHead(404).end();
       onOpenWindow(name);
+      return res.writeHead(204).end();
+    }
+
+    // Click on a conversation line: open that conversation in the Claude app.
+    if (req.method === 'POST' && url.pathname === '/open') {
+      const link = links.linkFor(url.searchParams.get('session'));
+      if (!link) return res.writeHead(404).end();
+      onOpenLink(link);
+      return res.writeHead(204).end();
+    }
+
+    if (req.method === 'POST' && url.pathname === '/pointer') {
+      onPointer(url.searchParams.get('over') === '1');
       return res.writeHead(204).end();
     }
 

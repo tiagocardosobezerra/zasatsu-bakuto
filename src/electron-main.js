@@ -4,7 +4,7 @@
 // a transparent, click-through, always-on-top window over the primary
 // display. Everything else (game, visuals) is shared with `ryoiki serve`.
 
-const { app, BrowserWindow, Menu, Tray, nativeImage, screen } = require('electron');
+const { app, BrowserWindow, Menu, Tray, nativeImage, screen, shell } = require('electron');
 const { createDomainServer } = require('./server');
 const path = require('node:path');
 
@@ -45,7 +45,9 @@ function createOverlay(port) {
   });
   lockZoom(win);
   win.setAlwaysOnTop(true, 'screen-saver');
-  win.setIgnoreMouseEvents(true);
+  // Click-through, but the page still hears the pointer, so a conversation
+  // line can take the click (see onPointer below).
+  win.setIgnoreMouseEvents(true, { forward: true });
   win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   win.loadURL(`http://127.0.0.1:${port}/`);
 }
@@ -144,6 +146,8 @@ app.whenReady().then(async () => {
   domain = createDomainServer({
     onOpenWindow: (name) => (name === 'guide' ? openGuide() : openSettings()),
     onQuit: () => app.quit(),
+    onOpenLink: (link) => shell.openExternal(link),
+    onPointer: (over) => win && !win.isDestroyed() && win.setIgnoreMouseEvents(!over, { forward: true }),
   });
   let port;
   try {

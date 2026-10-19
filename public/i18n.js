@@ -46,7 +46,7 @@
     jitanEnd: ['時短終了 · 通常', { en: 'Faster spins over: normal', pt: 'Fim dos giros rápidos: normal', es: 'Fin de giros rápidos: normal' }],
     yourTurnFrom: ['あなたの番 · {who}', { en: 'Your turn · {who}', pt: 'Sua vez · {who}', es: 'Tu turno · {who}' }],
     whoNone: ['会話待ち', { en: 'Waiting for a conversation', pt: 'Aguardando uma conversa', es: 'Esperando una conversación' }],
-    pinnedTag: ['固定', { en: 'pinned', pt: 'fixada', es: 'fijada' }],
+    openConv: ['会話を開く', { en: 'Open this conversation in Claude', pt: 'Abrir esta conversa no Claude', es: 'Abrir esta conversación en Claude' }],
     stIdle: ['待機', { en: 'idle', pt: 'parada', es: 'en espera' }],
     stWorking: ['作業中', { en: 'working', pt: 'trabalhando', es: 'trabajando' }],
     stRiichi: ['リーチ', { en: 'riichi (tests running)', pt: 'riichi (testes rodando)', es: 'riichi (tests en curso)' }],

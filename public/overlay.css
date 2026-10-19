@@ -1683,3 +1683,10 @@ body.layout-mini .conv-lines { gap: 2px; margin-bottom: 5px; }
 body.layout-mini .conv { grid-template-columns: 9px minmax(0, 1fr) auto; padding: 2px 5px; font-size: 10px; }
 body.layout-mini .conv .title, body.layout-mini .conv .act { display: none; }
 body.layout-mini .conv .name { max-width: none; }
+/* A line that opens its conversation in the Claude app */
+.conv.linked { cursor: pointer; pointer-events: auto; }
+.conv.linked:hover { background: color-mix(in srgb, var(--c) 30%, transparent); }
+.conv.linked:hover .name { text-decoration: underline; text-underline-offset: 2px; }
+.conv.linked .name::after { content: ' ↗'; font-weight: 400; opacity: .55; }
+.conv.opening { animation: conv-open .6s ease; }
+@keyframes conv-open { 30% { background: color-mix(in srgb, var(--c) 55%, transparent); } }
