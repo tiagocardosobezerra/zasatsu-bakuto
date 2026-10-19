@@ -46,6 +46,8 @@
     increased: { badge: 'modeIncreased', stage: 'stageIncreased' },
     faster: { badge: 'modeFaster', stage: 'stageFaster' },
   };
+  // Until the server says otherwise (src/game.js ODDS).
+  const DEFAULT_ODDS = { normal: 239, increased: 24, faster: 239 };
   const COLOR_CALL = { red: 'chance', gold: 'hot', rainbow: 'kakutei' };
 
   // The sure-hit effect: the rules dumped into the opponent's head.
@@ -548,7 +550,7 @@
     $('best').title = hint('bestHint');
     document.querySelector('.title .cr').title = hint('crHint');
     if (banner.dataset.key) i18n.put(banner, banner.dataset.key, banner.dataset.vars ? JSON.parse(banner.dataset.vars) : undefined);
-    applyMode(lastMode.mode, lastMode.jitanLeft);
+    applyMode(lastMode.mode, lastMode.jitanLeft, lastMode.odds);
     applyDomain(lastDomain);
     applyStage(lastStage);
     setWho();
@@ -564,14 +566,15 @@
     }
   }
 
-  function applyMode(mode, jitanLeft) {
+  // The badge names the mode and the jackpot odds that come with it.
+  function applyMode(mode, jitanLeft, odds = DEFAULT_ODDS[mode] || 239) {
     currentMode = mode || 'normal';
-    lastMode = { mode: currentMode, jitanLeft };
+    lastMode = { mode: currentMode, jitanLeft, odds };
     const keys = MODE_KEYS[currentMode] || MODE_KEYS.normal;
     const badge = $('mode');
     badge.dataset.mode = currentMode;
-    if (currentMode === 'faster' && jitanLeft) i18n.put(badge, 'modeFasterLeft', { n: jitanLeft });
-    else i18n.put(badge, keys.badge);
+    if (currentMode === 'faster' && jitanLeft) i18n.put(badge, 'modeFasterLeft', { n: jitanLeft, odds });
+    else i18n.put(badge, keys.badge, { odds });
     machine.dataset.mode = currentMode;
     lcd.dataset.mode = currentMode;
     i18n.put($('stage-sub'), keys.stage);
@@ -917,7 +920,7 @@
   // ---------- Event handlers ----------
   const handlers = {
     async expand(e) {
-      applyMode(e.mode, e.jitanLeft);
+      applyMode(e.mode, e.jitanLeft, e.odds);
       const mode = introMode();
       if (mode === 'full') await expandFull();
       else if (mode === 'compact') await expandCompact();
@@ -932,7 +935,7 @@
     },
 
     async spin(e) {
-      applyMode(e.mode, e.jitanLeft);
+      applyMode(e.mode, e.jitanLeft, e.odds);
       if (riichiOn) return;
       const { kind, color } = e.indicator;
       setCabinet(null, e.stage.guaranteed ? 'kakuteiShort' : '');
@@ -1002,7 +1005,7 @@
     async jackpot(e) {
       await resolveRiichi(e, true);
       setCabinet('win', 'jackpot');
-      applyMode(e.mode, e.jitanLeft);
+      applyMode(e.mode, e.jitanLeft, e.odds);
       applyDomain('round');
       applyStage(e.stage);
       sound.jackpot();
@@ -1060,7 +1063,7 @@
     async 'round-end'(e) {
       roundEndsAt = null;
       custom.stop('round');
-      applyMode(e.mode, e.jitanLeft);
+      applyMode(e.mode, e.jitanLeft, e.odds);
       applyDomain('closed');
       setScene('stage');
       setCabinet(null, 'roundEnd');
@@ -1124,7 +1127,7 @@
     }
     if (e.sessions) renderSessions(e.sessions);
     updateStats(e.stats);
-    applyMode(e.mode, e.jitanLeft);
+    applyMode(e.mode, e.jitanLeft, e.odds);
     applyDomain(e.domain);
     applyStage(e.stage);
     if (e.domain === 'round' && e.roundEndsAt) {

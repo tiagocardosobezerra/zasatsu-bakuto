@@ -135,6 +135,8 @@ function createGame({ random = Math.random, now = Date.now, pickSymbol } = {}) {
       label: last.label,
       session: last.session,
       mode: visibleMode(),
+      // The jackpot odds the player sees (潜伏確変 hides its better odds).
+      odds: Math.round(1 / ODDS[visibleMode()]),
       jitanLeft: mode === 'faster' || mode === 'hidden' ? jitanLeft : 0,
       domain,
       stage: {

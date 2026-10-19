@@ -104,15 +104,16 @@ test('jackpot opens a 4:11 round, heals failures, then the domain re-expands', (
 });
 
 test('odd jackpot carries increased probability into the next domain; even gives faster spins', () => {
-  for (const [symbol, odd, nextMode] of [[3, true, 'increased'], [4, false, 'faster']]) {
+  for (const [symbol, odd, nextMode, odds] of [[3, true, 'increased', 24], [4, false, 'faster', 239]]) {
     const game = createGame({ random: rng([], 0.99), pickSymbol: () => symbol });
-    game.handle(signal('turn-start'));
+    assert.equal(game.handle(signal('turn-start'))[0].odds, 239, 'normal: 1/239');
     for (let i = 0; i < 3; i++) game.handle(signal('tool-fail'));
     game.handle(signal('test-start'));
     const [win] = game.handle(signal('test-end', { passed: true }));
     assert.equal(win.odd, odd);
     assert.equal(win.nextMode, nextMode);
     assert.equal(game.snapshot().mode, nextMode);
+    assert.equal(game.snapshot().odds, odds, 'the badge shows the odds of the new mode');
   }
 });
 
