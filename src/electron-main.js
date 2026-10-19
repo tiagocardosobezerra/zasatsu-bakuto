@@ -101,7 +101,6 @@ const openGuide = () => openPage('guide', 'guide.html', 'Idle Death Gamble · �
 const MENU_TEXT = {
   en: { guide: 'How to play (guide)', lines: 'Conversation lines', off: 'Off', all: 'Unlimited', machines: 'Machines', shared: 'One for all', each: 'One per conversation', settings: 'Settings…', demo: 'Play demo', discreet: 'Discreet mode', layout: 'Layout', normal: 'Normal', compact: 'Compact', mini: 'Mini', mute: 'Mute', show: 'Show overlay', quit: 'Quit' },
   pt: { guide: 'Como jogar (guia)', lines: 'Linhas de conversa', off: 'Desligado', all: 'Ilimitado', machines: 'Máquinas', shared: 'Uma para todas', each: 'Uma por conversa', settings: 'Configurações…', demo: 'Tocar a demo', discreet: 'Modo discreto', layout: 'Formato', normal: 'Normal', compact: 'Compacto', mini: 'Mini', mute: 'Silenciar', show: 'Mostrar overlay', quit: 'Sair' },
-  es: { guide: 'Cómo jugar (guía)', lines: 'Líneas de conversación', off: 'Apagado', all: 'Ilimitado', machines: 'Máquinas', shared: 'Una para todas', each: 'Una por conversación', settings: 'Ajustes…', demo: 'Reproducir la demo', discreet: 'Modo discreto', layout: 'Formato', normal: 'Normal', compact: 'Compacto', mini: 'Mini', mute: 'Silenciar', show: 'Mostrar overlay', quit: 'Salir' },
 };
 
 function buildMenu() {
@@ -114,13 +113,17 @@ function buildMenu() {
     checked: cfg.layout === value,
     click: () => domain.setConfig({ layout: value }),
   });
+  // Same order as the settings page: quick switches, then the game, then
+  // the machine on screen.
   return Menu.buildFromTemplate([
     { label: '坐殺博徒 · Idle Death Gamble', enabled: false },
     { type: 'separator' },
     { label: `遊び方 · ${t.guide}`, click: openGuide },
     { type: 'separator' },
     { label: t.discreet, type: 'checkbox', checked: cfg.discreet, click: (item) => domain.setConfig({ discreet: item.checked }) },
-    { label: t.layout, submenu: ['normal', 'compact', 'mini'].map(layoutItem) },
+    { label: t.mute, type: 'checkbox', checked: cfg.muted, click: (item) => domain.setConfig({ muted: item.checked }) },
+    { label: t.show, type: 'checkbox', checked: win.isVisible(), click: (item) => (item.checked ? win.showInactive() : win.hide()) },
+    { type: 'separator' },
     {
       label: t.machines,
       submenu: ['shared', 'each'].map((m) => ({ label: t[m], type: 'radio', checked: cfg.machines === m, click: () => domain.setConfig({ machines: m }) })),
@@ -129,8 +132,7 @@ function buildMenu() {
       label: t.lines,
       submenu: [0, 1, 2, 3, 'all'].map((n) => ({ label: n === 'all' ? t.all : n ? String(n) : t.off, type: 'radio', checked: cfg.lines === n, click: () => domain.setConfig({ lines: n }) })),
     },
-    { label: t.mute, type: 'checkbox', checked: cfg.muted, click: (item) => domain.setConfig({ muted: item.checked }) },
-    { label: t.show, type: 'checkbox', checked: win.isVisible(), click: (item) => (item.checked ? win.showInactive() : win.hide()) },
+    { label: t.layout, submenu: ['normal', 'compact', 'mini'].map(layoutItem) },
     { type: 'separator' },
     { label: t.settings, click: openSettings },
     { label: t.demo, click: () => domain.runDemo() },

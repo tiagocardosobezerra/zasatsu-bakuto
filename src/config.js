@@ -47,7 +47,7 @@ const DEFAULTS = {
   discreet: false, // one switch for work: mini, silent, nothing full screen
   show: { crest: true, lamps: true, indicators: true, ticker: true, stats: true },
   sound: { volume: 0.6, effects: true, music: true, voice: true },
-  translation: 'auto', // auto | en | pt | es | ja (Japanese only)
+  translation: 'auto', // auto | en | pt | ja (Japanese only)
   machines: 'shared', // shared: one machine for every conversation · each: one per conversation
   lines: 'all', // conversation lines: one per active conversation, up to 1, 2, 3 or 'all' (as many as fit on screen); 0 hides them
   motion: 'auto', // auto (follow the system) | full | reduced
@@ -57,7 +57,7 @@ const ENUMS = {
   position: ['br', 'bl', 'tr', 'tl'],
   intro: ['smart', 'full', 'compact', 'off'],
   jackpot: ['full', 'compact', 'off'],
-  translation: ['auto', 'en', 'pt', 'es', 'ja'],
+  translation: ['auto', 'en', 'pt', 'ja'],
   motion: ['auto', 'full', 'reduced'],
   layout: ['normal', 'compact', 'mini'],
   machines: ['shared', 'each'],

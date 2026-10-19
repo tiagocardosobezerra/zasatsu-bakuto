@@ -24,8 +24,7 @@ test('translation follows the computer language, Japanese stays first', () => {
   assert.equal(loadI18n('ja-JP').lang(), null);
   const ja = loadI18n('ja-JP');
   assert.equal(ja.t('riichi').tr, '');
-  pt.setLang('es');
-  assert.equal(pt.t('miss').tr, 'Fallo…');
+  assert.equal(loadI18n('es-ES').lang(), 'en', 'Spanish computers get English');
 });
 
 test('every key the overlay uses exists in every language', () => {

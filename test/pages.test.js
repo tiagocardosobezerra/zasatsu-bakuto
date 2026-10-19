@@ -10,7 +10,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const read = (f) => fs.readFileSync(path.join(__dirname, '..', 'public', f), 'utf8');
-const LANGS = ['en', 'pt', 'es'];
+const LANGS = ['en', 'pt'];
 
 // Pulls the `const TEXT = {...};` table out of a page script.
 function textTable(file) {

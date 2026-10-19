@@ -9,7 +9,7 @@
   const TEXT = {
     en: {
       windowTitle: 'Idle Death Gamble · Settings',
-      settings: 'settings', machine: 'Machine', corner: 'Corner', tl: 'Top left', tr: 'Top right', bl: 'Bottom left', br: 'Bottom right',
+      settings: 'settings', game: 'Game', machine: 'On screen', corner: 'Corner', tl: 'Top left', tr: 'Top right', bl: 'Bottom left', br: 'Bottom right',
       size: 'Size', opacity: 'Opacity', idleDim: 'Dim after 90 s without activity', appears: 'What appears',
       expansion: 'Domain Expansion 領域展開', jackpot: 'Jackpot 大当たり', full: 'Full screen', compact: 'On the machine', off: 'Off',
       showCrest: 'Title and mode', showLamps: 'Lamps', showIndicators: '保留 / 疑似連 row', showTicker: 'Current tool', showStats: 'Counters',
@@ -29,7 +29,7 @@
     },
     pt: {
       windowTitle: 'Idle Death Gamble · Configurações',
-      settings: 'configurações', machine: 'Máquina', corner: 'Canto', tl: 'Superior esquerdo', tr: 'Superior direito', bl: 'Inferior esquerdo', br: 'Inferior direito',
+      settings: 'configurações', game: 'Jogo', machine: 'Na tela', corner: 'Canto', tl: 'Superior esquerdo', tr: 'Superior direito', bl: 'Inferior esquerdo', br: 'Inferior direito',
       size: 'Tamanho', opacity: 'Opacidade', idleDim: 'Escurecer após 90 s sem atividade', appears: 'O que aparece',
       expansion: 'Expansão de Domínio 領域展開', jackpot: 'Jackpot 大当たり', full: 'Tela cheia', compact: 'Só na máquina', off: 'Desligado',
       showCrest: 'Título e modo', showLamps: 'Luzes', showIndicators: 'Linha 保留 / 疑似連', showTicker: 'Ferramenta atual', showStats: 'Contadores',
@@ -46,26 +46,6 @@
       previewExpand: 'Prévia 領域展開', previewJackpot: 'Prévia 大当たり', demo: 'Tocar a demo', reset: 'Restaurar padrão',
       ready: 'As mudanças valem na hora.', saved: 'Salvo', saveFail: 'Não foi possível salvar. O domínio está aberto (ryoiki tenkai)?', notRunning: 'O domínio não está aberto. Rode "ryoiki tenkai".',
       playing: 'Tocando no overlay…', demoPlaying: 'Demo tocando no overlay (uns 55 s)…', noFiles: 'Nenhum arquivo ainda.',
-    },
-    es: {
-      windowTitle: 'Idle Death Gamble · Ajustes',
-      settings: 'ajustes', machine: 'Máquina', corner: 'Esquina', tl: 'Arriba izquierda', tr: 'Arriba derecha', bl: 'Abajo izquierda', br: 'Abajo derecha',
-      size: 'Tamaño', opacity: 'Opacidad', idleDim: 'Atenuar tras 90 s sin actividad', appears: 'Qué aparece',
-      expansion: 'Expansión de Dominio 領域展開', jackpot: 'Premio 大当たり', full: 'Pantalla completa', compact: 'Solo en la máquina', off: 'Apagado',
-      showCrest: 'Título y modo', showLamps: 'Luces', showIndicators: 'Fila 保留 / 疑似連', showTicker: 'Herramienta actual', showStats: 'Contadores',
-      language: 'Idioma', translation: 'Traducción bajo el japonés', langAuto: 'Idioma del equipo', langJa: 'Solo japonés (日本語のみ)',
-      sound: 'Sonido', volume: 'Volumen', effects: 'Sonidos de la máquina', music: 'Tu música (ronda / expansión)', muted: 'Silenciar todo',
-      art: 'Tu arte y música', folder: 'Carpeta:',
-      names: 'Imágenes: <code>intro.png</code>, <code>jackpot.png</code>, <code>reel-1.png</code> … <code>reel-7.png</code>. Música: <code>round.mp3</code> (suena durante los 4:11). Sonidos que reemplazan los de la máquina: <code>expand</code>, <code>riichi</code>, <code>kyuin</code>, <code>door</code>, <code>ball</code>, <code>consec</code>, <code>kakutei</code>, <code>jackpot</code>, <code>miss</code>, <code>heal</code> (.mp3/.ogg/.wav). Recarga el overlay después de añadir archivos.',
-      smart: 'Inteligente', smartHint: '<b>Inteligente</b>: pantalla completa la primera vez y de nuevo tras 10 minutos sin actividad; el resto, solo en la máquina.',
-      guideTitle: '遊び方 · Cómo jugar', guideHint: 'Qué significa cada efecto de la máquina, paso a paso.', guideOpen: 'Abrir la guía',
-      discreet: 'Modo discreto', discreetHint: 'Para el trabajo: máquina mini, sin sonido, nada a pantalla completa. Tus otros ajustes vuelven al desactivarlo.',
-      layout: 'Formato', layoutNormal: 'Normal', layoutCompact: 'Compacto', layoutMini: 'Mini', lines: 'Líneas de conversación', linesHint: 'Una línea por conversación en curso, hasta este número. Ilimitado: cuantas quepan en la pantalla.', linesAll: 'Ilimitado', machines: 'Máquinas', machinesShared: 'Una para todas', machinesEach: 'Una por conversación', machinesHint: 'Una para todas: cada conversación gira la misma máquina y suma al mismo marcador, guardado al cerrar la app. Una por conversación: cada una tiene su máquina, y la pantalla sigue la última conversación en la que escribiste.',
-      motion: 'Movimiento', motionAuto: 'Seguir el sistema', motionFull: 'Completo', motionReduced: 'Reducido', motionNote: 'Tu sistema pide menos movimiento a las apps, así que los efectos de pantalla completa aparecen solo en la máquina. Elige Completo para verlos igualmente.',
-      voice: 'Locutor japonés (リーチ! 大当たり!)', voiceMissing: 'No hay voz japonesa en este equipo. Windows: Configuración → Hora e idioma → Voz → Agregar voces → Japonés.', voiceOk: 'Voz japonesa encontrada: ',
-      previewExpand: 'Vista previa 領域展開', previewJackpot: 'Vista previa 大当たり', demo: 'Reproducir la demo', reset: 'Restablecer',
-      ready: 'Los cambios se aplican al instante.', saved: 'Guardado', saveFail: 'No se pudo guardar. ¿El dominio está abierto (ryoiki tenkai)?', notRunning: 'El dominio no está abierto. Ejecuta "ryoiki tenkai".',
-      playing: 'Reproduciendo en el overlay…', demoPlaying: 'Demo en el overlay (unos 55 s)…', noFiles: 'Aún no hay archivos.',
     },
   };
   let words = TEXT.en;

@@ -41,7 +41,7 @@ What it is not:
 ## Highlights
 
 - **Faithful to the manga.** The rules come from the CR私鉄純愛列車 rule sheet Hakari shows in chapter 183 and the fights in chapters 182–190: 1/239 odds, 疑似連, 緑 < 赤 < 金 < 虹 notices, the four riichi scenarios, 確変/時短, 潜伏確変 and the 4:11 jackpot round with automatic reverse cursed technique. The full table is [below](#the-rules-of-the-domain).
-- **Japanese first, with a translation under every line** in your computer's language (English, Português, Español), down to the sound effects, scanlation style.
+- **Japanese first, with a translation under every line** in your computer's language (English or Português), down to the sound effects, scanlation style.
 - **Three sizes**: Normal, Compact, and Mini (about 230 px wide, one status line).
 - **One machine for every conversation**: any Claude Code conversation spins the same reels and adds to the same totals, and each conversation in progress gets a line on the machine. The list grows and shrinks by itself, and clicking a line (↗) opens that conversation in the Claude app. One riichi at a time, and the domain only closes when all of them stop. Totals and 確変 are saved when you close the app. If you prefer, you can have one machine per conversation instead.
 - **Synthesised pachinko sounds** (キュイン, ball clatter, shutter clank, fanfare) and an optional Japanese announcer. Every sound and image can be replaced with your own files.
@@ -175,13 +175,13 @@ Test results are read from the hook payload: a failed Bash call is red, and test
 Right-click the tray icon → **Settings…** (or double-click it), or run `ryoiki settings`. Changes apply right away and are saved in `~/.zasatsu-bakuto/config.json`. The machine's totals and mode are kept in `~/.zasatsu-bakuto/machine.json`.
 
 - **Discreet mode** (also in the tray menu): mini machine, no sound, nothing full screen, a bit transparent. It sits on top of your settings without changing them; switch it off and everything comes back. Made for work computers.
-- **Machine**: layout (**Normal**, **Compact** without lamps and counters, **Mini** with just the screen and one status line, about 230 px wide), corner, size (30–200%), opacity, dim when idle. The machine never takes more than about 60% of the screen height.
 - **Machines** (also in the tray menu): **One for all** (default), where every conversation spins the same machine and the totals are saved, or **One per conversation**, where each has its own and the screen follows the one you last wrote to.
 - **Conversation lines** (also in the tray menu): one line per conversation in progress, up to 1, 2 or 3, or **Unlimited** (default), which grows up to the edge of the screen and shows "N more conversations" for the rest.
+- **On screen**: layout (**Normal**, **Compact** without lamps and counters, **Mini** with just the screen and one status line, about 230 px wide), corner, size (30–200%), opacity, dim when idle. The machine never takes more than about 60% of the screen height.
 - **What appears**: Domain Expansion full screen / on the machine / off; jackpot full screen / on the machine / off; title, lamps, 保留/疑似連 row, current tool, counters
-- **Sound**: volume, machine sounds, your music files, mute everything
+- **Sound**: mute everything, volume, machine sounds, Japanese announcer, your music files.
 - **Previews**: play the Domain Expansion, a guaranteed jackpot, or the full demo
-- **Language**: Japanese stays on screen; a small translation goes underneath in your computer's language (English, Português, Español), or pick one, or Japanese only. Every Japanese text has one, down to the manga sound effects (ドン!! *BOOM!!*, ゴゴゴ *rumble*), scanlation style. The settings page and tray menu follow the same language.
+- **Language**: Japanese stays on screen; a small translation goes underneath in English or Portuguese, following your computer's language, or pick one, or Japanese only. Every Japanese text has one, down to the manga sound effects (ドン!! *BOOM!!*, ゴゴゴ *rumble*), scanlation style. The settings page and tray menu follow the same language.
 
 ## Sound
 
@@ -229,7 +229,7 @@ Add `http://127.0.0.1:4111/` as a browser source in OBS (transparent background)
 - `?mute`: no sound
 - `?intro=full|compact|off` and `?jackpot=full|compact|off`: override the settings for this source
 - `?opacity=0.8`
-- `?lang=pt|en|es|ja`: translation language for this source
+- `?lang=pt|en|ja`: translation language for this source
 - `?layout=normal|compact|mini`
 - `?preview`: dark background and a demo button, for trying it in a normal browser
 
