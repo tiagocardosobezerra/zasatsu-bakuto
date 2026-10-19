@@ -1,0 +1,165 @@
+# Zasatsu Bakuto (坐殺博徒): Idle Death Gamble
+
+**Kinji Hakari's domain, played by your AI coding agent.**
+
+Every prompt is a **Domain Expansion: 坐殺博徒 (Idle Death Gamble)**. Inside the domain the agent plays *CR Private Pure Love Train Ver. 1/239*: tool calls spin the reels, test runs trigger a **riichi**, green tests can hit the **大当り (JACKPOT)**, and a jackpot gives 4 minutes 11 seconds of unlimited cursed energy, during which every failure is healed by the automatic reverse cursed technique.
+
+It is a joke you can run all day, because it is also useful: you know what your agent is doing from the corner of your eye.
+
+- Uses the agent's official hooks, not fake keystrokes. It never interrupts, blocks or slows the agent.
+- Click-through, always-on-top overlay. Works as an **OBS browser source** too.
+- Ships no official assets: everything is drawn in CSS in a manga style, sounds are synthesised. You can add your own art and music (see below).
+- No telemetry. The only outside request is Google Fonts (Dela Gothic One, Yuji Boku); offline it falls back to system fonts.
+
+> Fan project. Not affiliated with Jujutsu Kaisen, Gege Akutami, Shueisha or MAPPA.
+
+## Quick start
+
+```bash
+npm install -g zasatsu-bakuto
+fever install     # adds hooks to ~/.claude/settings.json (a backup is kept)
+fever start       # overlay + tray icon
+fever demo        # watch a scripted session play out
+fever settings    # size, what appears, sound
+```
+
+Then start a new Claude Code session and get to work.
+
+`fever uninstall` removes only Fever's hooks. Use `--settings .claude/settings.json` to install for one project instead of globally.
+
+> npm 11 may ask you to approve Electron's install script: `npm install-scripts approve electron`.
+
+## The rules of the domain
+
+The rules come from the rule sheet Hakari shows in chapter 183 (*CR私鉄純愛列車*: リーチアクション, ゲームフロー, 予告演出, チャンスアップ) and from the fights in chapters 182–190. The agent's hook events are the fight.
+
+| Domain rule (source) | What triggers it |
+| --- | --- |
+| **領域展開** Domain Expansion; the sure-hit effect transfers the rules (ch. 182, 187) | You send a prompt, or the agent acts while no domain is open |
+| Every spin draws the jackpot at **約1/239** (rule sheet) | Every finished tool call |
+| Notice effects 予告演出 (rule sheet): **シャッター** shutter doors | Edit / Write |
+| **保留玉** reserve balls; a bigger ball means a better chance | Any other tool (Read, Grep, Bash…) |
+| **疑似連** pseudo-consecutive: redoes the sequence and reverts damage, shown as ×2, ×3, ×4 (rule sheet, ch. 187) | A failed tool call the agent recovers from |
+| 疑似連 carries a high risk of failing outside 確変 (ch. 187) | Same; it can fail and not count |
+| Colours **緑 < 赤 < 金**; **虹色 (rainbow) or the 4th time (×4) confirms the jackpot** (rule sheet) | Colour drawn per effect, skewed toward gold and rainbow when the lottery is already won |
+| **Riichi** develops once at least one effect has played, and reveals two of the three numbers (rule sheet, ch. 183) | A test run (`npm test`, `pytest`, `go test`, `cargo test`…), or a won 1/239 lottery |
+| リーチアクション (rule sheet): 交通系ICカードリーチ ★☆☆, 座席争奪通勤リーチ ★★☆, うっかり特快便意我慢リーチ ★★☆, 華金終電リーチ ★★★ ("over 80% once it develops") | The machine picks the scenario from the decided outcome, like a real pachinko machine |
+| チャンスアップ (rule sheet): **夢背景** Yume background, **天ノ川カットイン** Amanokawa cut-in, **群予告** group notice (anything but trains = confirmed) | Shown during riichi, more often when the result is a win |
+| **ハズレ**: the stage goes back to the start (ch. 183) | Red tests (always), or green tests when the scenario fails |
+| **大当り**: the domain disappears; unlimited cursed energy for **4:11**, the length of *Admiring You*; fully automatic reverse cursed technique (ch. 186–189) | Green tests with a winning scenario |
+| Cursed-energy bonuses during the round (ch. 186) | Tool calls during the round |
+| No domain during the round; it is cast again when the round ends (ch. 186, 189) | The agent is still working when 4:11 ends |
+| Game flow (rule sheet): 通常 → 大当たり → **確変** or **時短**; **確変突入率 約75%** | Every jackpot |
+| **Odd triple → 確変** increased probability, until the next jackpot (ch. 187) | 1, 3, 5, 7 |
+| **Even triple → 時短** faster spins for **70 or 30 spins**, then back to 通常 (rule sheet, ch. 187) | 2, 4, 6 |
+| **潜伏確変** hidden probability: looks like faster spins, is increased probability (ch. 189) | Sometimes, after an even jackpot |
+| Domain closes (領域解除), 連チャン resets | The agent finishes its turn without a jackpot |
+| **YOUR TURN** | The agent asks for permission or input |
+
+Where the sources are silent, the machine fills in, and says so:
+
+- Numbers 3 (Yume, 夢) and 4 (Hiro, 空) carry the characters shown in chapter 183; the other numbers get the remaining characters of *Private Pure Love Train*, named in kanji as on the wiki's cast list. The reels use 1–7.
+- Scenario captions (in Japanese, with translations) are our own wording of the win conditions.
+- Increased probability draws at 1/24; a 疑似連 fails half the time outside it (10% inside); 潜伏確変 follows 25% of even jackpots; chance-up rates are ours. The manga gives no numbers for these.
+- The wiki words the guarantee as "four consecutive effects"; the rule sheet says "4回目" and pachinko counts 疑似連 from ×2, so the machine confirms at ×4 (three redos). The chapter 187 panel shows ×3 after two redos.
+- Seat Struggle Riichi's story was never shown, so its lines are made up. The group notice uses hearts as "not a train".
+- The wiki says the number of possible spins drops with every missed jackpot, without saying how many. The machine does not limit spins; the domain ends when the agent's turn ends.
+- Mapping agent events to fight events (tests = riichi, failures = 疑似連) is this project's own.
+
+Test results are read from the hook payload: a failed Bash call is red, and test-runner summaries (`12 passed`, `1 failed`, `test result: ok`, TAP, Go, pytest, unittest…) decide the rest.
+
+## Settings
+
+Right-click the tray icon → **Settings…** (or double-click it), or run `fever settings`. Changes apply right away and are saved in `~/.agent-fever/config.json`.
+
+- **Discreet mode** (also in the tray menu): mini machine, no sound, nothing full screen, a bit transparent. It sits on top of your settings without changing them; switch it off and everything comes back. Made for work computers.
+- **Machine**: layout (**Normal**, **Compact** without lamps and counters, **Mini** with just the screen and one status line, about 230 px wide), corner, size (30–200%), opacity, dim when idle. The machine never takes more than about 60% of the screen height.
+- **What appears**: Domain Expansion full screen / on the machine / off; jackpot full screen / on the machine / off; title, lamps, 保留/疑似連 row, current tool, counters
+- **Sound**: volume, machine sounds, your music files, mute everything
+- **Previews**: play the Domain Expansion, a guaranteed jackpot, or the full demo
+- **Language**: Japanese stays on screen; a small translation goes underneath in your computer's language (English, Português, Español), or pick one, or Japanese only. Every Japanese text has one, down to the manga sound effects (ドン!! *BOOM!!*, ゴゴゴ *rumble*), scanlation style. The settings page and tray menu follow the same language.
+
+## Sound
+
+Fever does not ship recordings from real machines (they belong to their makers). Instead it synthesises the sounds a pachinko hall is known for: the rising **キュイン** when a gold or rainbow effect appears, the steel-ball clatter of the payout, a brassy jackpot fanfare, the heavy shutter-door clank.
+
+- Every event can be replaced with your own file (see below), so if you own real machine sounds you can use them.
+- **Japanese announcer** (on by default): calls out リーチ!, 大当たり! and 確定! with a Japanese voice installed on the computer. Windows: Settings → Time & language → Speech → Add voices → Japanese. Without one it stays silent; the settings page says which voice it found.
+
+## Motion
+
+- **Domain Expansion → Smart** (default): full screen the first time and again after 10 quiet minutes, on the machine otherwise. The canon domain opens in under 0.2 s; a 3.6 s full-screen intro on every prompt gets old fast.
+- **Motion → Follow the system** (default): if the operating system asks apps for less motion, full-screen effects show on the machine and shaking, spinning and flashing stop. The settings page says when this is happening; pick **Full** to see everything anyway.
+- Nothing strobes: speed lines turn slowly, flashes stay around 1 Hz.
+
+## Little things
+
+- When the machine sits idle it plays a **デモ画面** like a real one nobody is sitting at, slowly showing the cast on the reels.
+- The round opens with Hakari's call for the music (音楽、スタート!!, ch. 187); a second jackpot in a row gets its **連チャン** call.
+- A gold or rainbow effect lights the screen edge (先読み) before anything else; the 疑似連 count sits in the corner of the screen as ×2/×3/×4, like the chapter 187 panel.
+
+## Your own art and music
+
+Fever ships no images or music from the series. If you own files you want to use, put them in `~/.agent-fever/custom/` (or set `FEVER_CUSTOM_DIR`). Files are picked up by name; any of `.png .jpg .webp .gif` for images and `.mp3 .ogg .wav .m4a` for audio:
+
+| File name | Used for |
+| --- | --- |
+| `round.mp3` | Plays from the jackpot until the 4:11 round ends (for example the theme song) |
+| `intro.png` | Background art behind 坐殺博徒 |
+| `jackpot.png` | Art on the jackpot screen |
+| `reel-1.png` … `reel-7.png` | Art on each reel number |
+| `expand`, `riichi`, `kyuin`, `door`, `ball`, `consec`, `kakutei`, `jackpot`, `miss`, `heal` (`.mp3/.ogg/.wav`) | Replace the built-in sound for that event |
+
+These files stay on your machine; Fever only serves them to your own overlay on `127.0.0.1`. You are responsible for having the rights to them.
+
+## Streaming
+
+```bash
+fever serve
+```
+
+Add `http://127.0.0.1:4111/` as a browser source in OBS (transparent background). Options go in the query string:
+
+- `?pos=br|bl|tr|tl`: corner (default `br`)
+- `?scale=1.5`: size
+- `?mute`: no sound
+- `?intro=full|compact|off` and `?jackpot=full|compact|off`: override the settings for this source
+- `?opacity=0.8`
+- `?lang=pt|en|es|ja`: translation language for this source
+- `?layout=normal|compact|mini`
+- `?preview`: dark background and a demo button, for trying it in a normal browser
+
+## How it works
+
+```
+Claude Code ──hook (async)──▶ src/hook.js ──POST /event──▶ server (127.0.0.1:4111)
+                                                              │ classify → game
+                                                              ▼
+                                         overlay(s) ◀── SSE /stream
+                                         (Electron window, OBS, browser)
+```
+
+- `src/classify.js` turns a raw hook payload into a small signal (`tool-done`, `test-start`, `test-end`, `attention`, …). To support another agent, write an adapter that sends payloads in the same shape.
+- `src/game.js` decides the outcome on the server, so every overlay shows the same reels.
+- `public/` is the whole visual layer: plain HTML/CSS/JS. Themes are the obvious next step.
+- `src/hook.js` always exits 0, prints nothing and gives up after 1.5 s. Hooks are registered with `"async": true`.
+
+## Develop
+
+```bash
+npm install
+npm test            # node:test, no extra deps
+npm run serve       # then open http://127.0.0.1:4111/?preview
+npm start           # Electron overlay
+```
+
+## Roadmap
+
+- Theme packs (the reels, sounds and fever screen are all swappable)
+- Adapters: Codex CLI, Gemini CLI, Cursor, Aider
+- One lane per session when several agents run at once
+- Shareable end-of-day card: spins, jackpots, best streak
+
+## License
+
+MIT

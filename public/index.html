@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self'">
+  <link rel="icon" type="image/png" href="icon.png">
+  <title>Idle Death Gamble</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Yuji+Boku&display=swap">
+  <link rel="stylesheet" href="overlay.css">
+  <script src="i18n.js"></script>
+</head>
+<body>
+  <!-- Ink texture for brush lettering -->
+  <svg class="defs" width="0" height="0" aria-hidden="true">
+    <filter id="ink">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </svg>
+
+  <!-- Domain Expansion (full screen), staged as a manga page -->
+  <div id="intro" aria-hidden="true">
+    <div class="page">
+      <div class="panel p1">
+        <div class="speed"></div>
+        <div class="tate"><ruby>領域展開<rt>りょういきてんかい</rt></ruby></div>
+        <div class="tate-tr" id="tate-tr"></div>
+      </div>
+      <div class="panel p2">
+        <div class="tone"></div>
+        <div class="sfx" id="sfx-do">ドッ</div>
+        <div class="caption" id="intro-caption">必中効果 · ルールの伝達</div>
+        <div class="rules" id="rules"></div>
+      </div>
+      <div class="panel p3">
+        <div class="tone dense"></div>
+        <div class="odds" id="intro-odds">1/239</div>
+      </div>
+    </div>
+    <div class="splash">
+      <div class="custom-art" id="intro-art"></div>
+      <div class="burst"></div>
+      <div class="kanji k2"><ruby>坐殺博徒<rt>ざさつばくと</rt></ruby></div>
+      <div class="intro-en" id="intro-en"></div>
+      <div class="intro-ver" id="intro-ver">CR 私鉄純愛列車 Ver. 1/239</div>
+    </div>
+    <div class="gate left"></div>
+    <div class="gate right"></div>
+  </div>
+
+  <!-- Jackpot (full screen) -->
+  <div id="fever" aria-hidden="true">
+    <!-- 1. ドン!! in ink -->
+    <div class="whiteout"></div>
+    <div class="ink-burst"><span class="don" id="sfx-don">ドン!!</span></div>
+    <!-- 2. inside the domain: the cards line up -->
+    <div class="domain-in"><div class="custom-art" id="jackpot-art"></div></div>
+    <!-- 3. the domain disappears: its barrier breaks into shards -->
+    <div class="shards" id="shards"></div>
+    <!-- 4. unlimited cursed energy and the music -->
+    <div class="aura" id="aura"></div>
+    <div class="notes" id="notes"></div>
+    <div class="fever-text">
+      <div class="oatari">大当たり</div>
+      <div class="fever-title" id="fever-title"></div>
+      <div class="fever-reels" id="fever-reels">
+        <div class="reel"><span class="num">7</span><span class="who">紗夜花</span></div>
+        <div class="reel"><span class="num">7</span><span class="who">紗夜花</span></div>
+        <div class="reel"><span class="num">7</span><span class="who">紗夜花</span></div>
+      </div>
+      <div class="sfx-card" id="sfx-card">ドドドド</div>
+      <div class="sub" id="fever-sub">確変突入!!</div>
+      <div class="sub2" id="fever-sub2">呪力無制限 4:11</div>
+      <div class="song-line" id="fever-song">♪ Admiring You ♪</div>
+    </div>
+  </div>
+  </div>
+
+  <section id="machine" data-pos="br" aria-label="Idle Death Gamble">
+    <div class="lamps top"></div>
+    <header class="crest">
+      <div class="title">
+        <span class="cr">CR</span><ruby class="jp">私鉄純愛列車<rt>してつじゅんあいれっしゃ</rt></ruby>
+        <small class="title-tr"><span id="title-name"></span><span id="title-sub"></span></small>
+      </div>
+      <div class="badges">
+        <span class="mode" id="mode" data-mode="normal">通常</span>
+        <span class="domain-state" id="domain-state">領域 未展開</span>
+      </div>
+    </header>
+
+    <!-- Which conversation this machine is showing, and the others -->
+    <div class="who-row">
+      <span class="who-dot" id="who-dot"></span>
+      <span class="who-text"><b id="who-label"></b><span id="who-title"></span></span>
+      <span class="who-pin" id="who-pin" hidden></span>
+      <span class="sess-dots" id="sess-dots"></span>
+    </div>
+
+    <div class="lcd" id="lcd" data-scene="stage">
+      <!-- Neutral stage: the station platform -->
+      <div class="scene stage">
+        <div class="sky"></div>
+        <div class="ceiling"><i></i><i></i><i></i><i></i></div>
+        <div class="gates"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="sign"><b id="stage-sign">私鉄純愛線</b><small id="stage-sub">通常ステージ</small></div>
+        <div class="platform"><i class="tactile"></i></div>
+      </div>
+
+      <!-- Riichi scenario -->
+      <div class="scene riichi">
+        <div class="yume-bg"><span id="yume-tag">夢背景</span></div>
+        <div class="riichi-burst"></div>
+        <div class="riichi-call" id="riichi-call">リーチ!!</div>
+        <div class="gogo left">ゴゴゴ</div>
+        <div class="gogo right">ゴゴゴ</div>
+        <div class="riichi-jp" id="riichi-jp">交通系ICカードリーチ</div>
+        <div class="riichi-stars" id="riichi-stars">期待度 ★☆☆</div>
+        <div class="track">
+          <span class="from" id="track-from">夕輝</span>
+          <span class="rail"><span class="runner" id="runner">🎫</span></span>
+          <span class="to" id="track-to">改札</span>
+        </div>
+        <div class="train"></div>
+        <div class="riichi-result" id="riichi-result"></div>
+        <div class="cutin" id="cutin"><b id="cutin-title">天ノ川カットイン</b><span id="cutin-line">先輩が助太刀!!</span></div>
+      </div>
+
+      <!-- Jackpot round -->
+      <div class="scene round">
+        <div class="infinity">∞</div>
+        <div class="round-label" id="round-label">呪力無制限</div>
+        <div class="countdown" id="countdown">4:11</div>
+        <div class="song"><span id="round-song">♪ Admiring You ♪ 自動反転術式 ♪ 不死身 ♪</span></div>
+      </div>
+
+      <div class="reels">
+        <div class="reel" data-i="0"><span class="num">7</span><span class="who">紗夜花</span></div>
+        <div class="reel" data-i="1"><span class="num">7</span><span class="who">紗夜花</span></div>
+        <div class="reel" data-i="2"><span class="num">7</span><span class="who">紗夜花</span></div>
+      </div>
+
+      <div class="xstamp" id="xstamp" aria-hidden="true"></div>
+      <div class="demo-tag" id="demo-tag"></div>
+      <div class="swarm" id="swarm"></div>
+      <div class="doors" id="doors"><i></i><i></i><span class="shutter-label" id="shutter-label">シャッター</span></div>
+      <div class="pop" id="pop"></div>
+    </div>
+
+    <div class="indicators">
+      <div class="ind holds"><small id="lbl-hold">保留</small><span class="balls"><i></i><i></i><i></i><i></i></span></div>
+      <div class="ind consec"><small id="lbl-consec">疑似連</small><span class="chips"><i>×2</i><i>×3</i><i>×4</i></span></div>
+      <div class="ind best-wrap"><small id="lbl-best">最高演出</small><div class="best" id="best">—</div></div>
+    </div>
+
+    <div class="banner" id="banner" role="status" aria-live="polite">スタンバイ</div>
+    <div class="ticker" id="ticker"></div>
+
+    <footer class="stats">
+      <div><b id="s-spins">000</b><small id="lbl-spins">回転</small></div>
+      <div><b id="s-jackpots">0</b><small id="lbl-jackpots">大当たり</small></div>
+      <div><b id="s-renchan">0</b><small id="lbl-renchan">連チャン</small></div>
+      <div><b id="s-domains">0</b><small id="lbl-domains">領域</small></div>
+    </footer>
+    <div class="lamps bottom"></div>
+  </section>
+
+  <div id="preview-bar" hidden>
+    <button id="demo-btn" type="button"></button>
+    <span id="preview-note"></span>
+  </div>
+
+  <script src="overlay.js"></script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+{
+  "name": "zasatsu-bakuto",
+  "version": "0.1.0",
+  "description": "A pachinko machine that plays your AI coding agent. Tool calls spin the reels, running tests is a REACH, green tests hit the JACKPOT.",
+  "license": "MIT",
+  "bin": {
+    "fever": "bin/fever.js"
+  },
+  "main": "src/electron-main.js",
+  "files": [
+    "bin",
+    "src",
+    "public"
+  ],
+  "scripts": {
+    "start": "node bin/fever.js start",
+    "serve": "node bin/fever.js serve",
+    "demo": "node bin/fever.js demo",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "electron": "^33.0.0"
+  },
+  "keywords": [
+    "claude-code",
+    "ai-agent",
+    "hooks",
+    "overlay",
+    "pachinko",
+    "obs"
+  ]
+}

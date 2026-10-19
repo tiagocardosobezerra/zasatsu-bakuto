@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; media-src 'self'; connect-src 'self'">
+  <link rel="icon" type="image/png" href="icon.png">
+  <title>Idle Death Gamble · Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <main>
+    <header>
+      <h1><span class="cr">CR</span>私鉄純愛列車 <small data-t="settings">settings</small></h1>
+      <p class="status" id="status" aria-live="polite"></p>
+    </header>
+
+    <section class="guide-card">
+      <div><b data-t="guideTitle">How to play</b><br><small data-t="guideHint">What every effect on the machine means, step by step.</small></div>
+      <button type="button" class="primary" id="open-guide" data-t="guideOpen">Open the guide</button>
+    </section>
+
+    <section class="discreet">
+      <label class="row check"><input type="checkbox" id="discreet"><span><b data-t="discreet">Discreet mode</b><br><small data-t="discreetHint">For work: mini machine, no sound, nothing full screen. Your other settings come back when you switch it off.</small></span></label>
+    </section>
+
+    <section>
+      <h2 data-t="machine">Machine</h2>
+      <div class="row">
+        <span class="label" data-t="corner">Corner</span>
+        <div class="corners" role="radiogroup" data-t-label="corner">
+          <button type="button" data-pos="tl" data-t-label="tl"></button>
+          <button type="button" data-pos="tr" data-t-label="tr"></button>
+          <button type="button" data-pos="bl" data-t-label="bl"></button>
+          <button type="button" data-pos="br" data-t-label="br"></button>
+        </div>
+      </div>
+      <div class="row">
+        <span class="label" data-t="layout">Layout</span>
+        <div class="seg" data-key="layout">
+          <button type="button" data-v="normal" data-t="layoutNormal">Normal</button>
+          <button type="button" data-v="compact" data-t="layoutCompact">Compact</button>
+          <button type="button" data-v="mini" data-t="layoutMini">Mini</button>
+        </div>
+      </div>
+      <label class="row"><span class="label" data-t="size">Size</span><input type="range" id="scale" min="30" max="200" step="5"><output id="scale-out"></output></label>
+      <label class="row"><span class="label" data-t="opacity">Opacity</span><input type="range" id="opacity" min="30" max="100" step="5"><output id="opacity-out"></output></label>
+      <label class="row check"><input type="checkbox" id="idleDim"><span data-t="idleDim">Dim after 90 s without activity</span></label>
+      <div class="row">
+        <span class="label" data-t="motion">Motion</span>
+        <div class="seg" data-key="motion">
+          <button type="button" data-v="auto" data-t="motionAuto">Follow the system</button>
+          <button type="button" data-v="full" data-t="motionFull">Full</button>
+          <button type="button" data-v="reduced" data-t="motionReduced">Reduced</button>
+        </div>
+      </div>
+      <p class="hint warn" id="motion-hint" hidden></p>
+    </section>
+
+    <section>
+      <h2 data-t="appears">What appears</h2>
+      <div class="row">
+        <span class="label" data-t="expansion">Domain Expansion 領域展開</span>
+        <div class="seg" data-key="intro">
+          <button type="button" data-v="smart" data-t="smart">Smart</button>
+          <button type="button" data-v="full" data-t="full">Full screen</button>
+          <button type="button" data-v="compact" data-t="compact">On the machine</button>
+          <button type="button" data-v="off" data-t="off">Off</button>
+        </div>
+      </div>
+      <div class="row">
+        <span class="label" data-t="jackpot">Jackpot 大当たり</span>
+        <div class="seg" data-key="jackpot">
+          <button type="button" data-v="full" data-t="full">Full screen</button>
+          <button type="button" data-v="compact" data-t="compact">On the machine</button>
+          <button type="button" data-v="off" data-t="off">Off</button>
+        </div>
+      </div>
+      <div class="checks">
+        <label class="check"><input type="checkbox" data-show="crest"><span data-t="showCrest">Title and mode</span></label>
+        <label class="check"><input type="checkbox" data-show="lamps"><span data-t="showLamps">Lamps</span></label>
+        <label class="check"><input type="checkbox" data-show="indicators"><span data-t="showIndicators">保留 / 疑似連</span></label>
+        <label class="check"><input type="checkbox" data-show="ticker"><span data-t="showTicker">Current tool</span></label>
+        <label class="check"><input type="checkbox" data-show="stats"><span data-t="showStats">Counters</span></label>
+      </div>
+    </section>
+
+    <section>
+      <h2 data-t="language">Language</h2>
+      <label class="row"><span class="label" data-t="translation">Translation under the Japanese</span>
+        <select id="translation">
+          <option value="auto" data-t="langAuto">Computer language</option>
+          <option value="pt">Português</option>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="ja" data-t="langJa">Japanese only (日本語のみ)</option>
+        </select>
+      </label>
+    </section>
+
+    <section>
+      <h2 data-t="sound">Sound</h2>
+      <label class="row"><span class="label" data-t="volume">Volume</span><input type="range" id="volume" min="0" max="100" step="5"><output id="volume-out"></output></label>
+      <label class="row check"><input type="checkbox" id="effects"><span data-t="effects">Machine sounds</span></label>
+      <label class="row check"><input type="checkbox" id="music"><span data-t="music">Your music files (round / expansion)</span></label>
+      <label class="row check"><input type="checkbox" id="voice"><span data-t="voice">Japanese announcer (リーチ! 大当たり!)</span></label>
+      <p class="hint" id="voice-hint"></p>
+      <label class="row check"><input type="checkbox" id="muted"><span data-t="muted">Mute everything</span></label>
+    </section>
+
+    <section>
+      <h2 data-t="art">Your art and music</h2>
+      <p class="hint"><span data-t="folder">Folder:</span> <code id="custom-dir">…</code></p>
+      <ul class="files" id="files"></ul>
+      <p class="hint" data-t-html="smartHint"></p>
+      <p class="hint" data-t-html="names">Names: <code>round.mp3</code> (plays during 4:11), <code>expand.mp3</code>, <code>intro.png</code>, <code>jackpot.png</code>, <code>reel-1.png</code> … <code>reel-7.png</code>. Reload the overlay after adding files.</p>
+    </section>
+
+    <section class="actions">
+      <button type="button" class="primary" data-preview="expand" data-t="previewExpand">Preview 領域展開</button>
+      <button type="button" class="primary" data-preview="jackpot" data-t="previewJackpot">Preview 大当たり</button>
+      <button type="button" id="demo" data-t="demo">Play the demo</button>
+      <button type="button" id="reset" data-t="reset">Reset to defaults</button>
+    </section>
+  </main>
+  <script src="settings.js"></script>
+</body>
+</html>

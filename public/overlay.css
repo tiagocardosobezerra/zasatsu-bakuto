@@ -1,0 +1,1636 @@
+:root {
+  --scale: 1;
+  --cabinet: #160f1c;
+  --cabinet-edge: #3a2440;
+  --ink: #fbf4ff;
+  --muted: #a493b0;
+  --gold: #ffd23f;
+  --hot: #ff2d55;
+  --pink: #ff7eb6;
+  --cyan: #3be8ff;
+  --heal: #4dff9a;
+  --green-ind: #2fd36b;
+  --red-ind: #ff3048;
+  --gold-ind: #ffc928;
+  --rainbow: linear-gradient(90deg, #ff3b5c, #ffb02e, #fff04a, #4ade80, #3be8ff, #a35bff, #ff3b5c);
+  --lamp-off: #3a2a42;
+  --font-display: "Arial Black", "Segoe UI Black", Impact, system-ui, sans-serif;
+  --font-jp: "Yu Gothic UI", "Yu Gothic", "Meiryo", "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
+  --font-mincho: "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", "MS PMincho", "Noto Serif JP", serif;
+  --font-ui: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-brush: "Yuji Boku", var(--font-mincho);
+  --font-sfx: "Dela Gothic One", var(--font-jp);
+  --paper: #f3efe4;
+  --ink-black: #0b0b0d;
+  --font-mono: ui-monospace, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: var(--font-ui);
+  color: var(--ink);
+  user-select: none;
+}
+
+body.preview {
+  background:
+    radial-gradient(1200px 600px at 20% 10%, #2a2340 0%, transparent 60%),
+    linear-gradient(160deg, #10101a, #1d1a28 60%, #0d0c14);
+}
+
+/* =========================================================
+   Cabinet
+   ========================================================= */
+
+#machine {
+  position: fixed;
+  width: 380px;
+  padding: 10px 14px 12px;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.08), transparent 26%),
+    radial-gradient(circle, rgba(255,255,255,.035) 1px, transparent 1.4px) 0 0 / 5px 5px,
+    radial-gradient(120% 60% at 50% 0%, #2c1734 0%, transparent 70%),
+    var(--cabinet);
+  border: 2px solid var(--cabinet-edge);
+  box-shadow: 0 18px 50px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.05);
+  transform: scale(var(--scale));
+  transition: opacity .6s ease, box-shadow .3s ease, border-color .3s ease;
+}
+#machine.idle { opacity: .5; }
+
+.lamps { display: flex; justify-content: space-between; padding: 0 6px; height: 8px; }
+.lamps.top { margin-bottom: 8px; }
+.lamps.bottom { margin-top: 10px; }
+.lamps i {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--lamp-off);
+  --lamp-on: var(--pink);
+  animation: chase 1.6s linear infinite;
+  animation-delay: calc(var(--n) * -0.1s);
+}
+@keyframes chase {
+  0%, 70% { background: var(--lamp-off); box-shadow: none; }
+  80% { background: var(--lamp-on); box-shadow: 0 0 8px var(--lamp-on); }
+}
+#machine[data-mode="increased"] .lamps i { --lamp-on: var(--hot); animation-duration: .9s; }
+#machine[data-mode="faster"] .lamps i { --lamp-on: var(--cyan); animation-duration: .7s; }
+
+/* ---------- Crest ---------- */
+
+.crest { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 8px; }
+.title { line-height: 1; white-space: nowrap; }
+.title .cr {
+  font-family: var(--font-display);
+  font-size: 12px;
+  padding: 2px 4px;
+  margin-right: 6px;
+  border-radius: 3px;
+  background: var(--gold);
+  color: #2a1500;
+  vertical-align: 4px;
+}
+.title .jp {
+  font-family: var(--font-jp);
+  font-weight: 900;
+  font-size: 22px;
+  letter-spacing: 1px;
+  background: linear-gradient(180deg, #fff 0%, #ffd1e6 35%, var(--pink) 60%, #d6337c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 #5a0e33) drop-shadow(0 0 8px rgba(255,126,182,.45));
+}
+.title small {
+  display: block;
+  margin-top: 5px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+}
+.badges { display: grid; gap: 4px; justify-items: end; }
+.mode {
+  font-family: var(--font-jp);
+  font-weight: 900;
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #2b2233;
+  color: var(--muted);
+  border: 1px solid #45364f;
+  white-space: nowrap;
+}
+.mode[data-mode="increased"] {
+  color: #fff;
+  background: linear-gradient(180deg, #ff5577, #c4002b);
+  border-color: #ff8aa0;
+  box-shadow: 0 0 12px rgba(255,45,85,.7);
+  animation: badge-blink .6s steps(2) infinite;
+}
+.mode[data-mode="faster"] { color: #002a33; background: linear-gradient(180deg, #8ff4ff, #20b8d8); border-color: #bff8ff; }
+@keyframes badge-blink { 50% { filter: brightness(1.35); } }
+.domain-state { font-family: var(--font-jp); font-size: 10px; color: var(--muted); white-space: nowrap; }
+#machine[data-domain="open"] .domain-state { color: var(--pink); }
+#machine[data-domain="round"] .domain-state { color: var(--gold); }
+
+/* =========================================================
+   LCD
+   ========================================================= */
+
+.lcd {
+  position: relative;
+  height: 204px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: inset 0 0 0 2px #000, inset 0 0 0 4px #3d2a44, 0 0 0 1px rgba(255,255,255,.06);
+}
+.scene { position: absolute; inset: 0; opacity: 0; transition: opacity .35s ease; }
+.lcd[data-scene="stage"] .scene.stage,
+.lcd[data-scene="riichi"] .scene.riichi,
+.lcd[data-scene="round"] .scene.round { opacity: 1; }
+
+/* Neutral stage: a station platform at dusk */
+.scene.stage .sky {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(60% 50% at 75% 18%, rgba(255,214,150,.55), transparent 70%),
+    linear-gradient(180deg, #2b1e4f 0%, #7a3b74 45%, #e3768a 72%, #f7b48a 100%);
+}
+.lcd[data-mode="increased"] .scene.stage .sky {
+  background:
+    radial-gradient(60% 50% at 50% 20%, rgba(255,80,80,.7), transparent 70%),
+    linear-gradient(180deg, #2a0010 0%, #7a0a25 50%, #ff3048 100%);
+}
+.lcd[data-mode="faster"] .scene.stage .sky {
+  background:
+    radial-gradient(60% 50% at 30% 20%, rgba(150,240,255,.6), transparent 70%),
+    linear-gradient(180deg, #071a3a 0%, #0f4d7a 50%, #47c1e0 100%);
+}
+.scene.stage .sign {
+  position: absolute;
+  top: 10px; left: 50%;
+  translate: -50% 0;
+  min-width: 170px;
+  padding: 3px 12px 4px;
+  text-align: center;
+  background: #f4f4f0;
+  color: #111;
+  border-radius: 3px;
+  box-shadow: 0 2px 0 #9aa, 0 4px 10px rgba(0,0,0,.35);
+  border-top: 4px solid #1f8a4c;
+}
+.scene.stage .sign b { display: block; font-family: var(--font-jp); font-weight: 900; font-size: 15px; letter-spacing: 3px; }
+.scene.stage .sign small { display: block; font-size: 8px; letter-spacing: 2px; color: #444; }
+.scene.stage .platform {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 40px;
+  background: linear-gradient(180deg, #5b5560, #2c2830);
+  border-top: 3px solid #d9d4cf;
+}
+.scene.stage .tactile {
+  position: absolute; left: 0; right: 0; top: 8px; height: 6px;
+  background: repeating-linear-gradient(90deg, #f6c90e 0 10px, #d9ad00 10px 12px);
+}
+
+/* Riichi scenario */
+.scene.riichi {
+  background:
+    radial-gradient(80% 60% at 50% 30%, rgba(255,255,255,.18), transparent 60%),
+    linear-gradient(180deg, #1b0b22, #3a0d2a 60%, #120712);
+}
+.lcd[data-stars="3"] .scene.riichi {
+  background:
+    radial-gradient(80% 60% at 50% 30%, rgba(255,210,63,.35), transparent 60%),
+    linear-gradient(180deg, #2a1300, #6b2a00 60%, #1a0900);
+}
+.riichi-burst {
+  position: absolute; left: 50%; top: 24px; width: 196px; height: 52px;
+  margin-left: -98px; margin-top: -26px;
+  background: var(--paper);
+  clip-path: polygon(0% 50%, 9% 30%, 6% 6%, 22% 22%, 30% 0%, 40% 20%, 52% 2%, 60% 22%, 74% 4%, 78% 26%, 96% 12%, 90% 40%, 100% 54%, 90% 66%, 97% 92%, 77% 78%, 70% 100%, 58% 80%, 46% 98%, 38% 78%, 22% 96%, 20% 74%, 3% 86%, 9% 64%);
+}
+.riichi-call {
+  position: absolute; top: 6px; left: 0; right: 0;
+  text-align: center;
+  font-family: var(--font-sfx);
+  font-size: 26px;
+  letter-spacing: 3px;
+  color: var(--hot);
+  -webkit-text-stroke: 1px var(--ink-black);
+}
+.gogo {
+  position: absolute; top: 50px;
+  font-family: var(--font-sfx);
+  font-size: 20px; line-height: 1.05;
+  color: var(--paper);
+  -webkit-text-stroke: 1px var(--ink-black);
+  opacity: 0;
+}
+.gogo.left { left: 10px; rotate: -8deg; }
+.gogo.right { right: 10px; rotate: 8deg; }
+.lcd[data-scene="riichi"].playing .gogo { opacity: .9; animation: tremble .1s linear infinite; }
+@keyframes tremble { 50% { translate: 1px -1px; } }
+.lcd[data-scene="riichi"] .riichi-call, .lcd[data-scene="riichi"] .riichi-burst { animation: riichi-in .5s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes riichi-in { from { transform: scale(2.4); opacity: 0; } to { transform: none; opacity: 1; } }
+.riichi-name {
+  position: absolute; top: 52px; left: 0; right: 0;
+  text-align: center;
+  font-family: var(--font-sfx);
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  color: var(--gold);
+}
+.riichi-stars { position: absolute; top: 68px; left: 0; right: 0; text-align: center; font-size: 13px; color: var(--gold); letter-spacing: 3px; }
+.track {
+  position: absolute; left: 12px; right: 12px; bottom: 12px;
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px;
+  font-size: 10px; font-weight: 700;
+}
+.track .from, .track .to {
+  padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,.12); white-space: nowrap;
+  font-family: var(--font-jp);
+}
+.track .rail { position: relative; height: 4px; border-radius: 2px; background: rgba(255,255,255,.18); }
+.track .runner {
+  position: absolute; top: 50%; left: 0;
+  translate: -50% -55%;
+  font-size: 18px;
+  transition: left .4s ease;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,.6));
+}
+.lcd[data-scene="riichi"].playing .runner { animation: struggle 2.6s ease-in-out infinite; }
+@keyframes struggle {
+  0% { left: 8%; } 50% { left: 78%; } 70% { left: 62%; } 100% { left: 84%; }
+}
+.lcd.won .runner { left: 100% !important; animation: none !important; }
+.lcd.lost .runner { left: 70% !important; animation: none !important; rotate: 90deg; opacity: .6; }
+
+.scene.riichi .train {
+  position: absolute; left: 0; bottom: 34px;
+  width: 220px; height: 34px;
+  border-radius: 6px 14px 4px 4px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 14px, #bfe8ff 14px 30px, transparent 30px 36px) 0 6px / 100% 12px no-repeat,
+    linear-gradient(180deg, #e9e9ee 0 62%, #d6336c 62% 74%, #b8b8c4 74%);
+  box-shadow: 0 4px 10px rgba(0,0,0,.4);
+  translate: -260px 0;
+  opacity: 0;
+}
+.lcd[data-scenario="final"] .train { opacity: 1; }
+.lcd[data-scenario="final"].playing .train { animation: train-pass 3.2s linear infinite; }
+.lcd[data-scenario="final"].won .train,
+.lcd[data-scenario="final"].lost .train { animation: train-pass 1.4s linear 1 forwards; }
+@keyframes train-pass { from { translate: -260px 0; } to { translate: 420px 0; } }
+
+.riichi-name, .riichi-stars { transition: opacity .25s ease; }
+.lcd.won .riichi-name, .lcd.won .riichi-stars,
+.lcd.lost .riichi-name, .lcd.lost .riichi-stars { opacity: 0; }
+.riichi-result {
+  position: absolute; left: 10px; right: 10px; top: 54px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 0;
+}
+.lcd.won .riichi-result, .lcd.lost .riichi-result { opacity: 1; transition: opacity .3s ease .3s; }
+.lcd.won .riichi-result { color: var(--gold); text-shadow: 0 0 10px rgba(255,210,63,.8); }
+.lcd.lost .riichi-result { color: #c9b8d6; }
+
+/* Jackpot round: unlimited cursed energy */
+.scene.round {
+  display: grid; place-content: center; text-align: center;
+  background:
+    repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,210,63,.20) 0deg 10deg, transparent 10deg 20deg),
+    radial-gradient(circle at 50% 50%, #ffcf4a 0%, #e0611b 45%, #3a0a00 100%);
+}
+.lcd[data-scene="round"] .scene.round { animation: energy 1.2s ease-in-out infinite alternate; }
+@keyframes energy { to { filter: hue-rotate(-18deg) brightness(1.15); } }
+.scene.round .infinity {
+  font-size: 54px; line-height: .9; font-weight: 900; color: #fff;
+  text-shadow: 0 0 18px #fff, 0 0 40px var(--gold);
+}
+.scene.round .round-label { font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; color: #3a0a00; }
+.scene.round .countdown {
+  font-family: var(--font-display);
+  font-size: 46px;
+  color: #fff;
+  -webkit-text-stroke: 2px #5a1a00;
+  text-shadow: 0 4px 0 #5a1a00;
+  font-variant-numeric: tabular-nums;
+}
+.scene.round .song {
+  position: absolute; left: 0; right: 0; bottom: 6px;
+  overflow: hidden; white-space: nowrap;
+  font-family: var(--font-jp); font-size: 10px; font-weight: 700; color: #3a0a00;
+}
+.scene.round .song span { display: inline-block; padding-left: 100%; animation: marquee 9s linear infinite; }
+@keyframes marquee { to { transform: translateX(-100%); } }
+
+/* ---------- Reels ---------- */
+
+.reels {
+  position: absolute; left: 50%; top: 50%;
+  translate: -50% -42%;
+  display: grid; grid-template-columns: repeat(3, 76px); gap: 8px;
+  transition: translate .45s cubic-bezier(.3,1.3,.5,1), scale .45s ease, opacity .3s ease;
+}
+.lcd[data-scene="riichi"] .reels { translate: -50% -32%; scale: .62; }
+.lcd[data-scene="round"] .reels { opacity: 0; }
+
+.reel {
+  position: relative;
+  height: 92px;
+  border-radius: 10px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  background: linear-gradient(180deg, rgba(255,255,255,.96), #ffe9f3 60%, #ffd1e6);
+  box-shadow: 0 4px 0 rgba(0,0,0,.35), 0 0 0 2px #fff, 0 0 0 4px var(--c, #999);
+}
+.reel.has-art { background-size: cover; background-position: center; }
+.reel.has-art .num { font-size: 26px; align-self: start; justify-self: start; margin: 4px 0 0 6px; }
+.reel .num {
+  font-family: var(--font-sfx);
+  font-size: 58px;
+  line-height: .95;
+  color: var(--c, #222);
+  -webkit-text-stroke: 2px rgba(0,0,0,.35);
+  text-shadow: 0 3px 0 rgba(0,0,0,.2);
+}
+.reel .who {
+  font-size: 8px; font-weight: 900; letter-spacing: 1px;
+  color: #fff; background: var(--c, #555);
+  padding: 1px 5px; border-radius: 6px;
+}
+.reel[data-s="1"] { --c: #2563eb; }
+.reel[data-s="2"] { --c: #e0368f; }
+.reel[data-s="3"] { --c: #e01b2f; }
+.reel[data-s="4"] { --c: #18a34a; }
+.reel[data-s="5"] { --c: #8b3fd9; }
+.reel[data-s="6"] { --c: #f07800; }
+.reel[data-s="7"] { --c: #00a5c8; }
+
+.reel.spinning .num, .reel.spinning .who { animation: blur-roll .08s linear infinite; }
+.reel.slow .num, .reel.slow .who { animation: blur-roll .3s linear infinite; }
+#machine[data-mode="faster"] .reel.spinning .num { animation-duration: .05s; }
+@keyframes blur-roll {
+  from { transform: translateY(-60%); filter: blur(2px); opacity: .7; }
+  to { transform: translateY(60%); filter: blur(2px); opacity: .7; }
+}
+.reel.land { animation: land .32s cubic-bezier(.3,1.8,.5,1); }
+@keyframes land { from { transform: translateY(-14%); } to { transform: none; } }
+.reel.lit { box-shadow: 0 4px 0 rgba(0,0,0,.35), 0 0 0 2px #fff, 0 0 0 4px var(--gold), 0 0 22px var(--gold); }
+
+/* ---------- Shutter doors (visual effect indicator) ---------- */
+
+.doors { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; pointer-events: none; }
+.doors i {
+  --door: var(--green-ind);
+  background:
+    repeating-linear-gradient(180deg, rgba(255,255,255,.35) 0 2px, transparent 2px 12px),
+    linear-gradient(180deg, color-mix(in srgb, var(--door) 70%, #fff), var(--door) 40%, color-mix(in srgb, var(--door) 60%, #000));
+  border: 2px solid rgba(0,0,0,.35);
+  translate: 0 -105%;
+}
+.doors i:nth-of-type(1) { border-right-width: 1px; }
+.doors i:nth-of-type(2) { border-left-width: 1px; }
+.doors[data-color="red"] i { --door: var(--red-ind); }
+.doors[data-color="gold"] i { --door: var(--gold-ind); box-shadow: 0 0 20px var(--gold); }
+.doors[data-color="rainbow"] i { background: repeating-linear-gradient(180deg, rgba(255,255,255,.35) 0 2px, transparent 2px 12px), var(--rainbow); }
+.doors.slam i { animation: door-slam 1.1s cubic-bezier(.5,0,.3,1) both; }
+.doors.slam i:nth-of-type(2) { animation-delay: .04s; }
+@keyframes door-slam {
+  0% { translate: 0 -105%; }
+  28%, 62% { translate: 0 0; }
+  100% { translate: 0 -105%; }
+}
+
+/* ---------- LCD pop text ---------- */
+
+.pop {
+  position: absolute; left: 0; right: 0; top: 50%;
+  translate: 0 -50%;
+  text-align: center;
+  font-family: var(--font-jp);
+  font-weight: 900;
+  font-size: 30px;
+  pointer-events: none;
+  opacity: 0;
+}
+.pop.show { animation: pop 1.4s ease both; }
+@keyframes pop {
+  0% { opacity: 0; transform: scale(1.8); }
+  15% { opacity: 1; transform: scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-14px); }
+}
+.pop[data-kind="heal"], .pop[data-kind="close"] { font-family: var(--font-brush); filter: url(#ink); }
+.pop[data-kind="heal"] { color: var(--heal); -webkit-text-stroke: 1px #003b1a; text-shadow: 0 0 16px var(--heal); }
+.pop[data-kind="bonus"] { color: #fff; -webkit-text-stroke: 1px #5a1a00; text-shadow: 0 0 16px var(--gold); }
+.pop[data-kind="kakutei"] {
+  background: var(--rainbow); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-text-stroke: 1px rgba(0,0,0,.4);
+}
+.pop[data-kind="kakutei"].show { animation: pop 1.6s ease both, rainbow .6s linear infinite; }
+.pop[data-kind="reset"] { color: #d8c8e4; font-size: 20px; -webkit-text-stroke: 1px #000; }
+.pop[data-kind="close"] { color: #fff; font-family: var(--font-mincho); font-size: 26px; -webkit-text-stroke: 1px #000; }
+
+/* ---------- Indicators: 保留 / 連 ---------- */
+
+.indicators {
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 12px;
+  align-items: center;
+  margin-top: 9px;
+}
+.holds, .consec { display: flex; align-items: center; gap: 4px; }
+.indicators small { font-family: var(--font-jp); font-size: 10px; color: var(--muted); margin-right: 2px; }
+.holds i {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #2a2230; box-shadow: inset 0 0 0 1px #4a3c52;
+}
+.holds i[data-c] { box-shadow: inset -2px -3px 4px rgba(0,0,0,.35), inset 2px 2px 3px rgba(255,255,255,.6); }
+.holds i[data-c="green"] { background: var(--green-ind); }
+.holds i[data-c="red"] { background: var(--red-ind); }
+.holds i[data-c="gold"] { background: var(--gold-ind); box-shadow: 0 0 8px var(--gold), inset 2px 2px 3px rgba(255,255,255,.6); }
+.holds i[data-c="rainbow"] { background: conic-gradient(#ff3b5c, #ffb02e, #fff04a, #4ade80, #3be8ff, #a35bff, #ff3b5c); box-shadow: 0 0 10px #fff; }
+.holds i.new { animation: ball-in .35s cubic-bezier(.3,1.8,.5,1); }
+@keyframes ball-in { from { transform: translateY(-10px) scale(.4); } to { transform: none; } }
+.consec i { width: 10px; height: 14px; border-radius: 2px; background: #2a2230; box-shadow: inset 0 0 0 1px #4a3c52; }
+.consec i.on { background: linear-gradient(180deg, #d9a6ff, #8b3fd9); box-shadow: 0 0 6px #a35bff; }
+.consec.full i.on { background: var(--rainbow); }
+.best {
+  justify-self: end;
+  font-size: 10px; font-weight: 800; letter-spacing: 1px;
+  padding: 2px 8px; border-radius: 999px;
+  color: var(--muted); background: #2a2230;
+  white-space: nowrap;
+}
+.best[data-c="green"] { color: #001a0a; background: var(--green-ind); }
+.best[data-c="red"] { color: #fff; background: var(--red-ind); }
+.best[data-c="gold"] { color: #2a1500; background: var(--gold-ind); box-shadow: 0 0 10px var(--gold); }
+.best[data-c="rainbow"], .best.kakutei { color: #111; background: var(--rainbow); background-size: 200% 100%; animation: rainbow .8s linear infinite; }
+
+/* ---------- Banner / ticker / stats ---------- */
+
+.banner {
+  margin-top: 8px; height: 30px;
+  display: grid; place-items: center;
+  font-family: var(--font-display);
+  font-size: 19px; letter-spacing: 3px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.ticker {
+  height: 18px; font-size: 12px; color: var(--muted);
+  text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ticker code { color: var(--ink); font-family: var(--font-mono); }
+.stats {
+  margin-top: 8px;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  text-align: center;
+  border-top: 1px solid var(--cabinet-edge);
+  padding-top: 8px;
+}
+.stats b { display: block; font-family: var(--font-mono); font-size: 16px; color: var(--gold); text-shadow: 0 0 6px rgba(255,210,63,.35); }
+.stats small { font-family: var(--font-jp); font-size: 9px; letter-spacing: .5px; color: var(--muted); }
+
+/* ---------- Cabinet states ---------- */
+
+#machine.riichi {
+  border-color: var(--hot);
+  box-shadow: 0 0 0 2px rgba(255,45,85,.35), 0 0 40px rgba(255,45,85,.45), 0 18px 50px rgba(0,0,0,.6);
+  animation: heartbeat .9s ease-in-out infinite;
+}
+#machine.riichi .banner { color: var(--hot); text-shadow: 0 0 12px var(--hot); }
+#machine.riichi .lamps i { animation-duration: .45s; --lamp-on: var(--hot); }
+#machine.riichi.hot .lamps i { --lamp-on: var(--gold); }
+@keyframes heartbeat {
+  0%, 100% { transform: scale(var(--scale)); }
+  12% { transform: scale(calc(var(--scale) * 1.025)); }
+  24% { transform: scale(var(--scale)); }
+  36% { transform: scale(calc(var(--scale) * 1.015)); }
+}
+#machine.win, #machine[data-domain="round"] {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(255,210,63,.4), 0 0 60px rgba(255,210,63,.55), 0 18px 50px rgba(0,0,0,.6);
+}
+#machine.win .banner, #machine[data-domain="round"] .banner {
+  background: var(--rainbow); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: rainbow .8s linear infinite;
+}
+#machine.win .lamps i, #machine[data-domain="round"] .lamps i { animation: rainbow-lamp .4s linear infinite; animation-delay: calc(var(--n) * -0.05s); }
+@keyframes rainbow { to { background-position: 200% 0; } }
+@keyframes rainbow-lamp {
+  0% { background: #ff3b5c; box-shadow: 0 0 8px #ff3b5c; }
+  33% { background: #ffd23f; box-shadow: 0 0 8px #ffd23f; }
+  66% { background: #3be8ff; box-shadow: 0 0 8px #3be8ff; }
+}
+#machine.miss { animation: shake .4s ease; }
+#machine.miss .banner { color: #6f6688; }
+@keyframes shake { 20% { translate: -5px 0; } 40% { translate: 5px 0; } 60% { translate: -3px 0; } 80% { translate: 2px 0; } }
+#machine.heal { box-shadow: 0 0 0 2px rgba(77,255,154,.5), 0 0 50px rgba(77,255,154,.5), 0 18px 50px rgba(0,0,0,.6); }
+#machine.attention { border-color: var(--cyan); animation: attention 1.2s ease-in-out infinite; }
+#machine.attention .banner { color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
+@keyframes attention { 50% { box-shadow: 0 0 0 3px rgba(59,232,255,.4), 0 0 40px rgba(59,232,255,.5), 0 18px 50px rgba(0,0,0,.6); } }
+#machine.done .banner { color: var(--ink); }
+
+/* =========================================================
+   Domain Expansion intro (full screen), staged as a manga page
+   ========================================================= */
+
+#intro {
+  position: fixed; inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  visibility: hidden;
+  overflow: hidden;
+}
+#intro.on { visibility: visible; }
+
+/* -- Page 1: three panels -- */
+#intro .page {
+  position: absolute; inset: 0;
+  background: var(--paper);
+  display: grid;
+  grid-template-columns: 38fr 62fr;
+  grid-template-rows: 56fr 44fr;
+  gap: 14px;
+  padding: 14px;
+  opacity: 0;
+}
+#intro.on .page { animation: page 3.6s linear both; }
+@keyframes page { 0% { opacity: 0; } 3%, 42% { opacity: 1; } 45%, 100% { opacity: 0; } }
+
+#intro .panel {
+  position: relative;
+  overflow: hidden;
+  border: 6px solid var(--ink-black);
+  background: var(--paper);
+  opacity: 0;
+}
+#intro .p1 { grid-row: 1 / 3; }
+#intro.on .p1 { animation: stamp .35s cubic-bezier(.2,1.4,.4,1) .05s both; }
+#intro.on .p2 { animation: stamp .35s cubic-bezier(.2,1.4,.4,1) .35s both; }
+#intro.on .p3 { animation: stamp .35s cubic-bezier(.2,1.4,.4,1) .7s both; }
+@keyframes stamp { from { opacity: 0; transform: scale(1.12); } to { opacity: 1; transform: none; } }
+
+#intro .speed {
+  position: absolute; inset: -40%;
+  background: repeating-conic-gradient(from 0deg at 80% 10%, var(--ink-black) 0deg .8deg, transparent .8deg 3.2deg);
+  mask-image: radial-gradient(circle at 80% 10%, transparent 18%, #000 55%);
+  -webkit-mask-image: radial-gradient(circle at 80% 10%, transparent 18%, #000 55%);
+  opacity: .85;
+}
+#intro .tate {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  writing-mode: vertical-rl;
+  font-family: var(--font-brush);
+  font-size: min(15vh, 9vw);
+  line-height: 1;
+  letter-spacing: .08em;
+  color: var(--ink-black);
+  -webkit-text-stroke: 10px var(--paper);
+  paint-order: stroke fill;
+  filter: url(#ink);
+}
+
+#intro .tone {
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(0,0,0,.45) 1.1px, transparent 1.6px);
+  background-size: 7px 7px;
+}
+#intro .tone.dense {
+  background-color: #222;
+  background-image: radial-gradient(circle, rgba(255,255,255,.18) 1.2px, transparent 1.7px);
+  background-size: 6px 6px;
+}
+#intro .sfx {
+  position: absolute; right: 8%; top: 4%;
+  font-family: var(--font-sfx);
+  font-size: min(22vh, 13vw);
+  line-height: 1;
+  color: var(--ink-black);
+  -webkit-text-stroke: 8px var(--paper);
+  paint-order: stroke fill;
+  rotate: -9deg;
+}
+#intro.on .sfx { animation: shake-sfx .12s linear .35s 6; }
+@keyframes shake-sfx { 50% { translate: 4px -3px; } }
+#intro .caption {
+  position: absolute; left: 5%; top: 8%;
+  padding: 8px 14px;
+  background: var(--paper);
+  border: 3px solid var(--ink-black);
+  font-family: var(--font-jp);
+  font-weight: 900;
+  font-size: min(2.6vh, 1.6vw);
+  color: var(--ink-black);
+}
+#intro .rules {
+  position: absolute; left: 5%; right: 5%; bottom: 6%; height: 42%;
+  overflow: hidden;
+  font-family: var(--font-jp);
+  font-size: 12px; line-height: 1.55;
+  color: rgba(0,0,0,.6);
+  column-count: 2; column-gap: 24px;
+}
+#intro.on .rules { animation: rules-dump 1.5s linear .35s both; }
+@keyframes rules-dump { to { transform: translateY(-30%); } }
+#intro .odds {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  font-family: var(--font-sfx);
+  font-size: min(16vh, 9vw);
+  color: var(--paper);
+  -webkit-text-stroke: 6px var(--ink-black);
+  paint-order: stroke fill;
+  letter-spacing: .05em;
+}
+
+/* -- Page 2: splash, full bleed -- */
+#intro .splash {
+  position: absolute; inset: 0;
+  background: var(--ink-black);
+  opacity: 0;
+}
+#intro.on .splash { animation: splash 3.6s linear both; }
+@keyframes splash { 0%, 42% { opacity: 0; } 44%, 86% { opacity: 1; } 92%, 100% { opacity: 0; } }
+#intro .burst {
+  position: absolute; left: 50%; top: 50%;
+  width: 260vmax; height: 260vmax;
+  translate: -50% -50%;
+  background: repeating-conic-gradient(var(--paper) 0deg .6deg, transparent .6deg 2.6deg);
+  mask-image: radial-gradient(circle, transparent 9%, #000 30%);
+  -webkit-mask-image: radial-gradient(circle, transparent 9%, #000 30%);
+  opacity: .9;
+}
+#intro.on .burst { animation: burst-pulse .18s steps(2) infinite; }
+@keyframes burst-pulse { 50% { rotate: 1.2deg; } }
+#intro .k2 {
+  position: absolute; left: 0; right: 0; top: 50%;
+  translate: 0 -62%;
+  text-align: center;
+  font-family: var(--font-brush);
+  font-size: clamp(64px, 12.5vw, 240px);
+  line-height: 1;
+  letter-spacing: .04em;
+  background: linear-gradient(180deg, #fff 0%, #ffe9a6 32%, var(--gold) 55%, #b86b00 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: url(#ink) drop-shadow(0 6px 0 #000) drop-shadow(0 0 30px rgba(255,126,182,.65));
+  opacity: 0;
+}
+#intro.on .k2 { animation: k2 3.6s ease both; }
+@keyframes k2 {
+  0%, 43% { opacity: 0; transform: scale(2.4); }
+  50% { opacity: 1; transform: scale(1); }
+  53% { transform: scale(1.05) rotate(-.8deg); }
+  86% { opacity: 1; transform: scale(1.02); }
+  92%, 100% { opacity: 0; }
+}
+#intro .intro-en, #intro .intro-ver { position: absolute; left: 0; right: 0; text-align: center; opacity: 0; }
+#intro .intro-en { top: calc(50% + 8vw); font-family: var(--font-sfx); font-size: clamp(14px, 1.8vw, 28px); letter-spacing: .4em; color: var(--paper); }
+#intro .intro-ver { top: calc(50% + 8vw + 46px); font-family: var(--font-jp); font-weight: 900; font-size: clamp(12px, 1.3vw, 20px); letter-spacing: .3em; color: var(--pink); }
+#intro.on .intro-en, #intro.on .intro-ver { animation: intro-sub 3.6s ease both; }
+@keyframes intro-sub { 0%, 52% { opacity: 0; transform: translateY(12px); } 58%, 86% { opacity: 1; transform: none; } 92%, 100% { opacity: 0; } }
+
+/* -- Pachinko gates close, then open into the domain -- */
+#intro .gate {
+  position: absolute; top: 0; bottom: 0; width: 51%;
+  background:
+    repeating-linear-gradient(180deg, rgba(255,255,255,.12) 0 3px, transparent 3px 22px),
+    linear-gradient(90deg, #6b0f3a, #ff7eb6 50%, #6b0f3a);
+}
+#intro .gate.left { left: 0; --from: -100%; translate: -100% 0; box-shadow: inset -6px 0 0 var(--gold); }
+#intro .gate.right { right: 0; --from: 100%; translate: 100% 0; box-shadow: inset 6px 0 0 var(--gold); }
+#intro.on .gate { animation: gate 3.6s cubic-bezier(.6,0,.3,1) both; }
+@keyframes gate {
+  0%, 85% { translate: var(--from) 0; }
+  90%, 93% { translate: 0 0; }
+  100% { translate: var(--from) 0; }
+}
+
+/* User-provided art (see README: your own art and music) */
+.custom-art { position: absolute; inset: 0; background: center / cover no-repeat; opacity: 0; }
+#intro .custom-art.has { opacity: .45; }
+#fever .custom-art { background-size: contain; }
+#fever.on .custom-art.has { opacity: .9; }
+
+/* =========================================================
+   Jackpot (full screen)
+   ========================================================= */
+
+#fever { position: fixed; inset: 0; z-index: 10; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .3s ease, visibility 0s linear .3s; }
+#fever.on { opacity: 1; visibility: visible; transition: opacity .1s ease; }
+#fever .whiteout { position: absolute; inset: 0; background: #fff; opacity: 0; }
+#fever.on .whiteout { animation: whiteout .7s ease-out both; }
+@keyframes whiteout { 0% { opacity: .95; } 100% { opacity: 0; } }
+#fever .ink-burst {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle, var(--paper) 0 14%, transparent 15%),
+    repeating-conic-gradient(var(--ink-black) 0deg 1.4deg, var(--paper) 1.4deg 4deg);
+  opacity: 0;
+}
+#fever.on .ink-burst { animation: ink-burst 1.2s steps(1) both; }
+@keyframes ink-burst { 0% { opacity: 0; } 8% { opacity: 1; } 70% { opacity: 1; } 71%, 100% { opacity: 0; } }
+#fever .don {
+  position: absolute; left: 50%; top: 50%;
+  translate: -50% -50%;
+  font-family: var(--font-sfx);
+  font-size: clamp(90px, 18vw, 320px);
+  color: var(--ink-black);
+  -webkit-text-stroke: 12px var(--paper);
+  paint-order: stroke fill;
+  rotate: -7deg;
+  white-space: nowrap;
+}
+#fever .rays {
+  position: absolute; left: 50%; top: 50%;
+  width: 260vmax; height: 260vmax; translate: -50% -50%;
+  background: repeating-conic-gradient(rgba(255,210,63,.16) 0deg 8deg, transparent 8deg 22deg);
+  mask-image: radial-gradient(circle, #000 0%, transparent 55%);
+  -webkit-mask-image: radial-gradient(circle, #000 0%, transparent 55%);
+  animation: spin 9s linear infinite;
+}
+#fever .flash {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(255,230,120,.4), rgba(255,80,160,.12) 40%, transparent 70%);
+  animation: flash .45s ease-in-out infinite alternate;
+}
+@keyframes spin { to { rotate: 360deg; } }
+@keyframes flash { from { opacity: .3; } to { opacity: .75; } }
+#confetti { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fever-text { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 4px; }
+.fever-text .oatari {
+  font-family: var(--font-brush); font-weight: 400;
+  font-size: clamp(80px, 16vw, 260px); line-height: .95;
+  background: linear-gradient(180deg, #fffbd6 0%, var(--gold) 40%, #ff7a00 70%, #c2410c 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-text-stroke: 3px #5a1a00;
+  filter: url(#ink) drop-shadow(0 8px 0 #5a1a00) drop-shadow(0 0 30px rgba(255,180,0,.8));
+}
+#fever.on .oatari { animation: slam .55s cubic-bezier(.2,1.6,.4,1) .85s both, wobble 1.2s ease-in-out .55s infinite; }
+.fever-text .big { font-family: var(--font-display); font-size: clamp(22px, 3.4vw, 56px); letter-spacing: .5em; color: #fff; text-shadow: 0 0 16px var(--gold), 0 3px 0 #5a1a00; }
+.fever-reels {
+  font-family: var(--font-display); font-size: clamp(36px, 6vw, 96px); letter-spacing: .3em; color: #fff;
+  -webkit-text-stroke: 2px #7a0016; text-shadow: 0 0 20px var(--hot);
+}
+.fever-text .sub {
+  margin-top: 8px;
+  font-family: var(--font-jp); font-weight: 900;
+  font-size: clamp(28px, 4.6vw, 76px); letter-spacing: .15em; color: #fff;
+  text-shadow: 0 0 18px var(--hot), 0 4px 0 #7a0016;
+}
+.fever-text .sub.faster { text-shadow: 0 0 18px var(--cyan), 0 4px 0 #003a4a; }
+.fever-text .sub.hidden {
+  background: var(--rainbow); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-text-stroke: 2px #000; text-shadow: none;
+}
+.fever-text .sub2 { font-family: var(--font-display); font-size: clamp(12px, 1.5vw, 24px); letter-spacing: .3em; color: #fff; opacity: .9; }
+#fever.on .sub, #fever.on .sub2, #fever.on .fever-reels, #fever.on .big { animation: pop-in .4s ease 1.15s both; }
+#fever.on .sub.hidden { animation: pop-in .4s ease 1.15s both, rainbow .6s linear infinite; }
+@keyframes slam { from { transform: scale(3.2) rotate(-6deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes wobble { 50% { transform: scale(1.04) rotate(-1.2deg); } }
+@keyframes pop-in { from { transform: translateY(30px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* ---------- Preview helper ---------- */
+
+#preview-bar { position: fixed; left: 16px; top: 16px; right: 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 13px; color: #aab3c5; }
+#preview-bar[hidden] { display: none; }
+#preview-bar button {
+  font: 700 14px var(--font-ui); padding: 10px 16px; border-radius: 10px; border: 0; cursor: pointer;
+  color: #2a0a1a; background: linear-gradient(180deg, #ffd1e6, var(--pink)); box-shadow: 0 4px 0 #a3245e;
+}
+#preview-bar button:active { translate: 0 2px; box-shadow: 0 2px 0 #a3245e; }
+
+/* =========================================================
+   Fidelity pass: details from the CR私鉄純愛列車 rule sheet (ch. 183)
+   ========================================================= */
+
+/* ---------- Settings: position, size, opacity, hidden parts ---------- */
+#machine { opacity: var(--hud-opacity, 1); }
+#machine.idle { opacity: calc(var(--hud-opacity, 1) * .5); }
+#machine[data-pos="br"] { right: 24px; bottom: 24px; left: auto; top: auto; transform-origin: bottom right; }
+#machine[data-pos="bl"] { left: 24px; bottom: 24px; right: auto; top: auto; transform-origin: bottom left; }
+#machine[data-pos="tr"] { right: 24px; top: 24px; left: auto; bottom: auto; transform-origin: top right; }
+#machine[data-pos="tl"] { left: 24px; top: 24px; right: auto; bottom: auto; transform-origin: top left; }
+body.hide-crest .crest,
+body.hide-lamps .lamps,
+body.hide-indicators .indicators,
+body.hide-ticker .ticker,
+body.hide-stats .stats { display: none; }
+
+/* ---------- Starting stage: inside the station ---------- */
+.scene.stage .ceiling {
+  position: absolute; left: 0; right: 0; top: 0; height: 8px;
+  display: flex; justify-content: space-around;
+  background: linear-gradient(180deg, #2a2236, transparent);
+}
+.scene.stage .ceiling i {
+  width: 46px; height: 4px; margin-top: 2px; border-radius: 2px;
+  background: #fffbe6; box-shadow: 0 0 10px #fff6c8, 0 6px 18px rgba(255,246,200,.5);
+}
+.scene.stage .gates {
+  position: absolute; left: 8px; right: 8px; bottom: 40px; height: 26px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  opacity: .8;
+}
+.scene.stage .gates i {
+  width: 30px; height: 22px; border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, #d9dbe3, #9fa3b0);
+  box-shadow: inset 0 3px 0 #2a7cc7, inset 0 -2px 0 rgba(0,0,0,.2);
+  position: relative;
+}
+.scene.stage .gates i::after {
+  content: ''; position: absolute; left: 6px; right: 6px; top: 8px; height: 4px; border-radius: 2px;
+  background: #ffcf3a;
+}
+
+/* ---------- Shutter: train doors closing ---------- */
+.doors { gap: 0; }
+.doors i {
+  --door: var(--green-ind);
+  position: relative;
+  border: 0;
+  background:
+    linear-gradient(180deg, transparent 0 14%, rgba(205,235,255,.85) 14% 50%, transparent 50%) 50% 0 / 62% 100% no-repeat,
+    linear-gradient(180deg, color-mix(in srgb, var(--door) 55%, #fff), var(--door) 45%, color-mix(in srgb, var(--door) 65%, #000));
+  box-shadow: inset 0 0 0 3px rgba(0,0,0,.4), inset 0 0 0 6px color-mix(in srgb, var(--door) 70%, #fff);
+  translate: 0 0;
+  opacity: 0;
+}
+.doors i:nth-of-type(1) { translate: -105% 0; }
+.doors i:nth-of-type(2) { translate: 105% 0; }
+.doors[data-color="rainbow"] i {
+  background:
+    linear-gradient(180deg, transparent 0 14%, rgba(255,255,255,.85) 14% 50%, transparent 50%) 50% 0 / 62% 100% no-repeat,
+    var(--rainbow);
+}
+.doors[data-color="gold"] i { box-shadow: inset 0 0 0 3px rgba(0,0,0,.4), inset 0 0 0 6px #fff3b0, 0 0 22px var(--gold); }
+.doors.slam i { animation: door-close 1.2s cubic-bezier(.5,0,.3,1) both; }
+.doors.slam i:nth-of-type(1) { --from: -105%; }
+.doors.slam i:nth-of-type(2) { --from: 105%; animation-delay: 0s; }
+@keyframes door-close {
+  0% { translate: var(--from) 0; opacity: 1; }
+  30%, 66% { translate: 0 0; opacity: 1; }
+  100% { translate: var(--from) 0; opacity: 1; }
+}
+.doors.slam::after {
+  content: 'シャッター'; position: absolute; left: 0; right: 0; top: 60%;
+  text-align: center; font-family: var(--font-sfx); font-size: 14px; color: #fff;
+  -webkit-text-stroke: 1px #000; opacity: 0;
+  animation: door-label 1.2s ease both;
+}
+@keyframes door-label { 25%, 66% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ---------- 保留玉: bigger ball, hotter chance (green < red < gold) ---------- */
+.holds { gap: 5px; }
+.holds i { width: 9px; height: 9px; }
+.holds i[data-c="green"] { width: 10px; height: 10px; }
+.holds i[data-c="red"] { width: 13px; height: 13px; }
+.holds i[data-c="gold"], .holds i[data-c="rainbow"] { width: 16px; height: 16px; }
+
+/* ---------- 疑似連 ×2 ×3 ×4 diamonds ---------- */
+.consec { gap: 3px; }
+.consec i {
+  width: 24px; height: 16px;
+  display: grid; place-items: center;
+  font-style: normal; font-family: var(--font-sfx); font-size: 9px; color: #6d5e78;
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  background: #2a2230;
+  box-shadow: none;
+}
+.consec i.on { color: #fff; background: linear-gradient(180deg, #d9a6ff, #8b3fd9); }
+.consec.full i.on { color: #111; background: var(--rainbow); }
+
+/* ---------- Riichi titles: Japanese name first ---------- */
+.riichi-jp {
+  position: absolute; top: 44px; left: 0; right: 0;
+  text-align: center;
+  font-family: var(--font-sfx);
+  font-size: 15px; letter-spacing: 1px;
+  color: var(--gold);
+  -webkit-text-stroke: 1px #3a1500;
+  paint-order: stroke fill;
+  white-space: nowrap;
+}
+.riichi-name { top: 63px; font-size: 8px; letter-spacing: 2px; color: #f5d9a8; }
+.riichi-stars { top: 73px; font-size: 10px; letter-spacing: 1px; }
+.riichi-jp { transition: opacity .25s ease; }
+.lcd.won .riichi-jp, .lcd.lost .riichi-jp { opacity: 0; }
+.riichi-result {
+  top: 46px; left: 18px; right: 18px;
+  padding: 4px 8px;
+  background: var(--paper); color: var(--ink-black) !important;
+  border: 2px solid var(--ink-black);
+  text-shadow: none !important;
+  font-size: 11px;
+}
+.lcd.won .riichi-result { box-shadow: 0 0 14px var(--gold); }
+
+/* ---------- Chance up: 夢背景 ---------- */
+.scene.riichi .yume-bg {
+  position: absolute; inset: 0; opacity: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.9) 0 2px, transparent 3px) 0 0 / 34px 30px,
+    radial-gradient(circle at 70% 60%, rgba(255,214,235,.9) 0 1.5px, transparent 2.5px) 0 0 / 22px 26px,
+    radial-gradient(90% 70% at 50% 40%, #ffd1e6 0%, #ff7eb6 45%, #8a1f5a 100%);
+  transition: opacity .5s ease;
+}
+.scene.riichi .yume-bg span {
+  position: absolute; right: 8px; bottom: 34px;
+  font-family: var(--font-brush); font-size: 18px; color: #fff;
+  text-shadow: 0 0 8px #ff3d8b;
+}
+.lcd.yume .scene.riichi .yume-bg { opacity: 1; animation: yume-glow 1.6s ease-in-out infinite alternate; }
+@keyframes yume-glow { to { filter: brightness(1.15) saturate(1.2); } }
+
+/* ---------- Chance up: 天ノ川カットイン ---------- */
+.cutin {
+  position: absolute; left: -10%; right: -10%; top: 34%; height: 38%;
+  display: grid; place-content: center; text-align: center;
+  background:
+    radial-gradient(circle, rgba(0,0,0,.35) 1px, transparent 1.5px) 0 0 / 5px 5px,
+    linear-gradient(90deg, #f3efe4, #fff 50%, #f3efe4);
+  border-top: 4px solid var(--ink-black); border-bottom: 4px solid var(--ink-black);
+  rotate: -6deg;
+  translate: 120% 0;
+  pointer-events: none;
+}
+.cutin b { font-family: var(--font-sfx); font-size: 16px; color: var(--ink-black); }
+.cutin span { font-family: var(--font-brush); font-size: 15px; color: #c4002b; }
+.cutin.go { animation: cutin 1.8s cubic-bezier(.2,.9,.3,1) both; }
+@keyframes cutin {
+  0% { translate: 120% 0; }
+  18%, 78% { translate: 0 0; }
+  100% { translate: -120% 0; }
+}
+
+/* ---------- Chance up: 群予告 ---------- */
+.swarm { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.swarm i {
+  position: absolute; left: 0; top: var(--y);
+  font-style: normal; font-size: 20px;
+  translate: -40px 0; opacity: 0;
+}
+.swarm.go i { animation: swarm 1.3s linear var(--d) both; }
+@keyframes swarm {
+  0% { translate: -40px 0; opacity: 1; }
+  100% { translate: 400px -10px; opacity: 1; }
+}
+
+/* ---------- LCD pops ---------- */
+.pop[data-kind="consec"] { color: #fff; font-family: var(--font-sfx); font-size: 28px; -webkit-text-stroke: 1px #3a0a5a; text-shadow: 0 0 14px #a35bff; }
+.pop[data-kind="yume"] { color: #fff; font-family: var(--font-brush); font-size: 30px; text-shadow: 0 0 14px #ff3d8b; top: 80%; }
+.pop[data-kind="expand"] {
+  font-family: var(--font-brush); font-size: 30px; color: var(--gold);
+  -webkit-text-stroke: 1px #000; filter: url(#ink);
+}
+#machine.expanding .lcd { box-shadow: inset 0 0 0 2px #000, 0 0 0 3px var(--pink), 0 0 30px var(--pink); }
+#machine.expanding .lcd::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-conic-gradient(rgba(255,255,255,.5) 0deg 1deg, transparent 1deg 6deg);
+  mask-image: radial-gradient(circle, transparent 20%, #000 60%);
+  -webkit-mask-image: radial-gradient(circle, transparent 20%, #000 60%);
+  animation: fade-out 1.6s ease both;
+}
+@keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+
+
+/* Cut-in plays over the reels; titles stay readable on any background */
+.cutin { z-index: 6; }
+.riichi-jp, .riichi-name, .riichi-stars { z-index: 1; }
+.riichi-jp { left: 50%; right: auto; translate: -50% 0; padding: 0 8px; background: rgba(20,4,14,.72); border-radius: 3px; }
+.riichi-name, .riichi-stars { text-shadow: 0 1px 2px #000, 0 0 6px #000; }
+
+/* =========================================================
+   Japanese first, translation underneath (i18n.js)
+   ========================================================= */
+.tr {
+  display: block;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: .2px;
+  line-height: 1.15;
+  -webkit-text-stroke: 0;
+  -webkit-text-fill-color: currentColor;
+  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+  filter: none;
+  white-space: normal;
+}
+body.no-tr .tr { display: none; }
+.ja { display: block; }
+
+.banner { height: auto; min-height: 30px; line-height: 1.05; text-align: center; }
+.banner .tr { font-size: 9px; letter-spacing: .5px; margin-top: 2px; color: #d9c8e6; -webkit-text-fill-color: #d9c8e6; }
+.pop .tr { font-size: 11px; margin-top: 3px; color: #fff; -webkit-text-fill-color: #fff; }
+.badges .ja { display: inline; }
+.mode .tr { display: none; }
+.domain-state .tr { font-size: 8px; color: var(--muted); text-align: right; }
+.scene.stage .sign b .tr { font-size: 7px; letter-spacing: 1px; color: #555; -webkit-text-fill-color: #555; text-shadow: none; }
+.scene.stage .sign small .ja, .scene.stage .sign small .tr { display: inline; }
+.scene.stage .sign small .tr { margin-left: 4px; color: #555; -webkit-text-fill-color: #555; text-shadow: none; }
+.stats small .tr { font-size: 8px; color: #8d7f99; -webkit-text-fill-color: #8d7f99; text-shadow: none; }
+.indicators small .ja { display: inline; }
+.indicators small .tr { display: none; }
+.riichi-jp .tr { font-size: 8px; letter-spacing: 1px; color: #f5d9a8; -webkit-text-fill-color: #f5d9a8; }
+.riichi-stars { top: 76px; }
+.riichi-result .tr { font-size: 9px; color: #444; -webkit-text-fill-color: #444; text-shadow: none; margin-top: 1px; }
+.cutin b .tr, .cutin span .tr { font-size: 9px; color: #333; -webkit-text-fill-color: #333; text-shadow: none; }
+.round-label .tr { font-size: 8px; color: #3a0a00; -webkit-text-fill-color: #3a0a00; text-shadow: none; }
+#intro .caption .tr { font-size: .7em; font-weight: 600; color: #333; -webkit-text-fill-color: #333; text-shadow: none; }
+.fever-text .sub .tr { font-size: .34em; letter-spacing: .1em; margin-top: 6px; color: #fff; -webkit-text-fill-color: #fff; }
+.fever-text .sub2 .tr { font-size: .75em; letter-spacing: .05em; margin-top: 4px; opacity: .9; color: #fff; -webkit-text-fill-color: #fff; }
+.fever-text .song-line { font-family: var(--font-jp); font-size: clamp(11px, 1.2vw, 18px); color: #fff; opacity: .85; }
+
+/* Furigana, as on the rule sheet */
+ruby rt { font-family: var(--font-jp); font-weight: 700; letter-spacing: .1em; }
+.title ruby rt { font-size: 7px; color: #ffd1e6; -webkit-text-fill-color: #ffd1e6; }
+#intro .tate rt { font-size: .22em; }
+#intro .k2 rt { font-size: .16em; -webkit-text-fill-color: #ffe9a6; }
+
+/* =========================================================
+   UI pass: one type scale, readable indicators, no tiny text
+   Japanese labels >= 10px, translations >= 9px at 100% size.
+   ========================================================= */
+#machine { width: 400px; }
+
+.title small { font-size: 10px; letter-spacing: 1.5px; }
+.domain-state .ja { font-size: 11px; }
+.domain-state .tr { font-size: 9px; }
+
+.banner .ja { font-size: 20px; }
+.banner .tr { font-size: 10px; }
+#machine.miss .banner { color: #b9a9c8; }
+
+.reel .who { font-size: 10px; padding: 1px 6px; letter-spacing: 0; }
+
+/* -- Indicator row -- */
+.indicators { grid-template-columns: auto auto 1fr; gap: 14px; margin-top: 10px; }
+.indicators small { font-size: 11px; color: #c4b3d1; margin-right: 6px; }
+.holds, .consec { display: flex; align-items: center; }
+.holds .balls, .consec .chips { display: flex; align-items: center; gap: 5px; }
+
+/* 保留玉: same size for every ball; the colour says the chance */
+.holds i,
+.holds i[data-c="green"],
+.holds i[data-c="red"],
+.holds i[data-c="gold"],
+.holds i[data-c="rainbow"] {
+  width: 13px; height: 13px; border-radius: 50%;
+}
+.holds i { background: transparent; box-shadow: inset 0 0 0 1.5px #4a3c52; }
+.holds i[data-c="green"] { background: radial-gradient(circle at 35% 30%, #b8ffd2, #2fd36b 55%, #12803d); box-shadow: none; }
+.holds i[data-c="red"] { background: radial-gradient(circle at 35% 30%, #ffc2ca, #ff3048 55%, #a3001a); box-shadow: 0 0 6px rgba(255,48,72,.55); }
+.holds i[data-c="gold"] { background: radial-gradient(circle at 35% 30%, #fffbe0, #ffc928 55%, #b37800); box-shadow: 0 0 9px rgba(255,210,63,.9); animation: glint 1.4s ease-in-out infinite; }
+.holds i[data-c="rainbow"] { background: conic-gradient(#ff3b5c, #ffb02e, #fff04a, #4ade80, #3be8ff, #a35bff, #ff3b5c); box-shadow: 0 0 10px #fff; animation: glint 1s ease-in-out infinite; }
+@keyframes glint { 50% { filter: brightness(1.35); } }
+
+/* 疑似連: readable chips */
+.consec i,
+.consec i.on,
+.consec.full i.on {
+  width: auto; height: auto;
+  clip-path: none;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font: 800 11px/1.2 var(--font-ui);
+  font-style: normal;
+  letter-spacing: .2px;
+}
+.consec i { color: #8f7ea0; background: transparent; box-shadow: inset 0 0 0 1px #4a3c52; }
+.consec i.on { color: #fff; background: linear-gradient(180deg, #b878ff, #7a2fd0); box-shadow: 0 0 6px rgba(163,91,255,.6); }
+.consec.full i.on { color: #1a0a24; background: var(--rainbow); background-size: 200% 100%; animation: rainbow 1s linear infinite; }
+
+/* Best effect: Japanese + translation side by side */
+.best { display: inline-flex; align-items: baseline; gap: 5px; padding: 3px 9px; font-size: 12px; letter-spacing: 0; }
+.best .ja, .best .tr { display: inline; }
+.best .tr { font-size: 9px; color: inherit; -webkit-text-fill-color: currentColor; text-shadow: none; opacity: .85; }
+
+/* -- Counters -- */
+.stats b { font-size: 18px; }
+.stats small .ja { font-size: 10px; }
+.stats small .tr { font-size: 9px; }
+
+/* -- Riichi text -- */
+.riichi-jp .tr { font-size: 9px; }
+.riichi-stars { font-size: 11px; }
+.riichi-result { font-size: 12px; }
+.riichi-result .tr { font-size: 10px; }
+
+/* -- Pops: always readable on a bright screen -- */
+.pop { filter: drop-shadow(0 2px 5px rgba(0,0,0,.75)); }
+.pop .tr { display: inline-block; margin-top: 4px; padding: 1px 8px; border-radius: 6px; font-size: 11px; background: rgba(12,4,16,.72); }
+.pop[data-kind="kakutei"] .tr, .pop[data-kind="yume"] .tr { color: #fff; -webkit-text-fill-color: #fff; }
+
+/* -- Stage sign -- */
+.scene.stage .sign small .tr { font-size: 8px; }
+/* Riichi: keep the reels clear of the title block */
+.lcd[data-scene="riichi"] .reels { translate: -50% -22%; scale: .56; }
+
+/* =========================================================
+   R1 · 大当たり: pachinko payout instead of confetti
+   ========================================================= */
+#payout { position: absolute; inset: 0; width: 100%; height: 100%; }
+#fever .pillar {
+  position: absolute; top: 0; bottom: 0; width: 26px;
+  background:
+    radial-gradient(circle, rgba(255,255,255,.95) 0 3px, transparent 4px) 50% 0 / 26px 22px,
+    linear-gradient(180deg, #ff3b5c, #ffb02e, #fff04a, #4ade80, #3be8ff, #a35bff, #ff3b5c);
+  background-size: 26px 22px, 100% 300%;
+  box-shadow: 0 0 30px rgba(255,255,255,.5);
+  opacity: 0;
+}
+#fever .pillar.left { left: 0; }
+#fever .pillar.right { right: 0; }
+#fever.on .pillar { opacity: .9; animation: pillar 1.2s linear infinite; }
+@keyframes pillar { to { background-position: 50% 22px, 0 100%; } }
+
+.fever-text { gap: 2px; }
+.fever-title .ja { display: none; }
+.fever-title .tr {
+  font-family: var(--font-display); font-weight: 900;
+  font-size: clamp(16px, 2.2vw, 34px); letter-spacing: .6em;
+  color: #fff; -webkit-text-fill-color: #fff;
+  text-shadow: 0 0 14px var(--gold), 0 3px 0 #5a1a00;
+}
+.fever-reels {
+  display: flex; justify-content: center; gap: clamp(8px, 1.2vw, 18px);
+  margin: 14px 0 6px;
+  font-size: initial; letter-spacing: 0; -webkit-text-stroke: 0; text-shadow: none;
+}
+.fever-reels .reel {
+  width: clamp(70px, 7vw, 120px); height: clamp(86px, 8.6vw, 148px);
+  box-shadow: 0 6px 0 rgba(0,0,0,.35), 0 0 0 3px #fff, 0 0 0 6px var(--c, #999), 0 0 40px var(--gold);
+}
+.fever-reels .reel .num { font-size: clamp(54px, 5.6vw, 96px); }
+.fever-reels .reel .who { font-size: clamp(10px, .9vw, 15px); }
+#fever.on .fever-reels .reel { animation: card-in .45s cubic-bezier(.2,1.6,.4,1) both; }
+#fever.on .fever-reels .reel:nth-child(1) { animation-delay: 1.05s; }
+#fever.on .fever-reels .reel:nth-child(2) { animation-delay: 1.15s; }
+#fever.on .fever-reels .reel:nth-child(3) { animation-delay: 1.25s; }
+@keyframes card-in { from { transform: translateY(-40px) scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+#fever.on .fever-title { animation: pop-in .4s ease 1s both; }
+.fever-text .sub2 { margin-top: 6px; }
+/* R1 fixes: the jackpot screen covers the machine; sizes follow the screen */
+#machine { z-index: 1; }
+#fever { z-index: 10; }
+.fever-text .oatari { font-size: clamp(60px, 21vmin, 240px); }
+.fever-reels .reel { width: clamp(56px, 12vmin, 120px); height: clamp(70px, 15vmin, 148px); }
+.fever-reels .reel .num { font-size: clamp(42px, 10vmin, 96px); }
+.fever-reels .reel .who { font-size: clamp(9px, 1.7vmin, 15px); }
+.fever-text .sub { font-size: clamp(22px, 7vmin, 72px); margin-top: 4px; }
+.fever-title .tr { font-size: clamp(13px, 3.2vmin, 34px); }
+.fever-text .sub2 { display: none; }
+.fever-text .song-line { margin-top: 6px; font-size: clamp(11px, 2vmin, 18px); }
+/* Pops sit on a dark plate so they read on any reel or background */
+.pop { left: 8%; right: 8%; padding: 6px 4px 7px; border-radius: 10px; background: rgba(12,4,16,.66); }
+.pop[data-kind="kakutei"] { background: rgba(12,4,16,.72); -webkit-background-clip: border-box; background-clip: border-box; color: #fff; -webkit-text-stroke: 0; }
+.pop[data-kind="kakutei"] .ja {
+  background: var(--rainbow); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent; -webkit-text-fill-color: transparent;
+  animation: rainbow .6s linear infinite;
+}
+.pop .tr { background: none; padding: 0; margin-top: 2px; }
+
+/* R3: no strobing. The speed lines turn slowly instead of flickering. */
+#intro.on .burst { animation: burst-turn 6s linear infinite; }
+@keyframes burst-turn { to { rotate: 20deg; } }
+/* Less motion (Settings → Motion, or the system): no shaking, spinning or
+   flashing. The lamps keep glowing so the machine still looks alive. */
+body.reduce #intro .burst, body.reduce #fever .rays, body.reduce #fever .flash, body.reduce #fever .pillar,
+body.reduce .gogo, body.reduce .scene.round, body.reduce .cutin.go { animation: none !important; }
+body.reduce #machine.miss, body.reduce #machine.riichi, body.reduce #machine.attention { animation: none !important; }
+
+/* R4: 先読み edge flash and the ×N stamp */
+.lcd.hotflash::before {
+  content: ''; position: absolute; inset: 0; z-index: 7; pointer-events: none; border-radius: 12px;
+  box-shadow: inset 0 0 0 3px var(--gold), inset 0 0 30px rgba(255,210,63,.8);
+  animation: hotflash 1.2s ease-out both;
+}
+.lcd.hotflash[data-hot="rainbow"]::before { box-shadow: inset 0 0 0 3px #fff, inset 0 0 36px rgba(163,91,255,.9); }
+@keyframes hotflash { 0%, 40% { opacity: 1; } 100% { opacity: 0; } }
+.xstamp {
+  position: absolute; right: 8px; top: 6px; z-index: 5;
+  font-family: var(--font-sfx); font-size: 22px; line-height: 1;
+  color: #fff; -webkit-text-stroke: 2px #2a0a3a; paint-order: stroke fill;
+  rotate: 8deg; opacity: 0; transition: opacity .2s ease;
+  pointer-events: none;
+}
+.xstamp.on { opacity: 1; animation: stamp-in .35s cubic-bezier(.2,1.8,.4,1); }
+.xstamp.max {
+  background: var(--rainbow); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  -webkit-text-stroke: 1px #2a0a3a;
+  animation: stamp-in .35s cubic-bezier(.2,1.8,.4,1), rainbow .8s linear infinite;
+}
+@keyframes stamp-in { from { scale: 2; } to { scale: 1; } }
+.lcd[data-scene="round"] .xstamp { opacity: 0; }
+
+/* R6: a dimmed, idle machine stops animating so it costs nothing */
+#machine.idle .lamps i,
+#machine.idle .holds i,
+#machine.idle .consec.full i.on,
+#machine.idle .xstamp.max,
+#machine.idle .best { animation-play-state: paused; }
+.defs { position: absolute; width: 0; height: 0; }
+
+/* R7: pops hug their text so the reels stay visible; the domain disappears
+   while the jackpot screen is up (ch. 187) */
+.pop { left: 50%; right: auto; width: max-content; max-width: 86%; translate: -50% -50%; padding: 5px 14px 6px; }
+.pop[data-kind="yume"] { top: 86%; font-size: 22px; }
+body.fever-on #machine { opacity: 0; transition: opacity .3s ease; }
+.pop[data-kind="yume"] { top: 91%; font-size: 18px; padding: 3px 12px 4px; }
+
+/* =========================================================
+   Second round · R1: every Japanese text has its translation
+   ========================================================= */
+/* Title: translated name under the furigana title */
+.title .title-tr { display: flex; gap: 6px; margin-top: 4px; font-size: 10px; letter-spacing: .5px; color: var(--muted); }
+.title .title-tr .ja { display: none; }
+.title .title-tr .tr { font-size: 10px; color: var(--muted); -webkit-text-fill-color: var(--muted); text-shadow: none; }
+#title-name .tr { color: #ffc2dc; -webkit-text-fill-color: #ffc2dc; }
+
+/* Mode badge: Japanese in the pill, translation under it */
+.badges { justify-items: end; }
+.mode { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.05; }
+.mode .tr { display: block; font-size: 8px; font-weight: 700; color: inherit; -webkit-text-fill-color: currentColor; text-shadow: none; opacity: .85; }
+
+/* Indicator labels show their translation; the ×4 note under the chips */
+.indicators { align-items: start; }
+.holds, .consec { flex-wrap: wrap; align-items: center; }
+.indicators small { display: inline-flex; flex-direction: column; line-height: 1.05; }
+.indicators small .tr { display: block; font-size: 9px; color: #8d7f99; -webkit-text-fill-color: #8d7f99; text-shadow: none; }
+.consec .consec-note { flex-basis: 100%; margin: 3px 0 0; }
+.consec .consec-note .ja { display: none; }
+.consec .consec-note .tr { font-size: 9px; color: #b998e0; -webkit-text-fill-color: #b998e0; }
+body.no-tr .consec .consec-note .ja { display: inline; font-size: 9px; color: #b998e0; }
+
+/* Riichi: stars + translation, track ends with translation */
+.riichi-stars .ja, .riichi-stars .tr { display: inline; }
+.riichi-stars .tr { font-size: 9px; margin-left: 6px; color: #f5d9a8; -webkit-text-fill-color: #f5d9a8; }
+.track .from, .track .to { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.05; }
+.track .from .tr, .track .to .tr { font-size: 8px; color: #e9d7f3; -webkit-text-fill-color: #e9d7f3; text-shadow: none; }
+
+/* Manga SFX with a small scanlation-style translation */
+.gogo { writing-mode: vertical-rl; display: flex; flex-direction: row; align-items: center; gap: 2px; }
+.gogo .ja { display: inline; }
+.gogo .tr { writing-mode: horizontal-tb; font-size: 8px; color: #fff; -webkit-text-fill-color: #fff; -webkit-text-stroke: 0; rotate: 0deg; }
+#intro .sfx .tr, #fever .don .tr {
+  font-family: var(--font-ui); font-weight: 800; font-size: .16em; letter-spacing: .1em;
+  color: var(--ink-black); -webkit-text-fill-color: var(--ink-black); -webkit-text-stroke: 0;
+  text-shadow: 0 0 4px var(--paper), 0 0 8px var(--paper);
+}
+#intro .odds { flex-direction: column; }
+#intro .odds .tr { font-size: .18em; letter-spacing: .05em; color: var(--paper); -webkit-text-fill-color: var(--paper); -webkit-text-stroke: 0; }
+#intro .intro-ver .tr { font-size: .8em; margin-top: 4px; color: #ffc2dc; -webkit-text-fill-color: #ffc2dc; }
+
+/* Shutter label: Japanese + translation */
+.doors { position: absolute; }
+.doors .shutter-label {
+  position: absolute; left: 0; right: 0; top: 56%;
+  text-align: center; font-family: var(--font-sfx); font-size: 14px; color: #fff;
+  -webkit-text-stroke: 1px #000; paint-order: stroke fill; opacity: 0; pointer-events: none;
+}
+.doors .shutter-label .tr { font-size: 10px; -webkit-text-stroke: 0; text-shadow: 0 1px 3px #000; }
+.doors.slam .shutter-label { animation: door-label 1.2s ease both; }
+.doors.slam::after { content: none; }
+
+/* Round marquee carries its translation */
+.scene.round .song .ja, .scene.round .song .tr { display: inline; }
+.scene.round .song .tr { margin-left: 18px; color: #5a1a00; -webkit-text-fill-color: #5a1a00; text-shadow: none; font-size: 10px; }
+
+/* =========================================================
+   Second round · R2: layouts for small screens and work PCs
+   ========================================================= */
+/* Compact: the machine without the decoration */
+body.layout-compact #machine { width: 330px; padding: 8px 10px 10px; }
+body.layout-compact .lamps, body.layout-compact .stats { display: none; }
+body.layout-compact .lcd { height: 160px; }
+body.layout-compact .reels { grid-template-columns: repeat(3, 64px); gap: 6px; }
+body.layout-compact .reel { height: 78px; }
+body.layout-compact .reel .num { font-size: 46px; }
+body.layout-compact .title .jp { font-size: 18px; }
+body.layout-compact .banner .ja { font-size: 16px; }
+body.layout-compact .indicators { gap: 8px; }
+body.layout-compact .consec .consec-note { display: none; }
+body.layout-compact .scene.stage .sign { top: 8px; min-width: 140px; }
+
+/* Mini: just the screen and one status line */
+body.layout-mini #machine { width: 232px; padding: 6px 7px 7px; border-radius: 12px; }
+body.layout-mini .lamps, body.layout-mini .crest, body.layout-mini .indicators,
+body.layout-mini .ticker, body.layout-mini .stats { display: none; }
+body.layout-mini .lcd { height: 96px; border-radius: 8px; }
+body.layout-mini .reels { grid-template-columns: repeat(3, 52px); gap: 4px; translate: -50% -50%; }
+body.layout-mini .reel { height: 60px; border-radius: 7px; }
+body.layout-mini .reel .num { font-size: 34px; -webkit-text-stroke: 1px rgba(0,0,0,.35); }
+body.layout-mini .reel .who { font-size: 8px; padding: 0 4px; }
+body.layout-mini .scene.stage .sign, body.layout-mini .scene.stage .gates, body.layout-mini .scene.stage .ceiling { display: none; }
+body.layout-mini .scene.stage .platform { height: 16px; }
+body.layout-mini .banner { margin-top: 5px; min-height: 0; }
+body.layout-mini .banner .ja { font-size: 13px; letter-spacing: 1px; }
+body.layout-mini .banner .tr { font-size: 9px; }
+/* Mini riichi: call, scenario name and the reels; no track or SFX */
+body.layout-mini .track, body.layout-mini .gogo, body.layout-mini .riichi-stars,
+body.layout-mini .cutin span, body.layout-mini .scene.round .song { display: none; }
+body.layout-mini .riichi-burst { width: 110px; height: 30px; margin-left: -55px; margin-top: -15px; top: 14px; }
+body.layout-mini .riichi-call { font-size: 15px; top: 3px; letter-spacing: 1px; }
+body.layout-mini .riichi-jp { top: 28px; font-size: 10px; padding: 0 5px; }
+body.layout-mini .lcd[data-scene="riichi"] .reels { translate: -50% -18%; scale: .62; }
+body.layout-mini .riichi-result { top: 26px; left: 6px; right: 6px; font-size: 9px; padding: 2px 4px; }
+body.layout-mini .riichi-result .tr { font-size: 8px; }
+body.layout-mini .xstamp { font-size: 14px; top: 3px; right: 4px; }
+body.layout-mini .pop { font-size: 16px; padding: 3px 8px 4px; }
+body.layout-mini .pop .tr { font-size: 8px; }
+body.layout-mini .scene.round .infinity { font-size: 26px; }
+body.layout-mini .scene.round .round-label { font-size: 8px; }
+body.layout-mini .scene.round .countdown { font-size: 26px; -webkit-text-stroke: 1px #5a1a00; }
+body.layout-mini .doors .shutter-label { font-size: 10px; }
+body.layout-mini .doors .shutter-label .tr { font-size: 8px; }
+body.layout-mini .cutin b { font-size: 11px; }
+/* Compact riichi: smaller reels under the title block */
+body.layout-compact .lcd[data-scene="riichi"] .reels { translate: -50% -8%; scale: .5; }
+body.layout-compact .riichi-stars { top: 74px; }
+
+/* R4: デモ画面 while idle */
+.demo-tag {
+  position: absolute; left: 8px; bottom: 6px; z-index: 5; opacity: 0;
+  padding: 1px 7px; border-radius: 4px; background: rgba(0,0,0,.55);
+  font-family: var(--font-sfx); font-size: 11px; color: #fff; pointer-events: none;
+}
+.demo-tag .ja, .demo-tag .tr { display: inline; }
+.demo-tag .tr { margin-left: 5px; font-size: 9px; }
+.lcd.attract .demo-tag { opacity: 1; animation: demo-blink 2.6s steps(2) infinite; }
+.lcd.attract .reel .num { transition: color .4s ease; }
+@keyframes demo-blink { 50% { opacity: .55; } }
+body.layout-mini .demo-tag { font-size: 9px; bottom: 3px; left: 4px; }
+
+/* =========================================================
+   大当たり, faithful version: ドン!! → cards inside the domain →
+   the domain breaks → unlimited cursed energy + the music
+   ========================================================= */
+#fever .rays, #fever .flash, #fever .pillar, #payout { display: none; }
+
+/* 2. inside the domain: Hakari's pachinko station, in ink and pink */
+#fever .domain-in {
+  position: absolute; inset: 0; opacity: 0;
+  background:
+    radial-gradient(circle, rgba(255,210,63,.55) 1.6px, transparent 2.4px) 0 0 / 26px 26px,
+    repeating-linear-gradient(180deg, rgba(255,255,255,.05) 0 2px, transparent 2px 9px),
+    radial-gradient(70% 60% at 50% 45%, #5a1240 0%, #26081c 60%, #0b0410 100%);
+}
+#fever.on .domain-in { animation: domain-in 6.2s linear both; }
+@keyframes domain-in { 0%, 12% { opacity: 0; } 16%, 36% { opacity: 1; } 37%, 100% { opacity: 0; } }
+#fever .domain-in .custom-art.has { opacity: .35; }
+
+/* 3. shards of the same interior fly apart */
+#fever .shards { position: absolute; inset: 0; pointer-events: none; }
+#fever .shards i {
+  position: absolute; inset: 0; opacity: 0;
+  background:
+    radial-gradient(circle, rgba(255,210,63,.55) 1.6px, transparent 2.4px) 0 0 / 26px 26px,
+    radial-gradient(70% 60% at 50% 45%, #5a1240 0%, #26081c 60%, #0b0410 100%);
+  background-attachment: fixed;
+  filter: drop-shadow(0 0 2px rgba(255,255,255,.9));
+}
+#fever.broken .shards i { animation: shard 1s cubic-bezier(.2,.6,.3,1) var(--delay) both; }
+@keyframes shard {
+  0% { opacity: 1; translate: 0 0; rotate: 0deg; scale: 1; }
+  100% { opacity: 0; translate: var(--dx) var(--dy); rotate: var(--rot); scale: .85; }
+}
+
+/* 4. unlimited cursed energy rising, and the music */
+#fever .aura { position: absolute; left: 0; right: 0; bottom: -10vh; height: 75vh; opacity: 0; pointer-events: none; }
+#fever .aura i {
+  position: absolute; bottom: 0; width: 26vw; height: 60vh; border-radius: 50% 50% 40% 40%;
+  background: radial-gradient(50% 60% at 50% 70%, rgba(120,90,255,.55), rgba(40,20,120,.25) 55%, transparent 75%);
+  filter: blur(18px);
+  animation: wisp 2.2s ease-in-out infinite;
+}
+#fever .aura i:nth-child(1) { left: -6vw; animation-delay: -.2s; }
+#fever .aura i:nth-child(2) { left: 10vw; animation-delay: -1.1s; height: 70vh; }
+#fever .aura i:nth-child(3) { left: 26vw; animation-delay: -.6s; }
+#fever .aura i:nth-child(4) { left: 40vw; animation-delay: -1.6s; height: 75vh; }
+#fever .aura i:nth-child(5) { left: 54vw; animation-delay: -.4s; }
+#fever .aura i:nth-child(6) { left: 68vw; animation-delay: -1.3s; height: 70vh; }
+#fever .aura i:nth-child(7) { left: 82vw; animation-delay: -.9s; }
+@keyframes wisp {
+  0% { translate: 0 20%; scale: 1 .9; opacity: .6; }
+  50% { translate: 2vw -6%; scale: 1.08 1.15; opacity: 1; }
+  100% { translate: 0 20%; scale: 1 .9; opacity: .6; }
+}
+#fever.broken .aura { opacity: 1; transition: opacity .5s ease .2s; }
+
+#fever .notes { position: absolute; inset: 0; pointer-events: none; opacity: 0; }
+#fever.broken .notes { opacity: 1; }
+#fever .notes i {
+  position: absolute; bottom: -40px; font-style: normal; color: #fff;
+  text-shadow: 0 0 10px #ff7eb6, 0 0 2px #000;
+  animation: note-rise 3.6s ease-out var(--delay) both;
+}
+@keyframes note-rise {
+  0% { translate: 0 0; opacity: 0; }
+  10% { opacity: 1; }
+  100% { translate: var(--sway) -85vh; opacity: 0; }
+}
+
+/* Text timeline: 大当たり and the cards over the domain, the mode after it breaks */
+#fever.on .oatari { animation: slam .55s cubic-bezier(.2,1.6,.4,1) .9s both, wobble 1.4s ease-in-out 1.45s infinite; }
+#fever.on .fever-title { animation: pop-in .35s ease 1.05s both; }
+#fever.on .fever-reels .reel:nth-child(1) { animation-delay: 1.1s; }
+#fever.on .fever-reels .reel:nth-child(2) { animation-delay: 1.3s; }
+#fever.on .fever-reels .reel:nth-child(3) { animation-delay: 1.5s; }
+.sfx-card {
+  font-family: var(--font-sfx); font-size: clamp(16px, 4vmin, 40px); letter-spacing: .1em;
+  color: #fff; -webkit-text-stroke: 3px #000; paint-order: stroke fill; rotate: -6deg; opacity: 0;
+}
+#fever.on .sfx-card { animation: pop-in .25s ease 1.6s both, shake-sfx .1s linear 1.6s 6; }
+#fever.on .sub, #fever.on .song-line { animation: pop-in .4s ease 2.5s both; }
+#fever.on .fever-text { animation: fever-out .5s ease 5.6s both; }
+@keyframes fever-out { to { opacity: 0; } }
+/* Paint fixes: no fixed backgrounds on moving shards (each shard is already
+   full-screen, so its pattern lines up), and no SVG filter on 大当たり. */
+#fever .shards i { background-attachment: scroll; filter: none; box-shadow: inset 0 0 0 1px rgba(255,255,255,.6); }
+.fever-text .oatari { filter: drop-shadow(0 8px 0 #5a1a00) drop-shadow(0 0 30px rgba(255,180,0,.8)); }
+
+/* Jackpot refinements: the barrier cracks, then breaks apart; flame-like
+   cursed energy; a calmer gold glow. */
+#fever .shards { filter: drop-shadow(0 0 1.5px #fff) drop-shadow(0 0 1px #fff); }
+#fever.broken .shards i { animation: shard 1.6s cubic-bezier(.55,0,.8,.4) var(--delay) both; }
+@keyframes shard {
+  0% { opacity: 1; translate: 0 0; rotate: 0deg; scale: 1; }
+  22% { opacity: 1; translate: calc(var(--dx) * .02) calc(var(--dy) * .02); rotate: calc(var(--rot) * .05); scale: .99; }
+  75% { opacity: 1; }
+  100% { opacity: 0; translate: var(--dx) var(--dy); rotate: var(--rot); scale: .8; }
+}
+#fever .aura { bottom: 0; height: 70vh; mix-blend-mode: screen; }
+#fever .aura i {
+  position: absolute; bottom: -4vh; translate: -50% 0;
+  border-radius: 50% 50% 45% 45% / 75% 75% 25% 25%;
+  background: linear-gradient(to top, rgba(120,90,255,.85), rgba(150,120,255,.45) 45%, rgba(190,170,255,0) 100%);
+  filter: blur(7px);
+  transform-origin: 50% 100%;
+  animation: flame var(--dur) ease-in-out var(--delay) infinite;
+}
+@keyframes flame {
+  0% { scale: 1 .85; rotate: -3deg; opacity: .55; }
+  50% { scale: .8 1.15; rotate: 3deg; opacity: .95; }
+  100% { scale: 1 .85; rotate: -3deg; opacity: .55; }
+}
+#fever.broken .aura { opacity: .9; }
+#fever .aura::before {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 35vh;
+  background: linear-gradient(to top, rgba(70,40,200,.55), transparent);
+}
+.fever-text .oatari { filter: drop-shadow(0 6px 0 #5a1a00) drop-shadow(0 0 10px rgba(255,180,0,.6)); }
+.fever-reels .reel { box-shadow: 0 6px 0 rgba(0,0,0,.35), 0 0 0 3px #fff, 0 0 0 6px var(--c, #999), 0 0 16px rgba(255,210,63,.6); }
+
+/* =========================================================
+   Indicator row, one grid: labels on top, content below, all aligned
+   ========================================================= */
+.indicators {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  column-gap: 14px;
+  align-items: end;
+  margin-top: 10px;
+}
+.indicators .ind { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.indicators .ind > small {
+  display: block; margin: 0; line-height: 1.1;
+  font-size: 11px; color: #c4b3d1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.indicators .ind > small .ja { display: inline; }
+.indicators .ind > small .tr { display: block; font-size: 9px; color: #8d7f99; -webkit-text-fill-color: #8d7f99; overflow: hidden; text-overflow: ellipsis; }
+.indicators .balls, .indicators .chips { display: flex; align-items: center; gap: 5px; height: 20px; }
+.indicators .best-wrap { align-items: flex-end; }
+.indicators .best-wrap > small { text-align: right; }
+.indicators .best { justify-self: auto; height: 20px; padding: 0 9px; align-items: center; }
+/* compact: labels without translations keep the row short */
+body.layout-compact .indicators { column-gap: 10px; }
+.indicators .ind { align-items: flex-start; flex-wrap: nowrap; }
+.indicators .ind > small { text-align: left; }
+.indicators .best-wrap { align-items: flex-end; }
+.indicators .best-wrap > small { text-align: right; }
+/* Compact riichi: room for title, stars, reels and track */
+body.layout-compact .lcd { height: 172px; }
+body.layout-compact .lcd[data-scene="riichi"] .reels { translate: -50% -18%; scale: .5; }
+body.layout-compact .riichi-stars { top: 74px; }
+
+/* Name plates: kanji with romaji under it */
+.reel .who { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.05; padding: 1px 6px 2px; }
+.reel .who .tr { font-size: 7px; font-weight: 700; letter-spacing: .3px; color: #fff; -webkit-text-fill-color: #fff; text-shadow: none; opacity: .9; }
+.fever-reels .reel .who .tr { font-size: clamp(8px, 1.1vmin, 12px); }
+.lcd[data-scene="riichi"] .reel .who .tr { display: none; }
+
+/* リーチ!! in the burst, with its translation */
+.riichi-call .tr { font-size: 9px; letter-spacing: 1px; color: #7a0016; -webkit-text-fill-color: #7a0016; text-shadow: none; -webkit-text-stroke: 0; margin-top: -2px; }
+.riichi-burst { height: 58px; margin-top: -29px; top: 27px; }
+
+/* 夢背景 tag */
+.scene.riichi .yume-bg span { display: inline-flex; flex-direction: column; align-items: flex-end; }
+.scene.riichi .yume-bg span .tr { font-size: 8px; color: #fff; -webkit-text-fill-color: #fff; }
+
+/* 領域展開 in the first panel: translation at the foot of the panel */
+#intro .tate-tr { position: absolute; left: 0; right: 0; bottom: 4%; text-align: center; }
+#intro .tate-tr .ja { display: none; }
+#intro .tate-tr .tr {
+  display: inline-block; padding: 4px 12px; background: var(--paper); border: 3px solid var(--ink-black);
+  font-family: var(--font-ui); font-weight: 800; font-size: min(2.4vh, 1.5vw); color: var(--ink-black);
+  -webkit-text-fill-color: var(--ink-black); text-shadow: none;
+}
+/* The banner under the screen already translates リーチ!!; keep the burst clean */
+.riichi-call .tr { display: none; }
+.riichi-burst { height: 52px; margin-top: -26px; top: 24px; }
+
+/* =========================================================
+   Which conversation: identity line + the other conversations
+   ========================================================= */
+.who-row {
+  display: flex; align-items: center; gap: 7px;
+  margin: 0 0 8px; min-height: 18px;
+  font-size: 11px; color: var(--ink);
+}
+.who-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex: none;
+  background: var(--c, #4a3c52); box-shadow: 0 0 8px var(--c, transparent);
+}
+.who-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.who-text b { font-weight: 800; margin-right: 6px; }
+#who-title { color: var(--muted); }
+#who-title .ja { display: inline; }
+#who-title .tr { display: inline; margin-left: 4px; font-size: 10px; }
+.who-pin {
+  flex: none; font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 999px;
+  color: #120a18; background: var(--who, var(--pink));
+}
+.who-pin .ja, .who-pin .tr { display: inline; }
+.who-pin .tr { margin-left: 3px; font-size: 9px; color: #120a18; -webkit-text-fill-color: #120a18; text-shadow: none; }
+.sess-dots { display: flex; gap: 5px; flex: none; }
+.sess-dots i {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--c); box-shadow: 0 0 0 1.5px rgba(0,0,0,.55);
+}
+.sess-dots i[data-state="idle"], .sess-dots i[data-state="done"] { opacity: .35; }
+.sess-dots i[data-state="working"] { animation: sess-pulse 1.6s ease-in-out infinite; }
+.sess-dots i[data-state="riichi"] { box-shadow: 0 0 0 2px var(--hot), 0 0 8px var(--hot); animation: sess-pulse .5s ease-in-out infinite; }
+.sess-dots i[data-state="waiting"] { box-shadow: 0 0 0 2px var(--cyan), 0 0 10px var(--cyan); animation: sess-blink 1s steps(2) infinite; }
+.sess-dots i[data-state="round"] { box-shadow: 0 0 0 2px var(--gold), 0 0 10px var(--gold); }
+@keyframes sess-pulse { 50% { opacity: .5; } }
+@keyframes sess-blink { 50% { opacity: .25; } }
+/* The cabinet edge takes the conversation's colour, so it is easy to tell apart */
+#machine { border-color: color-mix(in srgb, var(--who, var(--cabinet-edge)) 55%, var(--cabinet-edge)); }
+body.layout-mini .who-row { margin: 0 0 5px; font-size: 10px; min-height: 14px; }
+body.layout-mini #who-title, body.layout-mini .who-pin { display: none; }
+#machine.idle .sess-dots i { animation-play-state: paused; }
+
+/* CR is part of the machine's name, as on the ch. 183 rule sheet
+   ("CR私鉄純愛列車"): same lettering as the title, a little smaller. */
+.title .cr {
+  display: inline; padding: 0; margin: 0 2px 0 0; border-radius: 0; vertical-align: baseline;
+  background: linear-gradient(180deg, #fff 0%, #ffd1e6 35%, var(--pink) 60%, #d6337c 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  font-family: var(--font-jp); font-weight: 900; font-size: 15px; letter-spacing: .5px;
+  filter: drop-shadow(0 1px 0 #5a0e33) drop-shadow(0 0 8px rgba(255,126,182,.45));
+  cursor: help;
+}
+.title .cr { font-family: var(--font-sfx); font-weight: 400; font-size: 16px; letter-spacing: 0; }
+/* The ticker is one line: Japanese and its translation side by side */
+.ticker .ja, .ticker .tr { display: inline; }
+.ticker .tr { margin-left: 6px; font-size: 11px; color: var(--muted); -webkit-text-fill-color: var(--muted); text-shadow: none; }
+#preview-bar .ja, #preview-bar .tr { display: inline; }
+#preview-bar .tr { margin-left: 6px; }
+
+/* =========================================================
+   Same information in every layout: a smaller layout may drop a whole
+   block, never just the translation of something it still shows.
+   ========================================================= */
+body.layout-compact .title .title-tr { margin-top: 3px; font-size: 9px; }
+body.layout-compact .title .title-tr .tr { font-size: 9px; }
+body.layout-compact .indicators .ind > small .tr { font-size: 8px; }
+body.layout-compact .riichi-stars .tr { font-size: 8px; margin-left: 4px; }
+body.layout-compact .gogo .tr { font-size: 7px; }
+body.layout-mini .riichi-jp .tr { display: block; font-size: 7px; letter-spacing: .5px; }
+body.layout-mini .scene.round .round-label .tr { display: block; font-size: 7px; }
+body.layout-mini .demo-tag .tr { display: inline; font-size: 7px; margin-left: 3px; }
+body.layout-mini .reel .who .tr { display: block; font-size: 6.5px; }
+body.layout-mini .reel { height: 64px; }
+body.layout-mini .reel .num { font-size: 32px; }
+body.layout-mini .riichi-result .tr { font-size: 7px; }
