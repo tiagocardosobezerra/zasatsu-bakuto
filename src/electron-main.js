@@ -6,7 +6,7 @@
 
 const { app, BrowserWindow, Menu, Tray, nativeImage, screen } = require('electron');
 const { createDomainServer } = require('./server');
-const { drawIcon } = require('./icon');
+const path = require('node:path');
 
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
 
@@ -15,40 +15,17 @@ let win = null;
 let domain = null;
 let serverPort = null;
 
-// The slot machine icon, at 1x and 2x for crisp tray and window icons.
+// The hand sign icon (public/app-icon.png, made by `npm run icon`), at 1x
+// and 2x for crisp tray and window icons.
+const ICON_FILE = path.join(__dirname, '..', 'public', 'app-icon.png');
 function appIcon(size) {
+  const source = nativeImage.createFromPath(ICON_FILE);
   const image = nativeImage.createEmpty();
   for (const scaleFactor of [1, 2]) {
     const n = size * scaleFactor;
-    const bitmap = nativeImage.createFromBitmap(drawIcon(n, 'bgra'), { width: n, height: n });
-    image.addRepresentation({ scaleFactor, width: n, height: n, buffer: bitmap.toPNG() });
+    image.addRepresentation({ scaleFactor, buffer: source.resize({ width: n, height: n, quality: 'best' }).toPNG() });
   }
   return image;
-}
-
-// Render the brush-lettered icon (public/icon-render.js) in a hidden window,
-// then use it for the tray, the settings window and the pages' favicon.
-let iconImage = null;
-async function renderBrushIcon(port) {
-  const w = new BrowserWindow({ show: false, width: 300, height: 300 });
-  try {
-    await w.loadURL(`http://127.0.0.1:${port}/icon.html`);
-    const dataUrl = await w.webContents.executeJavaScript('window.renderIcon(256)');
-    const big = nativeImage.createFromDataURL(dataUrl);
-    if (big.isEmpty()) return;
-    iconImage = big;
-    domain.setIcon(big.resize({ width: 64, height: 64, quality: 'best' }).toPNG());
-    const trayImage = nativeImage.createEmpty();
-    for (const scaleFactor of [1, 2]) {
-      const n = 16 * scaleFactor;
-      trayImage.addRepresentation({ scaleFactor, buffer: big.resize({ width: n, height: n, quality: 'best' }).toPNG() });
-    }
-    tray.setImage(trayImage);
-  } catch {
-    /* keep the plain icon */
-  } finally {
-    w.destroy();
-  }
 }
 
 function createOverlay(port) {
@@ -107,7 +84,7 @@ function openPage(name, page, title, size) {
     show: false,
     backgroundColor: '#120c17',
     autoHideMenuBar: true,
-    icon: iconImage ? iconImage.resize({ width: 64, height: 64, quality: 'best' }) : appIcon(32),
+    icon: appIcon(32),
   });
   windows[name] = win;
   lockZoom(win);
@@ -193,7 +170,6 @@ app.whenReady().then(async () => {
   tray.on('double-click', openSettings);
   tray.on('right-click', showMenu);
   tray.on('click', showMenu);
-  renderBrushIcon(port);
 });
 
 app.on('window-all-closed', (e) => e.preventDefault());

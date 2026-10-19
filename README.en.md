@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/icon.png" width="128" alt="Zasatsu Bakuto icon: a slot machine with the 坐殺博徒 marquee">
+  <img src="docs/icon.png" width="128" alt="Zasatsu Bakuto icon: Hakari's Domain Expansion hand sign">
 </p>
 
 <h1 align="center">Zasatsu Bakuto (坐殺博徒)</h1>

@@ -12,13 +12,12 @@ const { createSessions } = require('./sessions');
 const { demoScript, previewScript, seeded, DEMO_SEED } = require('./demo');
 const settings = require('./config');
 const { env } = require('./env');
-const { iconPNG } = require('./icon');
 
 const DEFAULT_PORT = Number(env('PORT')) || 4111;
 const MAX_BODY = 5 * 1024 * 1024;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const CUSTOM_DIR = env('CUSTOM_DIR') || path.join(settings.HOME, 'custom');
-const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8' };
+const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const MAX_CONFIG_BODY = 64 * 1024;
 // Media people may add to the custom folder.
 const CUSTOM_MIME = {
@@ -48,8 +47,6 @@ function createDomainServer({
   sessions.follow(config.follow);
   // Shown when no conversation has talked to us yet.
   const idleGame = createGame();
-  // The desktop app renders the brush-lettered icon and hands it over here.
-  let brushIcon = null;
 
   function broadcast(message) {
     onBroadcast(message);
@@ -275,7 +272,7 @@ function createDomainServer({
 
     if (req.method === 'GET' && url.pathname === '/icon.png') {
       res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'no-cache' });
-      return res.end(brushIcon || iconPNG(64));
+      return fs.createReadStream(path.join(PUBLIC_DIR, 'app-icon.png')).pipe(res);
     }
 
     if (req.method === 'GET' && url.pathname === '/health') {
@@ -302,7 +299,6 @@ function createDomainServer({
     runDemo,
     runPreview,
     setConfig,
-    setIcon: (png) => { brushIcon = png; },
     sessions: () => sessionsMessage(),
     config: () => config,
     listen: () =>

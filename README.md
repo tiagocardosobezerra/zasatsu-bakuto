@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/icon.png" width="128" alt="Ícone do Zasatsu Bakuto: uma máquina caça-níquel com o letreiro 坐殺博徒">
+  <img src="docs/icon.png" width="128" alt="Ícone do Zasatsu Bakuto: o sinal de mão da Expansão de Domínio do Hakari">
 </p>
 
 <h1 align="center">Zasatsu Bakuto (坐殺博徒)</h1>
