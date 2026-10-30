@@ -232,13 +232,27 @@ const notifiedAt = new Map();
 let silentBefore = new Set();
 const SILENT_TEXT = { en: 'No event for 5 min: long command or stuck?', pt: 'Sem sinal há 5 min: comando longo ou travado?' };
 
-function notify(key, title, body) {
+// Shown notifications are kept until closed: one that is garbage collected
+// would no longer answer a click.
+const shown = new Set();
+
+// `sessionId`: a click opens that conversation in the Claude app, when it
+// has one there (see links.js).
+function notify(key, title, body, sessionId) {
   const config = domain && domain.config();
   if (!config || config.notify === false || !Notification.isSupported()) return;
   if (!config.discreet && win && !win.isDestroyed() && win.isVisible()) return;
   if (Date.now() - (notifiedAt.get(key) || 0) < NOTIFY_GAP_MS) return;
   notifiedAt.set(key, Date.now());
-  new Notification({ title, body: body || 'Claude Code', icon: ICON_FILE, silent: false }).show();
+  const n = new Notification({ title, body: body || 'Claude Code', icon: ICON_FILE, silent: false });
+  shown.add(n);
+  n.on('close', () => shown.delete(n));
+  n.on('click', () => {
+    shown.delete(n);
+    const link = sessionId && domain.linkFor(sessionId);
+    if (link) shell.openExternal(link);
+  });
+  n.show();
 }
 
 function notifyIfUnseen(message) {
@@ -247,7 +261,7 @@ function notifyIfUnseen(message) {
     const now = new Set(message.list.filter((s) => s.silent).map((s) => s.id));
     const lang = (domain.config().translation in SILENT_TEXT ? domain.config().translation : app.getLocale().slice(0, 2));
     for (const s of message.list) {
-      if (s.silent && !silentBefore.has(s.id)) notify(`silent:${s.id}`, `無音 · ${s.label}`, [s.title, SILENT_TEXT[lang] || SILENT_TEXT.en].filter(Boolean).join(' · '));
+      if (s.silent && !silentBefore.has(s.id)) notify(`silent:${s.id}`, `無音 · ${s.label}`, [s.title, SILENT_TEXT[lang] || SILENT_TEXT.en].filter(Boolean).join(' · '), s.id);
     }
     silentBefore = now;
     return;
@@ -255,7 +269,7 @@ function notifyIfUnseen(message) {
   // Only real conversations: the demo's "your turn" has no one behind it.
   if ((message.type !== 'attention' && message.type !== 'call') || !message.who || message.who.demo) return;
   const who = message.who;
-  notify(who.id || 'agent', who.label ? `あなたの番 · ${who.label}` : 'あなたの番', [who.title, message.detail].filter(Boolean).join(' · '));
+  notify(who.id || 'agent', who.label ? `あなたの番 · ${who.label}` : 'あなたの番', [who.title, message.detail].filter(Boolean).join(' · '), who.id);
 }
 
 // Windows only shows notifications from an app with an id; a copy run from

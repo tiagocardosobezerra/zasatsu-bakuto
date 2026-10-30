@@ -503,6 +503,7 @@ function createDomainServer({
     config: () => config,
     usage: () => usageMessage().usage,
     stats: () => daily.report(),
+    linkFor: (id) => links.linkFor(id),
     listen: () =>
       new Promise((resolve, reject) => {
         server.once('error', reject);

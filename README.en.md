@@ -237,9 +237,10 @@ The agent's events are the fight. Each rule comes from the rule sheet Hakari sho
 | **Classifier** (`src/classify.js`) | Turns the raw event into a signal (`tool-done`, `test-start`, `attention`…) and reads test results |
 | **Game** (`src/game.js`) | Hakari's rules: the 1/239 draw, effects, リーチ, jackpot, 確変 and 時短 |
 | **Machines** (`src/machine.js`, `src/each.js`) | One machine for every conversation, or one per conversation |
-| **Conversations** (`src/sessions.js`, `src/links.js`) | The conversation lines and each one's link to the Claude app |
+| **Conversations** (`src/sessions.js`, `src/links.js`) | The conversation lines (state, turn time, silence, last results, context) and each one's link to the Claude app |
+| **Day** (`src/daily.js`) | Turns, tests, builds and time waiting for you, per day (`GET /stats`, `ryoiki status`) |
 | **Server** (`src/server.js`) | Takes the events in, keeps the totals and streams everything to the screens |
-| **Overlay** (`public/`) | The machine on screen, in plain HTML, CSS and JS, plus the guide and settings |
+| **Overlay** (`public/`) | The machine on screen, in plain HTML, CSS and JS, plus the guide and settings; `public/lines.js` builds the real-result chips |
 | **Desktop** (`src/electron-main.js`) | The transparent window that lets clicks through, and the tray icon |
 
 Nothing leaves your computer: everything runs on `127.0.0.1`, with no telemetry and no account. The server refuses pages from other sites and host names other than `127.0.0.1` or `localhost`, so a website cannot read what the machine shows. The day summary is kept in `~/.zasatsu-bakuto/daily.json` (last 14 days). For the conversation links, the app reads, on your computer, only each conversation's id from the Claude app's files.
@@ -273,6 +274,8 @@ npm run serve       # then open http://127.0.0.1:4111/?preview
 npm start           # Electron overlay
 npm run icon        # renders the icon again from public/icon-render.js
 ```
+
+To track down a sound that played when it should not, run with `ZASATSU_SOUND_LOG=1`: every sound goes to `~/.zasatsu-bakuto/sound-log.json`. CI runs the tests on Linux, Windows and macOS. What changed in each version is in the [CHANGELOG](CHANGELOG.md).
 
 ## Roadmap
 
