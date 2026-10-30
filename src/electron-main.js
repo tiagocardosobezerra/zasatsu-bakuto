@@ -229,19 +229,38 @@ function showMenu() {
 // says it too, at most once in a while per conversation.
 const NOTIFY_GAP_MS = 20 * 1000;
 const notifiedAt = new Map();
-function notifyIfUnseen(message) {
-  // Only real conversations: the demo's "your turn" has no one behind it.
-  if ((message.type !== 'attention' && message.type !== 'call') || !message.who) return;
+let silentBefore = new Set();
+const SILENT_TEXT = { en: 'No event for 5 min: long command or stuck?', pt: 'Sem sinal há 5 min: comando longo ou travado?' };
+
+function notify(key, title, body) {
   const config = domain && domain.config();
   if (!config || config.notify === false || !Notification.isSupported()) return;
   if (!config.discreet && win && !win.isDestroyed() && win.isVisible()) return;
-  const who = message.who || {};
-  const key = who.id || 'agent';
   if (Date.now() - (notifiedAt.get(key) || 0) < NOTIFY_GAP_MS) return;
   notifiedAt.set(key, Date.now());
-  const title = who.label ? `あなたの番 · ${who.label}` : 'あなたの番';
-  new Notification({ title, body: [who.title, message.detail].filter(Boolean).join(' · ') || 'Claude Code', icon: ICON_FILE, silent: false }).show();
+  new Notification({ title, body: body || 'Claude Code', icon: ICON_FILE, silent: false }).show();
 }
+
+function notifyIfUnseen(message) {
+  // A conversation that just went silent (see sessions.js): maybe stuck.
+  if (message.type === 'sessions') {
+    const now = new Set(message.list.filter((s) => s.silent).map((s) => s.id));
+    const lang = (domain.config().translation in SILENT_TEXT ? domain.config().translation : app.getLocale().slice(0, 2));
+    for (const s of message.list) {
+      if (s.silent && !silentBefore.has(s.id)) notify(`silent:${s.id}`, `無音 · ${s.label}`, [s.title, SILENT_TEXT[lang] || SILENT_TEXT.en].filter(Boolean).join(' · '));
+    }
+    silentBefore = now;
+    return;
+  }
+  // Only real conversations: the demo's "your turn" has no one behind it.
+  if ((message.type !== 'attention' && message.type !== 'call') || !message.who) return;
+  const who = message.who;
+  notify(who.id || 'agent', who.label ? `あなたの番 · ${who.label}` : 'あなたの番', [who.title, message.detail].filter(Boolean).join(' · '));
+}
+
+// Windows only shows notifications from an app with an id; a copy run from
+// the repository has no installer to register one, so it uses its own path.
+if (process.platform === 'win32') app.setAppUserModelId(process.execPath);
 
 app.whenReady().then(async () => {
   if (process.platform === 'darwin' && app.dock) app.dock.hide();

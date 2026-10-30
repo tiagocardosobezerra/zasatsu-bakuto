@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { createDaily, dayKey, KEEP_DAYS } = require('../src/daily');
-const { createSessions, SILENT_MS, WAIT_CAP_MS } = require('../src/sessions');
+const { createSessions, SILENT_MS, WAIT_CAP_MS, ACTIVE_MS } = require('../src/sessions');
 const { createDomainServer } = require('../src/server');
 const { classify } = require('../src/classify');
 
@@ -64,7 +64,10 @@ test('the wait for you runs from "your turn" or the end of a turn to the next wo
   assert.equal(sessions.note(sig('tool-done')).waited, 30 * 1000, 'a permission you granted');
   sessions.note(sig('turn-end'));
   now.advance(3 * 60 * 60 * 1000);
-  assert.equal(sessions.note(sig('turn-start')).waited, WAIT_CAP_MS, 'a night away counts as the cap');
+  assert.equal(sessions.note(sig('turn-start')).waited, 0, 'a night away is you being away, not the agent waiting');
+  sessions.note(sig('turn-end'));
+  now.advance(WAIT_CAP_MS);
+  assert.equal(sessions.note(sig('turn-start')).waited, WAIT_CAP_MS);
   assert.equal(sessions.note(sig('tool-done')).waited, 0);
 });
 
@@ -85,6 +88,16 @@ test('a working conversation with no event for a while is marked silent; its tur
   sessions.note(sig('turn-end'));
   now.advance(SILENT_MS);
   assert.deepEqual([sessions.list()[0].silent, sessions.list()[0].turnStartedAt], [false, null], 'a finished turn is not silent');
+});
+
+test('a turn that never ended (Esc sends no Stop) stops claiming to work', () => {
+  const now = clock();
+  const sessions = createSessions({ now });
+  sessions.note(sig('turn-start'));
+  now.advance(ACTIVE_MS);
+  const line = sessions.list()[0];
+  assert.deepEqual([line.state, line.silent, line.turnStartedAt], ['idle', false, null]);
+  assert.equal(sessions.silentIds(), '');
 });
 
 test('builds, linters and type checks keep their last result on the line', () => {

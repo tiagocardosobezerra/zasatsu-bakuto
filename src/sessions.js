@@ -9,7 +9,7 @@
 const ACTIVE_MS = 15 * 60 * 1000; // a conversation silent this long no longer holds the domain open
 const FORGET_MS = 3 * 60 * 60 * 1000; // conversations idle this long are dropped
 const SILENT_MS = 5 * 60 * 1000; // a working conversation with no event this long may be stuck
-const WAIT_CAP_MS = 60 * 60 * 1000; // a wait longer than this is you being away, counted as this
+const WAIT_CAP_MS = 30 * 60 * 1000; // a wait longer than this is you being away, not the agent waiting
 
 // A stable, readable colour per conversation id.
 function colorFor(id) {
@@ -42,16 +42,20 @@ function createSessions({ now = Date.now } = {}) {
   let seq = 0; // orders conversations that act in the same millisecond
 
   function summary(s) {
+    // Working, but silent for so long it no longer holds the domain open
+    // (see busy): the turn was interrupted (Esc sends no Stop) or the app
+    // missed its end. The line stops claiming it works.
+    const gone = (s.state === 'working' || s.state === 'riichi') && now() - s.lastAt >= ACTIVE_MS;
     return {
       id: s.id,
       label: s.label,
       title: s.title,
       color: s.color,
-      state: s.state,
+      state: gone ? 'idle' : s.state,
       detail: s.detail,
       lastAt: s.lastAt,
-      turnStartedAt: s.turnStartedAt || null,
-      silent: silent(s),
+      turnStartedAt: gone ? null : s.turnStartedAt || null,
+      silent: !gone && silent(s),
       lastTest: s.lastTest || null,
       lastCheck: s.lastCheck || null,
       context: s.context ?? null,
@@ -77,7 +81,8 @@ function createSessions({ now = Date.now } = {}) {
     const working = STATE_BY_KIND[signal.kind] === 'working' || STATE_BY_KIND[signal.kind] === 'riichi';
     s.waited = 0;
     if (working && s.waitingSince) {
-      s.waited = Math.min(now() - s.waitingSince, WAIT_CAP_MS);
+      const waited = now() - s.waitingSince;
+      s.waited = waited <= WAIT_CAP_MS ? waited : 0;
       s.waitingSince = null;
     }
     if ((signal.kind === 'attention' || signal.kind === 'turn-end') && !s.waitingSince) s.waitingSince = now();
@@ -115,7 +120,7 @@ function createSessions({ now = Date.now } = {}) {
     note,
     busy,
     setContext,
-    silentIds: () => [...map.values()].filter(silent).map((s) => s.id).sort().join(','),
+    silentIds: () => [...map.values()].map(summary).filter((s) => s.silent).map((s) => s.id).sort().join(','),
     find: (id) => map.get(id) || null,
     list: () => [...map.values()].sort((a, b) => b.lastAt - a.lastAt || b.seq - a.seq).map(summary),
     summary,
