@@ -86,6 +86,8 @@ async function main() {
       try {
         const port = await domain.listen();
         console.log(`Zasatsu Bakuto server on http://127.0.0.1:${port}/  (preview: http://127.0.0.1:${port}/?preview)`);
+        // Ctrl+C: save the machine (its totals, 確変/時短) before leaving.
+        for (const sig of ['SIGINT', 'SIGTERM']) process.once(sig, () => domain.close().then(() => process.exit(0)));
       } catch (err) {
         console.error(err.code === 'EADDRINUSE' ? `Port ${DEFAULT_PORT} is busy. Is the domain already open?` : err.message);
         process.exit(1);
@@ -131,7 +133,22 @@ async function main() {
     }
 
     case 'status': {
-      console.log((await isRunning()) ? `領域展開 · The domain is open on port ${DEFAULT_PORT}.` : '領域解除 · The domain is closed.');
+      const running = await isRunning();
+      console.log(running ? `領域展開 · The domain is open on port ${DEFAULT_PORT}.` : '領域解除 · The domain is closed.');
+      // The day so far, from the running app or from what it saved.
+      const { createDaily, formatReport } = require('../src/daily');
+      let report = null;
+      if (running) report = await fetch(`http://127.0.0.1:${DEFAULT_PORT}/stats`).then((r) => r.json()).catch(() => null);
+      if (!report) {
+        let saved = null;
+        try {
+          saved = JSON.parse(require('node:fs').readFileSync(path.join(require('../src/config').HOME, 'daily.json'), 'utf8'));
+        } catch {
+          /* nothing counted yet */
+        }
+        report = createDaily({ saved }).report();
+      }
+      for (const line of formatReport(report)) console.log(line);
       // Plan usage comes from Claude Code's status line, which only some
       // Claude Code apps run (the terminal does; the desktop app does not).
       let note = null;

@@ -11,6 +11,7 @@ const { createGame } = require('./game');
 const { createMachine } = require('./machine');
 const { createEach } = require('./each');
 const { createLinks } = require('./links');
+const { createDaily } = require('./daily');
 const { demoScript, previewScript, seeded, DEMO_SEED } = require('./demo');
 const settings = require('./config');
 const { env } = require('./env');
@@ -21,6 +22,11 @@ const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const CUSTOM_DIR = env('CUSTOM_DIR') || path.join(settings.HOME, 'custom');
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png' };
 const MAX_CONFIG_BODY = 64 * 1024;
+const SOUND_LOG = env('SOUND_LOG') === '1'; // debugging aid, see overlay.js
+const SAVE_DELAY_MS = 1000; // machine.json is written at most once a second
+// Names a request may use to reach us. Anything else is a page that pointed
+// its own domain at 127.0.0.1 (DNS rebinding) and must not read the stream.
+const LOCAL_HOSTS = new Set(['127.0.0.1', 'localhost', '[::1]']);
 // Media people may add to the custom folder.
 const CUSTOM_MIME = {
   '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif',
@@ -56,6 +62,7 @@ function createDomainServer({
   log = () => {},
   configFile = settings.CONFIG_FILE,
   machineFile = path.join(path.dirname(configFile), 'machine.json'),
+  dailyFile = path.join(path.dirname(configFile), 'daily.json'),
   onBroadcast = () => {},
   onOpenWindow = null, // set by the desktop app: opens its settings / guide window
   onQuit = () => process.exit(0), // "ryoiki kaijo"; the desktop app quits Electron instead
@@ -78,18 +85,35 @@ function createDomainServer({
   // Shown in "each" mode until a conversation has talked to us.
   const idleGame = createGame();
   const { sessions } = machine;
-  let lastSaved = JSON.stringify(machine.game.saved());
+  const daily = createDaily({ saved: readSaved(dailyFile) });
+  // What is on disk, per file, so an unchanged state is not written again.
+  const onDisk = new Map([[machineFile, JSON.stringify(machine.game.saved())], [dailyFile, JSON.stringify(daily.saved())]]);
+  let saveTimer = null;
 
-  function persist() {
-    const now = JSON.stringify(machine.game.saved());
-    if (now === lastSaved) return;
-    lastSaved = now;
+  function write(file, value) {
+    const text = JSON.stringify(value);
+    if (text === onDisk.get(file)) return;
+    onDisk.set(file, text);
     try {
-      fs.mkdirSync(path.dirname(machineFile), { recursive: true });
-      fs.writeFileSync(machineFile, `${now}\n`);
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, `${text}\n`);
     } catch (err) {
-      log(`could not save the machine: ${err.message}`);
+      log(`could not save ${path.basename(file)}: ${err.message}`);
     }
+  }
+
+  function saveNow() {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    write(machineFile, machine.game.saved());
+    write(dailyFile, daily.saved());
+  }
+
+  // Hooks arrive several times a second; the disk only needs the latest.
+  function persist() {
+    if (saveTimer) return;
+    saveTimer = setTimeout(saveNow, SAVE_DELAY_MS);
+    saveTimer.unref();
   }
 
   function broadcast(message) {
@@ -109,7 +133,15 @@ function createDomainServer({
   const whoOf = (s) => (s ? { id: s.id, label: s.label, title: s.title, color: s.color } : null);
   let lastWho = null;
 
+  // The lines show how long each turn has run and which conversation went
+  // silent; both change with time alone, so the lines are re-sent when a
+  // conversation goes silent and every half minute while one is working.
+  let lastSilent = '';
+  let linesSentAt = Date.now();
+  const LINES_REFRESH_MS = 30 * 1000;
+
   function sessionsMessage() {
+    linesSentAt = Date.now();
     return { type: 'sessions', list: sessions.list().map((s) => ({ ...s, link: links.has(s.id) })) };
   }
 
@@ -139,7 +171,7 @@ function createDomainServer({
   }
 
   function hello() {
-    return { ...shown().snapshot(), config, who: currentWho(), sessions: sessionsMessage(), usage: usageMessage().usage };
+    return { ...shown().snapshot(), config, who: currentWho(), sessions: sessionsMessage(), usage: usageMessage().usage, soundLog: SOUND_LOG };
   }
 
   // Resolve timers fire later; they always emit through the game that asked.
@@ -164,6 +196,7 @@ function createDomainServer({
     const signal = classify(payload);
     if (!signal) return [];
     const { session, events } = machine.handle(signal);
+    daily.note(signal, session.waited);
     const own = each.handle(signal, session, sessions);
     const who = whoOf(session);
     lastWho = who;
@@ -187,9 +220,14 @@ function createDomainServer({
 
   const ticker = setInterval(() => {
     const events = machine.tick();
+    const silent = sessions.silentIds();
+    const working = sessions.busy(null).length > 0;
     if (events.length) {
       emit(events, machine.game, lastWho);
       persist();
+    }
+    if (events.length || silent !== lastSilent || (working && Date.now() - linesSentAt >= LINES_REFRESH_MS)) {
+      lastSilent = silent;
       broadcast(sessionsMessage());
     }
     for (const { game, events: own } of each.tick()) emit(own, game, currentWho());
@@ -248,6 +286,12 @@ function createDomainServer({
     }
   }
 
+  function localHost(req) {
+    const host = String(req.headers.host || '').toLowerCase();
+    const name = host.startsWith('[') ? host.slice(0, host.indexOf(']') + 1) : host.split(':')[0];
+    return LOCAL_HOSTS.has(name);
+  }
+
   function readJson(req, limit, done) {
     let size = 0;
     const chunks = [];
@@ -270,7 +314,7 @@ function createDomainServer({
   const server = http.createServer((req, res) => {
     const url = new URL(req.url, 'http://localhost');
 
-    if (req.method === 'POST' && foreign(req)) return res.writeHead(403).end();
+    if (!localHost(req) || (req.method === 'POST' && foreign(req))) return res.writeHead(403).end();
 
     if (req.method === 'POST' && url.pathname === '/event') {
       return readJson(req, MAX_BODY, (body) => {
@@ -285,9 +329,15 @@ function createDomainServer({
         if (!body) return res.writeHead(400).end();
         const session = usageWindow(body.session);
         const week = usageWindow(body.week);
-        if (!session && !week) return res.writeHead(400).end();
-        usage = { session, week, at: Date.now() };
-        broadcast(usageMessage());
+        // How full one conversation's context window is.
+        const ctx = body.context && typeof body.context === 'object' ? body.context : null;
+        const ctxChanged = Boolean(ctx && typeof ctx.session === 'string' && sessions.setContext(ctx.session, Number(ctx.used)));
+        if (!session && !week && !ctx) return res.writeHead(400).end();
+        if (session || week) {
+          usage = { session, week, at: Date.now() };
+          broadcast(usageMessage());
+        }
+        if (ctxChanged) broadcast(sessionsMessage());
         res.writeHead(204).end();
       });
     }
@@ -317,6 +367,7 @@ function createDomainServer({
     if (req.method === 'POST' && url.pathname === '/sound-log') {
       return readJson(req, MAX_CONFIG_BODY, (body) => {
         if (!Array.isArray(body)) return res.writeHead(400).end();
+        if (!SOUND_LOG) return res.writeHead(204).end();
         const file = path.join(path.dirname(configFile), 'sound-log.json');
         let log = [];
         try {
@@ -348,6 +399,7 @@ function createDomainServer({
     }
 
     if (req.method === 'POST' && url.pathname === '/quit') {
+      saveNow();
       res.writeHead(204).end();
       return setTimeout(onQuit, 50);
     }
@@ -406,6 +458,12 @@ function createDomainServer({
       return fs.createReadStream(path.join(PUBLIC_DIR, 'app-icon.png')).pipe(res);
     }
 
+    // The day so far: turns, tests, builds and how long agents waited for you.
+    if (req.method === 'GET' && url.pathname === '/stats') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify(daily.report()));
+    }
+
     if (req.method === 'GET' && url.pathname === '/health') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       return res.end(JSON.stringify({ app: 'zasatsu-bakuto', clients: clients.size }));
@@ -433,6 +491,7 @@ function createDomainServer({
     sessions: () => sessionsMessage(),
     config: () => config,
     usage: () => usageMessage().usage,
+    stats: () => daily.report(),
     listen: () =>
       new Promise((resolve, reject) => {
         server.once('error', reject);
@@ -442,6 +501,7 @@ function createDomainServer({
       new Promise((resolve) => {
         demoTimers.forEach(clearTimeout);
         resolveTimers.forEach(clearTimeout);
+        saveNow();
         clearInterval(ticker);
         for (const res of clients) res.end();
         server.close(() => resolve());

@@ -98,3 +98,24 @@ test('the page can ask the desktop app to bring the machine to the front; other 
     await domain.close();
   }
 });
+
+test('a page that points its own domain at us (DNS rebinding) cannot read the stream', async () => {
+  const http = require('node:http');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zb-host-'));
+  const domain = createDomainServer({ port: 0, configFile: path.join(dir, 'c.json') });
+  const port = await domain.listen();
+  const status = (host) => new Promise((resolve, reject) => {
+    const req = http.get({ host: '127.0.0.1', port, path: '/config', headers: { Host: host } }, (res) => {
+      res.resume();
+      resolve(res.statusCode);
+    });
+    req.on('error', reject);
+  });
+  try {
+    assert.equal(await status(`127.0.0.1:${port}`), 200);
+    assert.equal(await status(`localhost:${port}`), 200);
+    assert.equal(await status(`evil.example.com:${port}`), 403);
+  } finally {
+    await domain.close();
+  }
+});

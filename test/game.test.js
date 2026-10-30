@@ -200,3 +200,20 @@ test('riichi carries canon scenario names and chance-ups', () => {
   assert.equal(typeof riichi.chanceUps, 'object');
   assert.ok(riichi.chanceUps.yume);
 });
+
+test('green tests that lose the draw say the tests passed; the real result rides on every outcome', () => {
+  const game = createGame({ random: rng([], 0.99) }); // 0.99 loses the green-test draw
+  game.handle(signal('turn-start'));
+  game.handle(signal('test-start'));
+  const [miss] = game.handle(signal('test-end', { passed: true, summary: { passed: 12, failed: 0 } }));
+  assert.deepEqual([miss.type, miss.reason], ['miss', 'tests-green']);
+  assert.deepEqual(miss.tests, { passed: true, summary: { passed: 12, failed: 0 } });
+
+  game.handle(signal('test-start'));
+  const [red] = game.handle(signal('test-end', { passed: false, summary: { passed: 11, failed: 1 } }));
+  assert.deepEqual([red.reason, red.tests.passed, red.tests.summary.failed], ['tests-red', false, 1]);
+
+  game.handle(signal('test-start'));
+  const [unknown] = game.handle(signal('test-end', { passed: null }));
+  assert.deepEqual([unknown.reason, unknown.tests], ['unknown', { passed: null, summary: null }]);
+});

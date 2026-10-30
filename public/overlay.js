@@ -470,7 +470,9 @@
   // Every sound the machine plays is noted (what, when, and whether it was
   // muted at that moment) and sent to the app, which keeps the last ones in
   // ~/.zasatsu-bakuto/sound-log.json. If a sound ever plays while muted,
-  // the log says exactly which one.
+  // the log says exactly which one. Only while debugging: the app turns it
+  // on with ZASATSU_SOUND_LOG=1 (sent in the hello message).
+  let soundLogOn = false;
   const soundLog = [];
   const INTERNAL = new Set(['out', 'tone', 'hiss', 'ready', 'unlock', 'setMuted', 'tick']);
   for (const [name, fn] of Object.entries(sound)) {
@@ -488,6 +490,7 @@
   setInterval(() => {
     if (!soundLog.length) return;
     const batch = soundLog.splice(0, soundLog.length);
+    if (!soundLogOn) return;
     fetch('/sound-log', { method: 'POST', body: JSON.stringify(batch) }).catch(() => {});
   }, 2000);
 
@@ -746,7 +749,7 @@
   let linesWanted = Infinity;
   const RECENT_MS = 2 * 60 * 1000; // a finished conversation keeps its line this long
   const ACTIVE_STATES = new Set(['working', 'riichi', 'waiting']);
-  const STATE_KEYS = { idle: 'stIdle', working: 'stWorking', riichi: 'stRiichi', waiting: 'stWaiting', done: 'stDone', round: 'stRound' };
+  const STATE_KEYS = { idle: 'stIdle', working: 'stWorking', riichi: 'stRiichi', waiting: 'stWaiting', done: 'stDone', round: 'stRound', silent: 'stSilent' };
 
   function setWho(who) {
     if (who) currentWho = who;
@@ -785,7 +788,8 @@
       const li = document.createElement('li');
       li.className = 'conv';
       li.dataset.id = s.id;
-      const state = inRound && (s.state === 'working' || s.state === 'riichi') ? 'round' : s.state;
+      let state = inRound && (s.state === 'working' || s.state === 'riichi') ? 'round' : s.state;
+      if (s.silent) state = 'silent';
       li.dataset.state = state;
       li.style.setProperty('--c', s.color);
       const dot = document.createElement('i');
@@ -798,11 +802,19 @@
       title.textContent = s.title ? `“${s.title}”` : '';
       const chip = document.createElement('span');
       chip.className = 'st';
-      i18n.put(chip, STATE_KEYS[state] || 'stIdle');
+      i18n.put(chip, STATE_KEYS[state] || 'stIdle', state === 'silent' ? { m: minutesSince(s.lastAt, now) } : undefined);
       const act = document.createElement('span');
       act.className = 'act';
-      act.textContent = s.detail || '';
+      // How long this turn has run, then the last action.
+      const busy = s.turnStartedAt && ACTIVE_STATES.has(s.state);
+      act.textContent = [busy ? `⏱ ${elapsed(now - s.turnStartedAt)}` : '', s.detail || ''].filter(Boolean).join(' · ');
       li.append(dot, name, title, chip, act);
+      const checks = document.createElement('span');
+      checks.className = 'checks';
+      if (s.lastTest) checks.append(testChip(s.lastTest));
+      if (s.lastCheck) checks.append(checkChip(s.lastCheck));
+      if (s.context != null && s.context >= CONTEXT_SHOW) checks.append(contextChip(s.context));
+      if (checks.childElementCount) li.append(checks);
       if (s.link) {
         li.classList.add('linked');
         const { ja, tr } = i18n.t('openConv');
@@ -812,6 +824,48 @@
     }
     fitLines(list.length);
     markCurrent();
+  }
+
+  const CONTEXT_SHOW = 50; // the context chip shows from this %, and warns from CONTEXT_WARN
+  const CONTEXT_WARN = 80;
+  const minutesSince = (at, now) => Math.max(1, Math.floor((now - at) / 60000));
+  function elapsed(ms) {
+    const m = Math.floor(ms / 60000);
+    if (m < 1) return '<1m';
+    return m < 60 ? `${m}m` : `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}`;
+  }
+
+  function chipEl(result, text, key) {
+    const el = document.createElement('span');
+    el.className = 'chk';
+    el.dataset.result = result;
+    el.textContent = text;
+    const { ja, tr } = i18n.t(key);
+    el.title = tr ? `${ja} · ${tr}` : ja;
+    return el;
+  }
+
+  // The last test run's real result, apart from the show: ✓ 12, ✗ 1/12, ?.
+  function testChip(t) {
+    const state = t.passed === true ? 'pass' : t.passed === false ? 'fail' : 'unknown';
+    const sum = t.summary || {};
+    const total = (sum.passed || 0) + (sum.failed || 0);
+    let count = '';
+    if (state === 'pass' && sum.passed != null) count = ` ${sum.passed}`;
+    if (state === 'fail' && sum.failed) count = total > sum.failed ? ` ${sum.failed}/${total}` : ` ${sum.failed}`;
+    return chipEl(state, `${{ pass: '✓', fail: '✗', unknown: '?' }[state]}${count}`, { pass: 'testPassed', fail: 'testFailed', unknown: 'testUnknownTip' }[state]);
+  }
+
+  // The last build, lint or type check: "build ✓", "lint ✗".
+  function checkChip(c) {
+    const state = c.passed ? 'pass' : 'fail';
+    const name = { build: 'build', lint: 'lint', types: 'tsc' }[c.type] || c.type;
+    return chipEl(state, `${name} ${c.passed ? '✓' : '✗'}`, c.passed ? 'checkPassed' : 'checkFailed');
+  }
+
+  // How full the conversation's context is, once it starts to matter.
+  function contextChip(pct) {
+    return chipEl(pct >= CONTEXT_WARN ? 'fail' : 'unknown', `ctx ${pct}%`, 'contextTip');
   }
 
   // Lines never push the machine off the screen: the last ones give way to
@@ -1260,7 +1314,8 @@
     async miss(e) {
       await resolveRiichi(e, false);
       sound.miss();
-      const reason = { 'tests-red': 'testsRed', expired: 'timeUp' }[e.reason] || 'miss';
+      // Green tests that lose the draw must never read as red tests.
+      const reason = { 'tests-red': 'testsRed', 'tests-green': 'testsGreenMiss', unknown: 'testsUnknown', expired: 'timeUp' }[e.reason] || 'miss';
       setCabinet('miss', reason);
       await sleep(1600);
       setScene('stage');
@@ -1343,6 +1398,7 @@
   }
 
   function hello(e) {
+    soundLogOn = Boolean(e.soundLog);
     applyConfig(e.config);
     if (e.who !== undefined) {
       currentWho = e.who;

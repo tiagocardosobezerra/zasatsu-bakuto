@@ -20,7 +20,7 @@
     "icon": "electron scripts/render-icon.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "dependencies": {
     "electron": "^33.0.0"

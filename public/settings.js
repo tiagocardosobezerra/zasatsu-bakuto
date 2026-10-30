@@ -10,7 +10,7 @@
     en: {
       windowTitle: 'Idle Death Gamble · Settings',
       settings: 'settings', game: 'Game', machine: 'On screen', corner: 'Corner', tl: 'Top left', tr: 'Top right', bl: 'Bottom left', br: 'Bottom right',
-      size: 'Size', opacity: 'Opacity', idleDim: 'Dim after 90 s without activity', onTop: 'Always on top of other windows', appears: 'What appears',
+      size: 'Size', opacity: 'Opacity', idleDim: 'Dim after 90 s without activity', onTop: 'Always on top of other windows', notify: 'System notification when an agent needs you and the machine is discreet or hidden', appears: 'What appears',
       expansion: 'Domain Expansion 領域展開', jackpot: 'Jackpot 大当たり', full: 'Full screen', compact: 'On the machine', off: 'Off',
       showCrest: 'Title and mode', showLamps: 'Lamps', showIndicators: '保留 / 疑似連 row', showTicker: 'Current tool', showStats: 'Counters', showUsage: 'Plan usage (session and week)',
       language: 'Language', translation: 'Translation under the Japanese', langAuto: 'Computer language', langJa: 'Japanese only (日本語のみ)',
@@ -30,7 +30,7 @@
     pt: {
       windowTitle: 'Idle Death Gamble · Configurações',
       settings: 'configurações', game: 'Jogo', machine: 'Na tela', corner: 'Canto', tl: 'Superior esquerdo', tr: 'Superior direito', bl: 'Inferior esquerdo', br: 'Inferior direito',
-      size: 'Tamanho', opacity: 'Opacidade', idleDim: 'Escurecer após 90 s sem atividade', onTop: 'Sempre na frente das outras janelas', appears: 'O que aparece',
+      size: 'Tamanho', opacity: 'Opacidade', idleDim: 'Escurecer após 90 s sem atividade', onTop: 'Sempre na frente das outras janelas', notify: 'Notificação do sistema quando um agente precisar de você e a máquina estiver discreta ou escondida', appears: 'O que aparece',
       expansion: 'Expansão de Domínio 領域展開', jackpot: 'Jackpot 大当たり', full: 'Tela cheia', compact: 'Só na máquina', off: 'Desligado',
       showCrest: 'Título e modo', showLamps: 'Luzes', showIndicators: 'Linha 保留 / 疑似連', showTicker: 'Ferramenta atual', showStats: 'Contadores', showUsage: 'Uso do plano (sessão e semana)',
       language: 'Idioma', translation: 'Tradução embaixo do japonês', langAuto: 'Idioma do computador', langJa: 'Só japonês (日本語のみ)',
@@ -87,6 +87,7 @@
     $('opacity-out').value = `${Math.round(config.opacity * 100)}%`;
     $('idleDim').checked = config.idleDim;
     $('onTop').checked = config.onTop !== false;
+    $('notify').checked = config.notify !== false;
     document.querySelectorAll('.seg').forEach((seg) => {
       seg.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === String(config[seg.dataset.key]))));
     });
@@ -140,6 +141,7 @@
   }
   $('idleDim').addEventListener('change', () => save({ idleDim: $('idleDim').checked }));
   $('onTop').addEventListener('change', () => save({ onTop: $('onTop').checked }));
+  $('notify').addEventListener('change', () => save({ notify: $('notify').checked }));
   document.querySelectorAll('.seg').forEach((seg) => seg.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => {
     const value = 'num' in seg.dataset && b.dataset.v !== 'all' ? Number(b.dataset.v) : b.dataset.v;
     config[seg.dataset.key] = value;
@@ -178,7 +180,7 @@
   });
   $('reset').addEventListener('click', () => {
     save({
-      position: 'br', scale: 1, opacity: 1, intro: 'smart', jackpot: 'full', idleDim: true, onTop: true, muted: false,
+      position: 'br', scale: 1, opacity: 1, intro: 'smart', jackpot: 'full', idleDim: true, onTop: true, notify: true, muted: false,
       show: { crest: true, lamps: true, indicators: true, ticker: true, stats: true, usage: true },
       sound: { volume: 0.6, effects: true, music: true, voice: true },
       motion: 'auto',

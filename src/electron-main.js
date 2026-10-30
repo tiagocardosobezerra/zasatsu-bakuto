@@ -4,7 +4,7 @@
 // a transparent, click-through, always-on-top window over the primary
 // display. Everything else (game, visuals) is shared with `ryoiki serve`.
 
-const { app, BrowserWindow, Menu, Tray, nativeImage, screen, shell } = require('electron');
+const { app, BrowserWindow, Menu, Notification, Tray, nativeImage, screen, shell } = require('electron');
 const { createDomainServer } = require('./server');
 const path = require('node:path');
 
@@ -214,6 +214,25 @@ function showMenu() {
   tray.popUpContextMenu(buildMenu());
 }
 
+// An agent needs you, but the machine may not be seen: in discreet mode it
+// is small and silent, and it can be hidden from the tray. Then the system
+// says it too, at most once in a while per conversation.
+const NOTIFY_GAP_MS = 20 * 1000;
+const notifiedAt = new Map();
+function notifyIfUnseen(message) {
+  // Only real conversations: the demo's "your turn" has no one behind it.
+  if ((message.type !== 'attention' && message.type !== 'call') || !message.who) return;
+  const config = domain && domain.config();
+  if (!config || config.notify === false || !Notification.isSupported()) return;
+  if (!config.discreet && win && !win.isDestroyed() && win.isVisible()) return;
+  const who = message.who || {};
+  const key = who.id || 'agent';
+  if (Date.now() - (notifiedAt.get(key) || 0) < NOTIFY_GAP_MS) return;
+  notifiedAt.set(key, Date.now());
+  const title = who.label ? `あなたの番 · ${who.label}` : 'あなたの番';
+  new Notification({ title, body: [who.title, message.detail].filter(Boolean).join(' · ') || 'Claude Code', icon: ICON_FILE, silent: false }).show();
+}
+
 app.whenReady().then(async () => {
   if (process.platform === 'darwin' && app.dock) app.dock.hide();
 
@@ -223,7 +242,10 @@ app.whenReady().then(async () => {
     onOpenLink: (link) => shell.openExternal(link),
     onPointer: takeClicks,
     onRaise: raise,
-    onBroadcast: (message) => message.type === 'config' && applyOnTop(message.config.onTop),
+    onBroadcast: (message) => {
+      if (message.type === 'config') applyOnTop(message.config.onTop);
+      notifyIfUnseen(message);
+    },
   });
   let port;
   try {

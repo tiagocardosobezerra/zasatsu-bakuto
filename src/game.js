@@ -223,7 +223,8 @@ function createGame({ random = Math.random, now = Date.now, pickSymbol, saved = 
     return Math.min(0.95, BASE_HIT[mode] + (COLOR_BONUS[stage.best] || 0));
   }
 
-  function jackpot(detail) {
+  // `tests` is the real test result ({ passed, summary }) when tests decided.
+  function jackpot(detail, tests = null) {
     const { symbol, scenario } = riichi;
     const odd = symbol % 2 === 1;
     const hiddenRevealed = mode === 'hidden';
@@ -251,15 +252,16 @@ function createGame({ random = Math.random, now = Date.now, pickSymbol, saved = 
       nextMode: visibleMode(),
       roundMs: ROUND_MS,
       detail,
+      tests,
     });
   }
 
-  function miss(reason, detail) {
+  function miss(reason, detail, tests = null) {
     const { symbol, scenario } = riichi;
     riichi = null;
     stage = freshStage();
     stats.misses += 1;
-    return event('miss', { reels: [symbol, symbol, (symbol % SYMBOLS) + 1], scenario, reason, detail });
+    return event('miss', { reels: [symbol, symbol, (symbol % SYMBOLS) + 1], scenario, reason, detail, tests });
   }
 
   function spin(signal, kind) {
@@ -348,9 +350,14 @@ function createGame({ random = Math.random, now = Date.now, pickSymbol, saved = 
           out.push(event('status', { detail: signal.detail }));
           break;
         }
-        if (signal.passed === false) out.push(miss('tests-red', signal.detail));
-        else if (signal.passed === null) out.push(miss('unknown', signal.detail));
-        else out.push(riichi.hit ? jackpot(signal.detail) : miss('scenario-failed', signal.detail));
+        {
+          // The real result always comes with the show: green tests that lose
+          // the draw miss as 'tests-green', never as a bare ハズレ.
+          const tests = { passed: signal.passed, summary: signal.summary || null };
+          if (signal.passed === false) out.push(miss('tests-red', signal.detail, tests));
+          else if (signal.passed == null) out.push(miss('unknown', signal.detail, tests));
+          else out.push(riichi.hit ? jackpot(signal.detail, tests) : miss('tests-green', signal.detail, tests));
+        }
         break;
 
       case 'attention':
