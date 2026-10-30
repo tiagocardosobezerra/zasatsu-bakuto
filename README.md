@@ -4,6 +4,7 @@
 
 **Seu agente de IA trabalha. Você acompanha pelo canto do olho, numa máquina de pachinko com as regras da Expansão de Domínio do Hakari.**
 
+[![test](https://github.com/tiagocardosobezerra/zasatsu-bakuto/actions/workflows/test.yml/badge.svg)](https://github.com/tiagocardosobezerra/zasatsu-bakuto/actions/workflows/test.yml)
 ![Node.js 20+](https://img.shields.io/badge/node.js-20%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)
 ![Electron](https://img.shields.io/badge/electron-33-47848F?style=flat-square&logo=electron&logoColor=white)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-hooks%20oficiais-D97757?style=flat-square&logo=anthropic&logoColor=white)

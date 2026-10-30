@@ -6,6 +6,7 @@
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const rand7 = () => 1 + Math.floor(Math.random() * 7);
   const i18n = window.DomainI18n;
+  const lines = window.DomainLines;
 
   const machine = $('machine');
   const lcd = $('lcd');
@@ -142,7 +143,11 @@
     const width = machine.offsetWidth || 400;
     return Math.min(wanted, (innerHeight * 0.6) / natural, (innerWidth * 0.45) / width);
   }
-  addEventListener('resize', () => document.documentElement.style.setProperty('--scale', String(fitScale())));
+  addEventListener('resize', () => {
+    document.documentElement.style.setProperty('--scale', String(fitScale()));
+    // More or less room: lines that did not fit may fit now, and the other way round.
+    renderSessions();
+  });
 
   // Less motion: chosen in Settings, or asked for by the system ("auto").
   const systemReduce = matchMedia('(prefers-reduced-motion: reduce)');
@@ -802,19 +807,20 @@
       title.textContent = s.title ? `“${s.title}”` : '';
       const chip = document.createElement('span');
       chip.className = 'st';
-      i18n.put(chip, STATE_KEYS[state] || 'stIdle', state === 'silent' ? { m: minutesSince(s.lastAt, now) } : undefined);
+      i18n.put(chip, STATE_KEYS[state] || 'stIdle', state === 'silent' ? { m: lines.minutesSince(s.lastAt, now) } : undefined);
       const act = document.createElement('span');
       act.className = 'act';
       // How long this turn has run, then the last action.
       const busy = s.turnStartedAt && ACTIVE_STATES.has(s.state);
-      act.textContent = [busy ? `⏱ ${elapsed(now - s.turnStartedAt)}` : '', s.detail || ''].filter(Boolean).join(' · ');
+      act.textContent = [busy ? `⏱ ${lines.elapsed(now - s.turnStartedAt)}` : '', s.detail || ''].filter(Boolean).join(' · ');
       li.append(dot, name, title, chip, act);
-      const checks = document.createElement('span');
-      checks.className = 'checks';
-      if (s.lastTest) checks.append(testChip(s.lastTest));
-      if (s.lastCheck) checks.append(checkChip(s.lastCheck));
-      if (s.context != null && s.context >= CONTEXT_SHOW) checks.append(contextChip(s.context));
-      if (checks.childElementCount) li.append(checks);
+      const results = lines.chips(s);
+      if (results.length) {
+        const checks = document.createElement('span');
+        checks.className = 'checks';
+        checks.append(...results.map(chipEl));
+        li.append(checks);
+      }
       if (s.link) {
         li.classList.add('linked');
         const { ja, tr } = i18n.t('openConv');
@@ -826,16 +832,8 @@
     markCurrent();
   }
 
-  const CONTEXT_SHOW = 50; // the context chip shows from this %, and warns from CONTEXT_WARN
-  const CONTEXT_WARN = 80;
-  const minutesSince = (at, now) => Math.max(1, Math.floor((now - at) / 60000));
-  function elapsed(ms) {
-    const m = Math.floor(ms / 60000);
-    if (m < 1) return '<1m';
-    return m < 60 ? `${m}m` : `${Math.floor(m / 60)}h${String(m % 60).padStart(2, '0')}`;
-  }
-
-  function chipEl(result, text, key) {
+  // A real-result chip (see lines.js): ✓ 12, ✗ 1/12, build ✓, ctx 82%.
+  function chipEl({ result, text, key }) {
     const el = document.createElement('span');
     el.className = 'chk';
     el.dataset.result = result;
@@ -843,29 +841,6 @@
     const { ja, tr } = i18n.t(key);
     el.title = tr ? `${ja} · ${tr}` : ja;
     return el;
-  }
-
-  // The last test run's real result, apart from the show: ✓ 12, ✗ 1/12, ?.
-  function testChip(t) {
-    const state = t.passed === true ? 'pass' : t.passed === false ? 'fail' : 'unknown';
-    const sum = t.summary || {};
-    const total = (sum.passed || 0) + (sum.failed || 0);
-    let count = '';
-    if (state === 'pass' && sum.passed != null) count = ` ${sum.passed}`;
-    if (state === 'fail' && sum.failed) count = total > sum.failed ? ` ${sum.failed}/${total}` : ` ${sum.failed}`;
-    return chipEl(state, `${{ pass: '✓', fail: '✗', unknown: '?' }[state]}${count}`, { pass: 'testPassed', fail: 'testFailed', unknown: 'testUnknownTip' }[state]);
-  }
-
-  // The last build, lint or type check: "build ✓", "lint ✗".
-  function checkChip(c) {
-    const state = c.passed ? 'pass' : 'fail';
-    const name = { build: 'build', lint: 'lint', types: 'tsc' }[c.type] || c.type;
-    return chipEl(state, `${name} ${c.passed ? '✓' : '✗'}`, c.passed ? 'checkPassed' : 'checkFailed');
-  }
-
-  // How full the conversation's context is, once it starts to matter.
-  function contextChip(pct) {
-    return chipEl(pct >= CONTEXT_WARN ? 'fail' : 'unknown', `ctx ${pct}%`, 'contextTip');
   }
 
   // Lines never push the machine off the screen: the last ones give way to

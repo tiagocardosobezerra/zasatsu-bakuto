@@ -166,9 +166,17 @@ const openGuide = () => openPage('guide', 'guide.html', 'Idle Death Gamble · �
 
 // Tray menu in the computer's language.
 const MENU_TEXT = {
-  en: { guide: 'How to play (guide)', lines: 'Conversation lines', off: 'Off', all: 'Unlimited', machines: 'Machines', shared: 'One for all', each: 'One per conversation', onTop: 'Always on top', settings: 'Settings…', demo: 'Play demo', discreet: 'Discreet mode', layout: 'Layout', normal: 'Normal', compact: 'Compact', mini: 'Mini', mute: 'Mute', show: 'Show overlay', quit: 'Quit' },
-  pt: { guide: 'Como jogar (guia)', lines: 'Linhas de conversa', off: 'Desligado', all: 'Ilimitado', machines: 'Máquinas', shared: 'Uma para todas', each: 'Uma por conversa', onTop: 'Sempre na frente', settings: 'Configurações…', demo: 'Tocar a demo', discreet: 'Modo discreto', layout: 'Formato', normal: 'Normal', compact: 'Compacto', mini: 'Mini', mute: 'Silenciar', show: 'Mostrar overlay', quit: 'Sair' },
+  en: { guide: 'How to play (guide)', lines: 'Conversation lines', off: 'Off', all: 'Unlimited', machines: 'Machines', shared: 'One for all', each: 'One per conversation', onTop: 'Always on top', settings: 'Settings…', demo: 'Play demo', discreet: 'Discreet mode', layout: 'Layout', normal: 'Normal', compact: 'Compact', mini: 'Mini', mute: 'Mute', show: 'Show overlay', quit: 'Quit', notify: 'System notifications', today: 'Today', turns: 'turns', waited: 'waited for you' },
+  pt: { guide: 'Como jogar (guia)', lines: 'Linhas de conversa', off: 'Desligado', all: 'Ilimitado', machines: 'Máquinas', shared: 'Uma para todas', each: 'Uma por conversa', onTop: 'Sempre na frente', settings: 'Configurações…', demo: 'Tocar a demo', discreet: 'Modo discreto', layout: 'Formato', normal: 'Normal', compact: 'Compacto', mini: 'Mini', mute: 'Silenciar', show: 'Mostrar overlay', quit: 'Sair', notify: 'Notificações do sistema', today: 'Hoje', turns: 'turnos', waited: 'esperando você' },
 };
+
+// The day at a glance: turns, tests and how long agents waited for you.
+function todayLine(t) {
+  const d = domain.stats().today;
+  const tests = d.testsGreen + d.testsRed ? ` · ✓${d.testsGreen} ✗${d.testsRed}` : '';
+  const wait = d.waits ? ` · ${t.waited} ${Math.round(d.waitMs / 60000)} min` : '';
+  return `${t.today}: ${d.turns} ${t.turns}${tests}${wait}`;
+}
 
 function buildMenu() {
   const cfg = domain.config();
@@ -184,12 +192,14 @@ function buildMenu() {
   // the machine on screen.
   return Menu.buildFromTemplate([
     { label: '坐殺博徒 · Idle Death Gamble', enabled: false },
+    { label: todayLine(t), enabled: false },
     { type: 'separator' },
     { label: `遊び方 · ${t.guide}`, click: openGuide },
     { type: 'separator' },
     { label: t.discreet, type: 'checkbox', checked: cfg.discreet, click: (item) => domain.setConfig({ discreet: item.checked }) },
     { label: t.mute, type: 'checkbox', checked: cfg.muted, click: (item) => domain.setConfig({ muted: item.checked }) },
     { label: t.onTop, type: 'checkbox', checked: cfg.onTop !== false, click: (item) => domain.setConfig({ onTop: item.checked }) },
+    { label: t.notify, type: 'checkbox', checked: cfg.notify !== false, click: (item) => domain.setConfig({ notify: item.checked }) },
     { label: t.show, type: 'checkbox', checked: win.isVisible(), click: (item) => (item.checked ? win.showInactive() : win.hide()) },
     { type: 'separator' },
     {

@@ -59,7 +59,7 @@
     usageWeek: ['週間', { en: 'Week', pt: 'Semana' }],
     usageResets: ['リセット {t}', { en: 'resets in {t}', pt: 'renova em {t}' }],
     usageResetsOn: ['リセット {t}', { en: 'resets {t}', pt: 'renova {t}' }],
-    moreConv: ['他 {n} 件', { en: '{n} more conversations', pt: 'mais {n} conversas' }],
+    moreConv: ['他 {n} 件', { en: '+{n} more', pt: '+{n} conversa(s)' }],
     openConv: ['会話を開く', { en: 'Open this conversation in Claude', pt: 'Abrir esta conversa no Claude' }],
     stIdle: ['待機', { en: 'idle', pt: 'parada' }],
     stWorking: ['作業中', { en: 'working', pt: 'trabalhando' }],
