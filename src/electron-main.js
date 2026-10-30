@@ -253,7 +253,7 @@ function notifyIfUnseen(message) {
     return;
   }
   // Only real conversations: the demo's "your turn" has no one behind it.
-  if ((message.type !== 'attention' && message.type !== 'call') || !message.who) return;
+  if ((message.type !== 'attention' && message.type !== 'call') || !message.who || message.who.demo) return;
   const who = message.who;
   notify(who.id || 'agent', who.label ? `あなたの番 · ${who.label}` : 'あなたの番', [who.title, message.detail].filter(Boolean).join(' · '));
 }

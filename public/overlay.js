@@ -771,6 +771,15 @@
       machine.style.setProperty('--who', w.color);
     }
     markCurrent();
+    whoChecks();
+  }
+
+  // With the lines off (or in Mini), the one line left still shows the real
+  // results of the conversation it names.
+  function whoChecks() {
+    const box = $('who-checks');
+    const s = currentWho && lastSessions && lastSessions.list.find((x) => x.id === currentWho.id);
+    box.replaceChildren(...(s ? lines.chips(s).map(chipEl) : []));
   }
 
   function markCurrent() {
@@ -830,6 +839,7 @@
     }
     fitLines(list.length);
     markCurrent();
+    whoChecks();
   }
 
   // A real-result chip (see lines.js): ✓ 12, ✗ 1/12, build ✓, ctx 82%.

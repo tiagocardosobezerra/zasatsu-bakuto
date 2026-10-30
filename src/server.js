@@ -12,6 +12,7 @@ const { createMachine } = require('./machine');
 const { createEach } = require('./each');
 const { createLinks } = require('./links');
 const { createDaily } = require('./daily');
+const { createSessions } = require('./sessions');
 const { demoScript, previewScript, seeded, DEMO_SEED } = require('./demo');
 const settings = require('./config');
 const { env } = require('./env');
@@ -140,8 +141,11 @@ function createDomainServer({
   let linesSentAt = Date.now();
   const LINES_REFRESH_MS = 30 * 1000;
 
+  // While the demo plays, its own conversation fills the lines.
+  let demoSessions = null;
   function sessionsMessage() {
     linesSentAt = Date.now();
+    if (demoSessions) return { type: 'sessions', list: demoSessions.list().map((s) => ({ ...s, link: false })) };
     return { type: 'sessions', list: sessions.list().map((s) => ({ ...s, link: links.has(s.id) })) };
   }
 
@@ -241,11 +245,18 @@ function createDomainServer({
   function play(demo, steps, tailMs) {
     demoTimers.forEach(clearTimeout);
     demoGame = demo;
+    demoSessions = createSessions();
     broadcast({ ...demo.snapshot(), config, who: null, sessions: sessionsMessage() });
-    demoTimers = steps.map(({ delay, payload }) => setTimeout(() => emit(demo.handle(classify(payload)), demo), delay));
+    demoTimers = steps.map(({ delay, payload }) => setTimeout(() => {
+      const signal = classify(payload);
+      const who = { ...whoOf(demoSessions.note(signal)), demo: true }; // no system notification for it
+      emit(demo.handle(signal), demo, who);
+      broadcast(sessionsMessage());
+    }, delay));
     const end = steps[steps.length - 1].delay + tailMs;
     demoTimers.push(setTimeout(() => {
       demoGame = null;
+      demoSessions = null;
       broadcast({ ...hello(), type: 'hello' });
     }, end));
   }

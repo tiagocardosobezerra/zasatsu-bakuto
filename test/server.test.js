@@ -119,3 +119,21 @@ test('a page that points its own domain at us (DNS rebinding) cannot read the st
     await domain.close();
   }
 });
+
+test('the demo fills the lines with its own conversation, and gives the real ones back', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zb-demo-lines-'));
+  const seen = [];
+  const domain = createDomainServer({ port: 0, configFile: path.join(dir, 'c.json'), onBroadcast: (m) => seen.push(m) });
+  try {
+    domain.ingest({ hook_event_name: 'UserPromptSubmit', session_id: 'real', cwd: '/p/real', prompt: 'work' });
+    domain.runPreview('expand');
+    await new Promise((r) => setTimeout(r, 50));
+    const during = seen.filter((m) => m.type === 'sessions').pop().list.map((s) => s.id);
+    assert.deepEqual(during, ['preview']);
+    const expand = seen.find((m) => m.type === 'expand' && m.who && m.who.id === 'preview');
+    assert.equal(expand.who.demo, true, 'marked, so the desktop app sends no notification for it');
+    assert.equal(domain.stats().today.turns, 1, 'the demo is not counted in your day');
+  } finally {
+    await domain.close();
+  }
+});

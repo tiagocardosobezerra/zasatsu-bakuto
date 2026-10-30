@@ -1581,6 +1581,12 @@ body.layout-compact .riichi-stars { top: 74px; }
 }
 .who-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .who-text b { font-weight: 800; margin-right: 6px; }
+#who-checks { display: flex; gap: 3px; flex: none; }
+#who-checks:empty { display: none; }
+#who-checks .chk { font-weight: 800; font-size: 10px; white-space: nowrap; padding: 0 4px; border-radius: 4px; }
+#who-checks .chk[data-result="pass"] { color: #9ff0b8; background: rgba(120, 255, 160, .16); }
+#who-checks .chk[data-result="fail"] { color: #ff9a9a; background: rgba(255, 80, 80, .18); }
+#who-checks .chk[data-result="unknown"] { color: var(--muted); background: rgba(255, 255, 255, .06); }
 #who-title { color: var(--muted); }
 #who-title .ja { display: inline; }
 #who-title .tr { display: inline; margin-left: 4px; font-size: 10px; }
