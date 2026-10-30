@@ -28,12 +28,29 @@ function windowOf(w) {
   return { used: w.used_percentage, resetsAt: typeof w.resets_at === 'number' ? w.resets_at : null };
 }
 
+// How full this conversation's context window is, in %, or null. Newer
+// Claude Code versions give the percentage; otherwise it is worked out from
+// the tokens of the last request.
+function contextUsed(snapshot) {
+  const cw = snapshot && snapshot.context_window;
+  if (!cw || typeof cw !== 'object') return null;
+  if (typeof cw.used_percentage === 'number') return cw.used_percentage;
+  const u = cw.current_usage;
+  const size = cw.context_window_size;
+  if (!u || typeof size !== 'number' || size <= 0) return null;
+  const tokens = ['input_tokens', 'cache_creation_input_tokens', 'cache_read_input_tokens'].reduce((sum, k) => sum + (Number(u[k]) || 0), 0);
+  return (tokens / size) * 100;
+}
+
 function postUsage(snapshot) {
   const limits = snapshot && snapshot.rate_limits;
-  if (!limits) return Promise.resolve();
+  const used = contextUsed(snapshot);
+  const context = used !== null && typeof snapshot.session_id === 'string' ? { session: snapshot.session_id, used } : null;
+  if (!limits && !context) return Promise.resolve();
   const body = Buffer.from(JSON.stringify({
-    session: windowOf(limits.five_hour),
-    week: windowOf(limits.seven_day),
+    session: limits ? windowOf(limits.five_hour) : null,
+    week: limits ? windowOf(limits.seven_day) : null,
+    context,
   }));
   return new Promise((resolve) => {
     const req = http.request(
@@ -49,7 +66,9 @@ function postUsage(snapshot) {
 function ownLine(snapshot) {
   const limits = (snapshot && snapshot.rate_limits) || {};
   const pct = (w) => (w && typeof w.used_percentage === 'number' ? `${Math.round(w.used_percentage)}%` : '–');
-  return `坐殺博徒 · 5h ${pct(limits.five_hour)} · 7d ${pct(limits.seven_day)}`;
+  const used = contextUsed(snapshot);
+  const ctx = used === null ? '' : ` · ctx ${Math.round(used)}%`;
+  return `坐殺博徒 · 5h ${pct(limits.five_hour)} · 7d ${pct(limits.seven_day)}${ctx}`;
 }
 
 // Runs the status line you had before, with the same input, and prints it.
@@ -96,6 +115,8 @@ process.stdin.on('end', async () => {
     const os = require('node:os');
     const path = require('node:path');
     const home = process.env.ZASATSU_HOME || path.join(os.homedir(), '.zasatsu-bakuto');
+    // The folder may not exist yet if the app has never been opened.
+    require('node:fs').mkdirSync(home, { recursive: true });
     require('node:fs').writeFileSync(path.join(home, 'statusline-last.json'), JSON.stringify({ at: new Date().toISOString(), limits: Boolean(snapshot && snapshot.rate_limits) }));
   } catch {
     /* only a note */

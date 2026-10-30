@@ -115,12 +115,14 @@ test('events carry who sent them, and every conversation shows up in the lines',
   assert.equal(last.list.find((x) => x.id === 'a').state, 'waiting');
 });
 
-test('totals and 確変 survive a restart; a domain in progress does not', () => {
+test('totals and 確変 survive a restart; a domain in progress does not', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zb-save-'));
   const configFile = path.join(dir, 'c.json');
   const first = createDomainServer({ port: 0, configFile, makeGame: (saved) => createGame({ saved, random: rng([], 0.99) }) });
   first.ingest({ hook_event_name: 'UserPromptSubmit', session_id: 'a', cwd: '/p/alpha', prompt: 'one' });
   first.ingest({ hook_event_name: 'PostToolUse', session_id: 'a', cwd: '/p/alpha', tool_name: 'Read', tool_input: {} });
+  // Saving waits a moment so a burst of hooks writes once; closing flushes it.
+  await first.close();
   const file = path.join(dir, 'machine.json');
   const saved = JSON.parse(fs.readFileSync(file, 'utf8'));
   assert.equal(saved.stats.spins, 1);
@@ -134,6 +136,7 @@ test('totals and 確変 survive a restart; a domain in progress does not', () =>
   assert.equal(expand.mode, 'increased');
   assert.equal(expand.odds, 24);
   assert.equal(expand.domain, 'open', 'a fresh domain, not the one from before');
+  await second.close();
 });
 
 test('one machine per conversation: each has its own totals; the screen follows the one you wrote to', () => {
@@ -168,4 +171,15 @@ test('switching between one machine and one per conversation updates the screen'
   domain.setConfig({ machines: 'shared' });
   hello = seen.filter((m) => m.type === 'hello').pop();
   assert.equal(hello.stats.spins, 2, 'the shared machine counts both');
+});
+
+test('every conversation line keeps its last real test result', () => {
+  const sessions = createSessions({ now: () => 1000 });
+  sessions.note({ session: 'a', label: 'shop', kind: 'test-start' });
+  sessions.note({ session: 'a', label: 'shop', kind: 'test-end', passed: true, summary: { passed: 8, failed: 0 } });
+  sessions.note({ session: 'a', label: 'shop', kind: 'tool-done', detail: 'Read a.js' });
+  assert.deepEqual(sessions.list()[0].lastTest, { passed: true, summary: { passed: 8, failed: 0 }, at: 1000 });
+  sessions.note({ session: 'b', label: 'api', kind: 'turn-start' });
+  assert.equal(sessions.find('b').lastTest, undefined);
+  assert.equal(sessions.list().find((s) => s.id === 'b').lastTest, null);
 });

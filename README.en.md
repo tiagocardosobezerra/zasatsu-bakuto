@@ -4,6 +4,7 @@
 
 **Your AI agent works. You follow along from the corner of your eye, on a pachinko machine with the rules of Hakari's Domain Expansion.**
 
+[![test](https://github.com/tiagocardosobezerra/zasatsu-bakuto/actions/workflows/test.yml/badge.svg)](https://github.com/tiagocardosobezerra/zasatsu-bakuto/actions/workflows/test.yml)
 ![Node.js 20+](https://img.shields.io/badge/node.js-20%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)
 ![Electron](https://img.shields.io/badge/electron-33-47848F?style=flat-square&logo=electron&logoColor=white)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-official%20hooks-D97757?style=flat-square&logo=anthropic&logoColor=white)
@@ -17,10 +18,13 @@ Zasatsu Bakuto (坐殺博徒, *Idle Death Gamble*) is a small pachinko machine t
 ## What it does for you
 
 * **Shows what the agent is doing, without you watching the terminal.** Editing a file closes the シャッター doors, reading or running a command lights a reserve ball, failing and recovering becomes ×2, ×3, ×4. You get it at a glance.
-* **Tells you when tests pass or break.** Running `npm test`, `pytest`, `go test` or `cargo test` becomes a リーチ. Green tests can hit the 4:11 jackpot; red tests are a ハズレ.
-* **Tells you when the agent needs you.** A request for permission or an answer shows as **あなたの番 · conversation name**, with a chime.
+* **Tells you when tests pass or break, without leaving it to luck.** Running `npm test`, `pytest`, `go test`, `cargo test`, `dotnet test`, `mvn test` or `gradle test` becomes a リーチ. Green tests can hit the 4:11 jackpot; red tests are a ハズレ. The real result always stays on the conversation line (**✓ 12**, **✗ 1/12**), and green tests that lose the draw say **"Miss, but the tests passed"**.
+* **Shows builds, linters and type checks.** `npm run build`, `tsc`, `eslint`, `cargo clippy`, `go vet` and the like leave **build ✓**, **lint ✗** or **tsc ✓** on the line.
+* **Tells you when the agent needs you.** A request for permission or an answer shows as **あなたの番 · conversation name**, with a chime. In discreet mode, or with the machine hidden, a system notification comes too.
+* **Warns when an agent may be stuck.** A conversation working with no event for 5 minutes turns orange: **silent for N min: long command or stuck?** (with a system notification if the machine is discreet or hidden). After 15 minutes with nothing, the line stops saying it is working: the turn was interrupted (Esc sends no end). Each line also shows how long its turn has run (⏱ 4m).
 * **Follows every conversation at once.** Each conversation in progress gets a line with its project, name, what it is doing and its last action. The list grows and shrinks by itself, and clicking a line with ↗ opens that conversation in the Claude app.
-* **Shows how much of your plan you have used.** Two pies on the machine: the 5-hour session and the week, with the time left until each resets.
+* **Shows how much of your plan you have used.** Two pies on the machine: the 5-hour session and the week, with the time left until each resets. Each conversation shows how much of its context window is in use (**ctx 82%**, red from 80%).
+* **Counts your day.** `ryoiki status` tells how many turns the agents worked, how many tests and builds passed or broke, and **how long the agents sat waiting for you** (from あなたの番 or the end of a turn until the agent works again; waits over 30 minutes count as you being away, not as waiting), today and over the last 7 days. The tray menu shows today's summary. Counting happens while the domain is open. `ryoiki status` also checks that the hooks are installed and point at this folder (if you move the folder, it tells you to run `ryoiki install` again).
 * **Stays out of your way.** The overlay lets clicks through, never blocks or slows the agent, and has a **discreet mode** (small, silent, translucent) for the work computer.
 * **Is faithful to the manga.** The rules come from the CR私鉄純愛列車 rule sheet Hakari shows in chapter 183 and the fights in chapters 182 to 190. Japanese always stays on screen, with a translation underneath in English or Portuguese.
 
@@ -38,8 +42,12 @@ You knew the tests passed and that another conversation needed you, without open
 |---|---|
 | Spinning reels, シャッター doors, 保留 reserve balls | The agent is working |
 | **リーチ** | The agent is running your tests right now |
-| **大当たり** | The tests passed |
-| **ハズレ** | The tests failed |
+| **大当たり** | The tests passed and the draw won |
+| **ハズレ** | The tests failed, or passed and lost the draw (the banner says which) |
+| **✓ 12 / ✗ 1/12** on a line | The real result of that conversation's last tests |
+| **build ✓ / lint ✗ / tsc ✓** on a line | The last build, lint or type check |
+| **ctx 82%** on a line | How much of the conversation's context window is in use |
+| Orange line, **silent for N min** | The agent is in a long command, or stuck |
 | **×2 / ×3 / ×4** | A tool failed and the agent is recovering |
 | **あなたの番 · name** | The agent is waiting for your permission or your answer |
 | The domain closes | Every conversation finished its turn |
@@ -84,7 +92,7 @@ ryoiki tenkai
 | `ryoiki demo` | | Plays a scripted session |
 | `ryoiki guide` | **遊び方** How to play | Opens the guide and glossary |
 | `ryoiki settings` | | Opens the settings |
-| `ryoiki status` | | Tells you whether the domain is open |
+| `ryoiki status` | | Tells you whether the domain is open and sums up the day: turns, tests, builds and time waiting for you |
 | `ryoiki serve` | | Server only, for OBS |
 
 ## Going further
@@ -96,6 +104,7 @@ Right-click the tray icon → **Settings…** (or double-click it), or run `ryoi
 * **Discreet mode:** mini machine, no sound, nothing full screen, a little translucent. Switch it off and everything comes back as it was.
 * **Machines:** **One for all** (default), where every conversation spins the same machine and the totals are saved, or **One per conversation**, where each has its own and the screen follows the one you last wrote to.
 * **Conversation lines:** one line per conversation in progress, up to 1, 2 or 3, or **Unlimited** (default), which grows up to the edge of the screen and shows "N more conversations" for the rest.
+* **System notification:** when an agent needs you and the machine is in discreet mode or hidden (on by default).
 * **On screen:** layout (**Normal**, **Compact** or **Mini**), size, corner, opacity, **always on top** of other windows (on by default: it stays above windows and comes back to the front if one covers it, but never over the taskbar, the Start menu or the tray icons) and dimming when idle.
 * **What appears:** Domain Expansion and jackpot full screen, on the machine only or off; motion; and each part of the machine.
 * **Sound:** mute everything, volume, machine sounds, Japanese announcer and your music files.
@@ -228,12 +237,13 @@ The agent's events are the fight. Each rule comes from the rule sheet Hakari sho
 | **Classifier** (`src/classify.js`) | Turns the raw event into a signal (`tool-done`, `test-start`, `attention`…) and reads test results |
 | **Game** (`src/game.js`) | Hakari's rules: the 1/239 draw, effects, リーチ, jackpot, 確変 and 時短 |
 | **Machines** (`src/machine.js`, `src/each.js`) | One machine for every conversation, or one per conversation |
-| **Conversations** (`src/sessions.js`, `src/links.js`) | The conversation lines and each one's link to the Claude app |
+| **Conversations** (`src/sessions.js`, `src/links.js`) | The conversation lines (state, turn time, silence, last results, context) and each one's link to the Claude app |
+| **Day** (`src/daily.js`) | Turns, tests, builds and time waiting for you, per day (`GET /stats`, `ryoiki status`) |
 | **Server** (`src/server.js`) | Takes the events in, keeps the totals and streams everything to the screens |
-| **Overlay** (`public/`) | The machine on screen, in plain HTML, CSS and JS, plus the guide and settings |
+| **Overlay** (`public/`) | The machine on screen, in plain HTML, CSS and JS, plus the guide and settings; `public/lines.js` builds the real-result chips |
 | **Desktop** (`src/electron-main.js`) | The transparent window that lets clicks through, and the tray icon |
 
-Nothing leaves your computer: everything runs on `127.0.0.1`, with no telemetry and no account. For the conversation links, the app reads, on your computer, only each conversation's id from the Claude app's files.
+Nothing leaves your computer: everything runs on `127.0.0.1`, with no telemetry and no account. The server refuses pages from other sites and host names other than `127.0.0.1` or `localhost`, so a website cannot read what the machine shows. The day summary is kept in `~/.zasatsu-bakuto/daily.json` (last 14 days). For the conversation links, the app reads, on your computer, only each conversation's id from the Claude app's files.
 
 To check your setup at any time:
 
@@ -264,6 +274,8 @@ npm run serve       # then open http://127.0.0.1:4111/?preview
 npm start           # Electron overlay
 npm run icon        # renders the icon again from public/icon-render.js
 ```
+
+To track down a sound that played when it should not, run with `ZASATSU_SOUND_LOG=1`: every sound goes to `~/.zasatsu-bakuto/sound-log.json`. CI runs the tests on Linux, Windows and macOS. What changed in each version is in the [CHANGELOG](CHANGELOG.md).
 
 ## Roadmap
 

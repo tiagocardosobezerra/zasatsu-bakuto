@@ -1581,6 +1581,12 @@ body.layout-compact .riichi-stars { top: 74px; }
 }
 .who-text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .who-text b { font-weight: 800; margin-right: 6px; }
+#who-checks { display: flex; gap: 3px; flex: none; }
+#who-checks:empty { display: none; }
+#who-checks .chk { font-weight: 800; font-size: 10px; white-space: nowrap; padding: 0 4px; border-radius: 4px; }
+#who-checks .chk[data-result="pass"] { color: #9ff0b8; background: rgba(120, 255, 160, .16); }
+#who-checks .chk[data-result="fail"] { color: #ff9a9a; background: rgba(255, 80, 80, .18); }
+#who-checks .chk[data-result="unknown"] { color: var(--muted); background: rgba(255, 255, 255, .06); }
 #who-title { color: var(--muted); }
 #who-title .ja { display: inline; }
 #who-title .tr { display: inline; margin-left: 4px; font-size: 10px; }
@@ -1651,7 +1657,7 @@ body.layout-mini .riichi-result .tr { font-size: 7px; }
   display: grid; gap: 3px;
 }
 .conv {
-  display: grid; grid-template-columns: 10px minmax(0, auto) minmax(0, 1fr) auto; align-items: center; column-gap: 6px;
+  display: grid; grid-template-columns: 10px minmax(0, auto) minmax(0, 1fr) auto auto; align-items: center; column-gap: 6px;
   padding: 3px 7px; border-radius: 7px;
   background: rgba(255, 255, 255, .04);
   font-size: 11px; color: var(--ink); line-height: 1.25;
@@ -1669,6 +1675,16 @@ body.layout-mini .riichi-result .tr { font-size: 7px; }
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
 }
 .conv .act:empty { display: none; }
+/* Real results, never hidden by the show: last tests, last build/lint/type
+   check, and how full the context is. */
+.conv .checks { grid-row: 1; grid-column: 5; display: flex; gap: 3px; }
+.conv .chk { font-weight: 800; font-size: 10px; white-space: nowrap; padding: 0 4px; border-radius: 4px; }
+.conv .chk[data-result="pass"] { color: #9ff0b8; background: rgba(120, 255, 160, .16); }
+.conv .chk[data-result="fail"] { color: #ff9a9a; background: rgba(255, 80, 80, .18); }
+.conv .chk[data-result="unknown"] { color: var(--muted); background: rgba(255, 255, 255, .06); }
+/* Working, but no event for minutes: a long command, or stuck. */
+.conv[data-state="silent"] .st { color: #ffb347; }
+.conv[data-state="silent"] .dot { box-shadow: 0 0 0 2px #ffb347; animation: sess-blink 2s steps(2) infinite; }
 .conv[data-state="working"] .st { color: #9ff0b8; }
 .conv[data-state="riichi"] .st { color: var(--hot); }
 .conv[data-state="waiting"] .st { color: var(--cyan); }
@@ -1687,7 +1703,9 @@ body.layout-compact .conv { padding: 2px 6px; font-size: 10px; }
 body.layout-compact .conv .act { display: none; }
 /* Mini: dot, project and state only */
 body.layout-mini .conv-lines { gap: 2px; margin-bottom: 5px; }
-body.layout-mini .conv { grid-template-columns: 9px minmax(0, 1fr) auto; padding: 2px 5px; font-size: 10px; }
+body.layout-mini .conv { grid-template-columns: 9px minmax(0, 1fr) auto auto; padding: 2px 5px; font-size: 10px; }
+body.layout-mini .conv .checks { grid-column: 4; }
+body.layout-mini .conv .chk:not(:first-child) { display: none; }
 body.layout-mini .conv .title, body.layout-mini .conv .act { display: none; }
 body.layout-mini .conv .name { max-width: none; }
 /* A line that opens its conversation in the Claude app */

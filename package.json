@@ -1,8 +1,17 @@
 {
   "name": "zasatsu-bakuto",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "坐殺博徒 Zasatsu Bakuto: Kinji Hakari's Domain Expansion as a pachinko overlay that shows what your AI coding agent is doing. Tool calls spin the reels, tests are the riichi, green tests hit the jackpot.",
   "license": "MIT",
+  "author": "Tiago Cardoso Bezerra",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tiagocardosobezerra/zasatsu-bakuto.git"
+  },
+  "homepage": "https://github.com/tiagocardosobezerra/zasatsu-bakuto#readme",
+  "bugs": {
+    "url": "https://github.com/tiagocardosobezerra/zasatsu-bakuto/issues"
+  },
   "bin": {
     "ryoiki": "bin/ryoiki.js"
   },
@@ -16,11 +25,11 @@
     "start": "node bin/ryoiki.js tenkai",
     "serve": "node bin/ryoiki.js serve",
     "demo": "node bin/ryoiki.js demo",
-    "test": "node --test \"test/*.test.js\"",
+    "test": "node --test",
     "icon": "electron scripts/render-icon.js"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "dependencies": {
     "electron": "^33.0.0"

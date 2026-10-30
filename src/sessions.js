@@ -2,11 +2,14 @@
 
 // The conversations playing the machine. There is one machine for all of
 // them (see machine.js); this keeps what the overlay's conversation lines
-// show: a stable colour, the project and title, what each one is doing and
-// its last action.
+// show: a stable colour, the project and title, what each one is doing,
+// its last action, how long its turn has run, whether it went silent, its
+// last real test and build/lint results and how full its context is.
 
 const ACTIVE_MS = 15 * 60 * 1000; // a conversation silent this long no longer holds the domain open
 const FORGET_MS = 3 * 60 * 60 * 1000; // conversations idle this long are dropped
+const SILENT_MS = 5 * 60 * 1000; // a working conversation with no event this long may be stuck
+const WAIT_CAP_MS = 30 * 60 * 1000; // a wait longer than this is you being away, not the agent waiting
 
 // A stable, readable colour per conversation id.
 function colorFor(id) {
@@ -39,7 +42,29 @@ function createSessions({ now = Date.now } = {}) {
   let seq = 0; // orders conversations that act in the same millisecond
 
   function summary(s) {
-    return { id: s.id, label: s.label, title: s.title, color: s.color, state: s.state, detail: s.detail, lastAt: s.lastAt };
+    // Working, but silent for so long it no longer holds the domain open
+    // (see busy): the turn was interrupted (Esc sends no Stop) or the app
+    // missed its end. The line stops claiming it works.
+    const gone = (s.state === 'working' || s.state === 'riichi') && now() - s.lastAt >= ACTIVE_MS;
+    return {
+      id: s.id,
+      label: s.label,
+      title: s.title,
+      color: s.color,
+      state: gone ? 'idle' : s.state,
+      detail: s.detail,
+      lastAt: s.lastAt,
+      turnStartedAt: gone ? null : s.turnStartedAt || null,
+      silent: !gone && silent(s),
+      lastTest: s.lastTest || null,
+      lastCheck: s.lastCheck || null,
+      context: s.context ?? null,
+    };
+  }
+
+  // Working, but nothing has happened for a while: a long command, or stuck.
+  function silent(s) {
+    return (s.state === 'working' || s.state === 'riichi') && now() - s.lastAt >= SILENT_MS;
   }
 
   // Records what a conversation just did and returns it.
@@ -51,8 +76,25 @@ function createSessions({ now = Date.now } = {}) {
     }
     if (signal.label) s.label = signal.label;
     if (signal.title) s.title = signal.title;
+    // How long the agent sat waiting for you: from "your turn" (a permission
+    // or a question) or the end of its turn, to when it works again.
+    const working = STATE_BY_KIND[signal.kind] === 'working' || STATE_BY_KIND[signal.kind] === 'riichi';
+    s.waited = 0;
+    if (working && s.waitingSince) {
+      const waited = now() - s.waitingSince;
+      s.waited = waited <= WAIT_CAP_MS ? waited : 0;
+      s.waitingSince = null;
+    }
+    if ((signal.kind === 'attention' || signal.kind === 'turn-end') && !s.waitingSince) s.waitingSince = now();
+    if (signal.kind === 'turn-start' || (!s.turnStartedAt && STATE_BY_KIND[signal.kind] === 'working')) s.turnStartedAt = now();
+    if (signal.kind === 'turn-end') s.turnStartedAt = null;
     if (STATE_BY_KIND[signal.kind]) s.state = STATE_BY_KIND[signal.kind];
     if (signal.detail && signal.kind !== 'attention') s.detail = signal.detail;
+    // The last test run's real result, whatever the machine made of it: a
+    // riichi can miss on green tests, and tests from a conversation that
+    // does not own the riichi play no riichi at all.
+    if (signal.kind === 'test-end') s.lastTest = { passed: signal.passed ?? null, summary: signal.summary || null, at: now() };
+    if (signal.check) s.lastCheck = { ...signal.check, at: now() };
     s.lastAt = now();
     s.seq = ++seq;
     for (const [id, other] of map) if (now() - other.lastAt > FORGET_MS) map.delete(id);
@@ -64,13 +106,25 @@ function createSessions({ now = Date.now } = {}) {
     return [...map.values()].filter((s) => s.id !== except && BUSY.has(s.state) && now() - s.lastAt < ACTIVE_MS);
   }
 
+  // The share of the context window in use, from the status line.
+  function setContext(id, used) {
+    const s = map.get(id);
+    if (!s || !Number.isFinite(used)) return false;
+    const next = Math.max(0, Math.min(100, Math.round(used)));
+    if (s.context === next) return false;
+    s.context = next;
+    return true;
+  }
+
   return {
     note,
     busy,
+    setContext,
+    silentIds: () => [...map.values()].map(summary).filter((s) => s.silent).map((s) => s.id).sort().join(','),
     find: (id) => map.get(id) || null,
     list: () => [...map.values()].sort((a, b) => b.lastAt - a.lastAt || b.seq - a.seq).map(summary),
     summary,
   };
 }
 
-module.exports = { createSessions, colorFor, ACTIVE_MS };
+module.exports = { createSessions, colorFor, ACTIVE_MS, SILENT_MS, WAIT_CAP_MS };

@@ -4,7 +4,7 @@
 // a transparent, click-through, always-on-top window over the primary
 // display. Everything else (game, visuals) is shared with `ryoiki serve`.
 
-const { app, BrowserWindow, Menu, Tray, nativeImage, screen, shell } = require('electron');
+const { app, BrowserWindow, Menu, Notification, Tray, nativeImage, screen, shell } = require('electron');
 const { createDomainServer } = require('./server');
 const path = require('node:path');
 
@@ -166,9 +166,17 @@ const openGuide = () => openPage('guide', 'guide.html', 'Idle Death Gamble · �
 
 // Tray menu in the computer's language.
 const MENU_TEXT = {
-  en: { guide: 'How to play (guide)', lines: 'Conversation lines', off: 'Off', all: 'Unlimited', machines: 'Machines', shared: 'One for all', each: 'One per conversation', onTop: 'Always on top', settings: 'Settings…', demo: 'Play demo', discreet: 'Discreet mode', layout: 'Layout', normal: 'Normal', compact: 'Compact', mini: 'Mini', mute: 'Mute', show: 'Show overlay', quit: 'Quit' },
-  pt: { guide: 'Como jogar (guia)', lines: 'Linhas de conversa', off: 'Desligado', all: 'Ilimitado', machines: 'Máquinas', shared: 'Uma para todas', each: 'Uma por conversa', onTop: 'Sempre na frente', settings: 'Configurações…', demo: 'Tocar a demo', discreet: 'Modo discreto', layout: 'Formato', normal: 'Normal', compact: 'Compacto', mini: 'Mini', mute: 'Silenciar', show: 'Mostrar overlay', quit: 'Sair' },
+  en: { guide: 'How to play (guide)', lines: 'Conversation lines', off: 'Off', all: 'Unlimited', machines: 'Machines', shared: 'One for all', each: 'One per conversation', onTop: 'Always on top', settings: 'Settings…', demo: 'Play demo', discreet: 'Discreet mode', layout: 'Layout', normal: 'Normal', compact: 'Compact', mini: 'Mini', mute: 'Mute', show: 'Show overlay', quit: 'Quit', notify: 'System notifications', today: 'Today', turns: 'turns', waited: 'waited for you' },
+  pt: { guide: 'Como jogar (guia)', lines: 'Linhas de conversa', off: 'Desligado', all: 'Ilimitado', machines: 'Máquinas', shared: 'Uma para todas', each: 'Uma por conversa', onTop: 'Sempre na frente', settings: 'Configurações…', demo: 'Tocar a demo', discreet: 'Modo discreto', layout: 'Formato', normal: 'Normal', compact: 'Compacto', mini: 'Mini', mute: 'Silenciar', show: 'Mostrar overlay', quit: 'Sair', notify: 'Notificações do sistema', today: 'Hoje', turns: 'turnos', waited: 'esperando você' },
 };
+
+// The day at a glance: turns, tests and how long agents waited for you.
+function todayLine(t) {
+  const d = domain.stats().today;
+  const tests = d.testsGreen + d.testsRed ? ` · ✓${d.testsGreen} ✗${d.testsRed}` : '';
+  const wait = d.waits ? ` · ${t.waited} ${Math.round(d.waitMs / 60000)} min` : '';
+  return `${t.today}: ${d.turns} ${t.turns}${tests}${wait}`;
+}
 
 function buildMenu() {
   const cfg = domain.config();
@@ -184,12 +192,14 @@ function buildMenu() {
   // the machine on screen.
   return Menu.buildFromTemplate([
     { label: '坐殺博徒 · Idle Death Gamble', enabled: false },
+    { label: todayLine(t), enabled: false },
     { type: 'separator' },
     { label: `遊び方 · ${t.guide}`, click: openGuide },
     { type: 'separator' },
     { label: t.discreet, type: 'checkbox', checked: cfg.discreet, click: (item) => domain.setConfig({ discreet: item.checked }) },
     { label: t.mute, type: 'checkbox', checked: cfg.muted, click: (item) => domain.setConfig({ muted: item.checked }) },
     { label: t.onTop, type: 'checkbox', checked: cfg.onTop !== false, click: (item) => domain.setConfig({ onTop: item.checked }) },
+    { label: t.notify, type: 'checkbox', checked: cfg.notify !== false, click: (item) => domain.setConfig({ notify: item.checked }) },
     { label: t.show, type: 'checkbox', checked: win.isVisible(), click: (item) => (item.checked ? win.showInactive() : win.hide()) },
     { type: 'separator' },
     {
@@ -214,6 +224,58 @@ function showMenu() {
   tray.popUpContextMenu(buildMenu());
 }
 
+// An agent needs you, but the machine may not be seen: in discreet mode it
+// is small and silent, and it can be hidden from the tray. Then the system
+// says it too, at most once in a while per conversation.
+const NOTIFY_GAP_MS = 20 * 1000;
+const notifiedAt = new Map();
+let silentBefore = new Set();
+const SILENT_TEXT = { en: 'No event for 5 min: long command or stuck?', pt: 'Sem sinal há 5 min: comando longo ou travado?' };
+
+// Shown notifications are kept until closed: one that is garbage collected
+// would no longer answer a click.
+const shown = new Set();
+
+// `sessionId`: a click opens that conversation in the Claude app, when it
+// has one there (see links.js).
+function notify(key, title, body, sessionId) {
+  const config = domain && domain.config();
+  if (!config || config.notify === false || !Notification.isSupported()) return;
+  if (!config.discreet && win && !win.isDestroyed() && win.isVisible()) return;
+  if (Date.now() - (notifiedAt.get(key) || 0) < NOTIFY_GAP_MS) return;
+  notifiedAt.set(key, Date.now());
+  const n = new Notification({ title, body: body || 'Claude Code', icon: ICON_FILE, silent: false });
+  shown.add(n);
+  n.on('close', () => shown.delete(n));
+  n.on('click', () => {
+    shown.delete(n);
+    const link = sessionId && domain.linkFor(sessionId);
+    if (link) shell.openExternal(link);
+  });
+  n.show();
+}
+
+function notifyIfUnseen(message) {
+  // A conversation that just went silent (see sessions.js): maybe stuck.
+  if (message.type === 'sessions') {
+    const now = new Set(message.list.filter((s) => s.silent).map((s) => s.id));
+    const lang = (domain.config().translation in SILENT_TEXT ? domain.config().translation : app.getLocale().slice(0, 2));
+    for (const s of message.list) {
+      if (s.silent && !silentBefore.has(s.id)) notify(`silent:${s.id}`, `無音 · ${s.label}`, [s.title, SILENT_TEXT[lang] || SILENT_TEXT.en].filter(Boolean).join(' · '), s.id);
+    }
+    silentBefore = now;
+    return;
+  }
+  // Only real conversations: the demo's "your turn" has no one behind it.
+  if ((message.type !== 'attention' && message.type !== 'call') || !message.who || message.who.demo) return;
+  const who = message.who;
+  notify(who.id || 'agent', who.label ? `あなたの番 · ${who.label}` : 'あなたの番', [who.title, message.detail].filter(Boolean).join(' · '), who.id);
+}
+
+// Windows only shows notifications from an app with an id; a copy run from
+// the repository has no installer to register one, so it uses its own path.
+if (process.platform === 'win32') app.setAppUserModelId(process.execPath);
+
 app.whenReady().then(async () => {
   if (process.platform === 'darwin' && app.dock) app.dock.hide();
 
@@ -223,7 +285,10 @@ app.whenReady().then(async () => {
     onOpenLink: (link) => shell.openExternal(link),
     onPointer: takeClicks,
     onRaise: raise,
-    onBroadcast: (message) => message.type === 'config' && applyOnTop(message.config.onTop),
+    onBroadcast: (message) => {
+      if (message.type === 'config') applyOnTop(message.config.onTop);
+      notifyIfUnseen(message);
+    },
   });
   let port;
   try {

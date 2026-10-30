@@ -105,17 +105,32 @@ function withOurHooks(settings, command = hookCommand()) {
   return { ...settings, hooks };
 }
 
+// Claude Code reads this file all the time: write a copy, then swap it in,
+// so a crash or a full disk never leaves it half written.
 function write(settingsPath, settings) {
   fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
-  fs.writeFileSync(settingsPath, `${JSON.stringify(settings, null, 2)}\n`);
+  const tmp = `${settingsPath}.zasatsu-${process.pid}.tmp`;
+  fs.writeFileSync(tmp, `${JSON.stringify(settings, null, 2)}\n`);
+  try {
+    fs.renameSync(tmp, settingsPath);
+  } catch (err) {
+    fs.rmSync(tmp, { force: true });
+    throw err;
+  }
 }
+
+const ourHooksIn = (settings) =>
+  Object.values(settings.hooks || {}).flat().flatMap((g) => (g && Array.isArray(g.hooks) ? g.hooks : [])).filter(isOurHook);
 
 function install({ settingsPath = defaultSettingsPath() } = {}) {
   const { settings, existed } = readSettings(settingsPath);
+  // The backup is the file as it was before Zasatsu Bakuto touched it:
+  // installing again (after an update, say) keeps that one.
   let backupPath = null;
   if (existed) {
     backupPath = `${settingsPath}.zasatsu-bakuto-backup`;
-    fs.copyFileSync(settingsPath, backupPath);
+    const clean = !ourHooksIn(settings).length && !isOurStatusLine(settings.statusLine);
+    if (clean || !fs.existsSync(backupPath)) fs.copyFileSync(settingsPath, backupPath);
   }
   write(settingsPath, withOurStatusLine(withOurHooks(settings)));
   return { settingsPath, backupPath };
@@ -133,4 +148,24 @@ function uninstall({ settingsPath = defaultSettingsPath() } = {}) {
   return { settingsPath, removed, statusLineRemoved: status.removed };
 }
 
-module.exports = { install, uninstall, withOurHooks, stripOurHooks, hookCommand, statusLineCommand, withOurStatusLine, withoutOurStatusLine, MARKER, LEGACY_MARKERS };
+// What "ryoiki status" reports: are our hooks and status line there, and
+// do they still point at files that exist (the folder may have moved)?
+function inspect({ settingsPath = defaultSettingsPath() } = {}) {
+  let settings;
+  try {
+    settings = readSettings(settingsPath).settings;
+  } catch (err) {
+    return { settingsPath, error: err.message };
+  }
+  const ours = ourHooksIn(settings);
+  const statusLine = isOurStatusLine(settings.statusLine);
+  const scripts = [...ours.map((h) => h.command), statusLine ? settings.statusLine.command : null]
+    .filter(Boolean)
+    .map((command) => (command.match(/node "([^"]+)"/) || [])[1])
+    .filter(Boolean);
+  const missing = [...new Set(scripts)].filter((file) => !fs.existsSync(file));
+  const legacy = ours.filter((h) => LEGACY_MARKERS.some((m) => h.command.includes(m))).length;
+  return { settingsPath, hooks: ours.length, expected: TOOL_EVENTS.length + OTHER_EVENTS.length, statusLine, missing, legacy };
+}
+
+module.exports = { install, uninstall, inspect, withOurHooks, stripOurHooks, hookCommand, statusLineCommand, withOurStatusLine, withoutOurStatusLine, MARKER, LEGACY_MARKERS };

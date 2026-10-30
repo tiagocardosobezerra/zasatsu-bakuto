@@ -4,6 +4,7 @@
 
 **Seu agente de IA trabalha. Você acompanha pelo canto do olho, numa máquina de pachinko com as regras da Expansão de Domínio do Hakari.**
 
+[![test](https://github.com/tiagocardosobezerra/zasatsu-bakuto/actions/workflows/test.yml/badge.svg)](https://github.com/tiagocardosobezerra/zasatsu-bakuto/actions/workflows/test.yml)
 ![Node.js 20+](https://img.shields.io/badge/node.js-20%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)
 ![Electron](https://img.shields.io/badge/electron-33-47848F?style=flat-square&logo=electron&logoColor=white)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-hooks%20oficiais-D97757?style=flat-square&logo=anthropic&logoColor=white)
@@ -17,10 +18,13 @@ O Zasatsu Bakuto (坐殺博徒, *Idle Death Gamble*) é uma pequena máquina de 
 ## O que ele faz por você
 
 * **Mostra o que o agente está fazendo, sem você olhar o terminal.** Editar arquivo fecha as portas de シャッター, ler ou rodar comando acende uma bola de reserva, falhar e se recuperar vira ×2, ×3, ×4. Dá para entender de relance.
-* **Avisa quando os testes passam ou quebram.** Rodar `npm test`, `pytest`, `go test` ou `cargo test` vira リーチ. Teste verde pode dar o jackpot de 4:11; teste vermelho é ハズレ.
-* **Diz quando o agente precisa de você.** Pedido de permissão ou de resposta aparece como **あなたの番 · nome da conversa**, com um toque de aviso.
+* **Avisa quando os testes passam ou quebram, sem depender da sorte.** Rodar `npm test`, `pytest`, `go test`, `cargo test`, `dotnet test`, `mvn test` ou `gradle test` vira リーチ. Teste verde pode dar o jackpot de 4:11; teste vermelho é ハズレ. O resultado real fica sempre na linha da conversa (**✓ 12**, **✗ 1/12**), e um verde que perde o sorteio diz **"Errou, mas os testes passaram"**.
+* **Mostra build, lint e checagem de tipos.** `npm run build`, `tsc`, `eslint`, `cargo clippy`, `go vet` e parecidos deixam **build ✓**, **lint ✗** ou **tsc ✓** na linha.
+* **Diz quando o agente precisa de você.** Pedido de permissão ou de resposta aparece como **あなたの番 · nome da conversa**, com um toque de aviso. No modo discreto, ou com a máquina escondida, vem também uma notificação do sistema.
+* **Avisa quando um agente pode ter travado.** Conversa trabalhando sem nenhum evento há 5 minutos fica laranja: **sem sinal há N min: comando longo ou travado?** (com notificação do sistema se a máquina estiver discreta ou escondida). Depois de 15 minutos sem nada, a linha para de dizer que está trabalhando: o turno foi interrompido (Esc não avisa o fim). Cada linha mostra também há quanto tempo o turno está rodando (⏱ 4m).
 * **Acompanha todas as conversas ao mesmo tempo.** Cada conversa em andamento ganha uma linha com o projeto, o nome, o que está fazendo e a última ação. A lista cresce e diminui sozinha, e um clique numa linha com ↗ abre aquela conversa no app do Claude.
-* **Mostra quanto do seu plano você já usou.** Dois gráficos de pizza na máquina: a sessão de 5 horas e a semana, com o tempo que falta para renovar.
+* **Mostra quanto do seu plano você já usou.** Dois gráficos de pizza na máquina: a sessão de 5 horas e a semana, com o tempo que falta para renovar. Cada conversa mostra quanto da janela de contexto já está em uso (**ctx 82%**, vermelho a partir de 80%).
+* **Conta o seu dia.** `ryoiki status` diz quantos turnos os agentes fizeram, quantos testes e builds passaram ou quebraram e **quanto tempo os agentes ficaram esperando você** (de あなたの番 ou do fim do turno até o agente voltar a trabalhar; esperas de mais de 30 minutos contam como ausência, não como espera), hoje e nos últimos 7 dias. O menu da bandeja mostra o resumo de hoje. A contagem acontece enquanto o domínio está aberto. O `ryoiki status` também confere se os hooks estão instalados e apontam para esta pasta (se você mudar a pasta de lugar, ele avisa para rodar `ryoiki install` de novo).
 * **Não atrapalha.** O overlay deixa o clique passar, nunca bloqueia nem atrasa o agente, e tem um **modo discreto** (pequeno, sem som, translúcido) para o computador do trabalho.
 * **É fiel ao mangá.** As regras vêm da folha de regras do CR私鉄純愛列車 que o Hakari mostra no capítulo 183 e das lutas dos capítulos 182 a 190. O japonês fica sempre na tela, com tradução embaixo em português ou inglês.
 
@@ -38,8 +42,12 @@ Você soube que os testes passaram e que outra conversa precisava de você sem a
 |---|---|
 | Rolos girando, portas de シャッター, bolas de reserva 保留 | O agente está trabalhando |
 | **リーチ** | O agente está rodando seus testes agora |
-| **大当たり** | Os testes passaram |
-| **ハズレ** | Os testes falharam |
+| **大当たり** | Os testes passaram e o sorteio deu certo |
+| **ハズレ** | Os testes falharam, ou passaram e o sorteio não deu (o letreiro diz qual) |
+| **✓ 12 / ✗ 1/12** na linha | O resultado real dos últimos testes daquela conversa |
+| **build ✓ / lint ✗ / tsc ✓** na linha | O último build, lint ou checagem de tipos |
+| **ctx 82%** na linha | Quanto da janela de contexto da conversa está em uso |
+| Linha laranja, **sem sinal há N min** | O agente está num comando longo ou travou |
 | **×2 / ×3 / ×4** | Uma ferramenta falhou e o agente está se recuperando |
 | **あなたの番 · nome** | O agente está esperando sua permissão ou sua resposta |
 | O domínio fecha | Todas as conversas terminaram a vez |
@@ -84,7 +92,7 @@ ryoiki tenkai
 | `ryoiki demo` | | Toca uma sessão de exemplo |
 | `ryoiki guide` | **遊び方** Como jogar | Abre o guia com glossário |
 | `ryoiki settings` | | Abre as configurações |
-| `ryoiki status` | | Diz se o domínio está aberto |
+| `ryoiki status` | | Diz se o domínio está aberto e resume o dia: turnos, testes, builds e tempo esperando você |
 | `ryoiki serve` | | Só o servidor, para o OBS |
 
 ## Para ir além
@@ -96,6 +104,7 @@ Clique com o botão direito no ícone da bandeja → **Configurações…** (ou 
 * **Modo discreto:** máquina mini, sem som, nada em tela cheia e um pouco transparente. Desligou, tudo volta como estava.
 * **Máquinas:** **Uma para todas** (padrão), em que toda conversa gira a mesma máquina e o placar fica salvo, ou **Uma por conversa**, em que cada conversa tem a sua e a tela segue a última em que você escreveu.
 * **Linhas de conversa:** uma linha por conversa em andamento, até 1, 2 ou 3, ou **Ilimitado** (padrão), que cresce até a borda da tela e mostra "mais N conversas" no que não couber.
+* **Notificação do sistema:** quando um agente precisa de você e a máquina está no modo discreto ou escondida (ligado por padrão).
 * **Na tela:** formato (**Normal**, **Compacto** ou **Mini**), tamanho, canto, opacidade, **sempre na frente** das outras janelas (ligado por padrão: fica acima das janelas e volta para a frente sozinha se outra cobrir, mas nunca por cima da barra de tarefas, do menu Iniciar ou dos ícones da bandeja) e escurecer quando parada.
 * **O que aparece:** Expansão de Domínio e jackpot em tela cheia, só na máquina ou desligados; movimento; e cada parte da máquina.
 * **Som:** silenciar tudo, volume, sons da máquina, locutor japonês e suas músicas.
@@ -228,12 +237,13 @@ Os eventos do agente são a luta. Cada regra vem da folha de regras que o Hakari
 | **Classificador** (`src/classify.js`) | Transforma o evento bruto num sinal (`tool-done`, `test-start`, `attention`…) e lê o resultado dos testes |
 | **Jogo** (`src/game.js`) | As regras do Hakari: sorteio de 1/239, efeitos, リーチ, jackpot, 確変 e 時短 |
 | **Máquinas** (`src/machine.js`, `src/each.js`) | Uma máquina para todas as conversas, ou uma por conversa |
-| **Conversas** (`src/sessions.js`, `src/links.js`) | As linhas de conversa e o link de cada uma para o app do Claude |
+| **Conversas** (`src/sessions.js`, `src/links.js`) | As linhas de conversa (estado, tempo de turno, silêncio, últimos resultados, contexto) e o link de cada uma para o app do Claude |
+| **Dia** (`src/daily.js`) | Turnos, testes, builds e tempo esperando você, por dia (`GET /stats`, `ryoiki status`) |
 | **Servidor** (`src/server.js`) | Recebe os eventos, guarda o placar e transmite tudo para as telas |
-| **Overlay** (`public/`) | A máquina na tela, em HTML, CSS e JS puros, com o guia e as configurações |
+| **Overlay** (`public/`) | A máquina na tela, em HTML, CSS e JS puros, com o guia e as configurações; `public/lines.js` monta os selos de resultado real |
 | **Desktop** (`src/electron-main.js`) | A janela transparente que deixa o clique passar, e o ícone na bandeja |
 
-Nada sai do seu PC: tudo roda em `127.0.0.1`, sem telemetria nem conta. Para os links das conversas, o app lê no seu computador só o ID de cada conversa nos arquivos do app do Claude.
+Nada sai do seu PC: tudo roda em `127.0.0.1`, sem telemetria nem conta. O servidor recusa páginas de outros sites e nomes de host que não sejam `127.0.0.1` ou `localhost`, então um site não consegue ler o que a máquina mostra. O resumo do dia fica em `~/.zasatsu-bakuto/daily.json` (últimos 14 dias). Para os links das conversas, o app lê no seu computador só o ID de cada conversa nos arquivos do app do Claude.
 
 Para conferir a instalação a qualquer momento:
 
@@ -264,6 +274,8 @@ npm run serve       # depois abra http://127.0.0.1:4111/?preview
 npm start           # overlay Electron
 npm run icon        # gera o ícone de novo a partir de public/icon-render.js
 ```
+
+Para investigar um som que tocou quando não devia, rode com `ZASATSU_SOUND_LOG=1`: cada som vai para `~/.zasatsu-bakuto/sound-log.json`. O CI roda os testes no Linux, no Windows e no macOS. As mudanças de cada versão estão no [CHANGELOG](CHANGELOG.md).
 
 ## Próximos passos
 

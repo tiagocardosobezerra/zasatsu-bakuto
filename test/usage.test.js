@@ -90,3 +90,24 @@ test('usage outside the plan limits, or already reset, is ignored', async () => 
     await domain.close();
   }
 });
+
+test('the status line tells how full each conversation context is', async () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zb-ctx-'));
+  const domain = createDomainServer({ port: 0, configFile: path.join(dir, 'c.json') });
+  const port = await domain.listen();
+  try {
+    domain.ingest({ hook_event_name: 'UserPromptSubmit', session_id: 'cli-a', cwd: '/p/alpha', prompt: 'one' });
+    const env = { ZASATSU_PORT: String(port), ZASATSU_HOME: dir };
+    const usage = { input_tokens: 1000, cache_read_input_tokens: 150000, cache_creation_input_tokens: 9000, output_tokens: 500 };
+    const tokens = { session_id: 'cli-a', context_window: { context_window_size: 200000, current_usage: usage } };
+    assert.equal(await runStatusLine(['--zasatsu-bakuto'], tokens, env), '坐殺博徒 · 5h – · 7d – · ctx 80%');
+    assert.equal(domain.sessions().list.find((s) => s.id === 'cli-a').context, 80);
+    await runStatusLine(['--zasatsu-bakuto'], { session_id: 'cli-a', context_window: { used_percentage: 91.6 } }, env);
+    assert.equal(domain.sessions().list.find((s) => s.id === 'cli-a').context, 92);
+    const post = (body) => fetch(`http://127.0.0.1:${port}/usage`, { method: 'POST', body: JSON.stringify(body) });
+    assert.equal((await post({ context: { session: 'nobody', used: 10 } })).status, 204, 'an unknown conversation is ignored');
+    assert.equal(domain.sessions().list.length, 1);
+  } finally {
+    await domain.close();
+  }
+});

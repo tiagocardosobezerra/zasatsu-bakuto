@@ -68,3 +68,26 @@ test('hooks from before the rename (--agent-fever) are replaced, not doubled', (
   assert.equal(uninstall({ settingsPath: file }).removed, 7);
   assert.equal(read(file).hooks, undefined);
 });
+
+test('installing again keeps the backup of the file as it was before us', () => {
+  const file = tempSettings(existing);
+  const { backupPath } = install({ settingsPath: file });
+  install({ settingsPath: file });
+  assert.deepEqual(read(backupPath), existing, 'the second install did not overwrite it with our own hooks');
+  assert.deepEqual(fs.readdirSync(path.dirname(file)).filter((f) => f.endsWith('.tmp')), [], 'no temporary file left behind');
+});
+
+test('status tells whether the hooks are there and still point at real files', () => {
+  const { inspect } = require('../src/install');
+  const file = tempSettings(existing);
+  assert.equal(inspect({ settingsPath: file }).hooks, 0);
+  install({ settingsPath: file });
+  const ok = inspect({ settingsPath: file });
+  assert.deepEqual([ok.hooks, ok.expected, ok.statusLine, ok.missing.length, ok.legacy], [7, 7, true, 0, 0]);
+  const moved = read(file);
+  for (const groups of Object.values(moved.hooks)) for (const g of groups) for (const h of g.hooks) h.command = h.command.replace(/node "[^"]+"/, 'node "/gone/src/hook.js"');
+  fs.writeFileSync(file, JSON.stringify(moved));
+  assert.deepEqual(inspect({ settingsPath: file }).missing, ['/gone/src/hook.js']);
+  fs.writeFileSync(file, '{ nope');
+  assert.match(inspect({ settingsPath: file }).error, /not valid JSON/);
+});

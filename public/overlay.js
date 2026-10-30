@@ -6,6 +6,7 @@
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   const rand7 = () => 1 + Math.floor(Math.random() * 7);
   const i18n = window.DomainI18n;
+  const lines = window.DomainLines;
 
   const machine = $('machine');
   const lcd = $('lcd');
@@ -142,7 +143,11 @@
     const width = machine.offsetWidth || 400;
     return Math.min(wanted, (innerHeight * 0.6) / natural, (innerWidth * 0.45) / width);
   }
-  addEventListener('resize', () => document.documentElement.style.setProperty('--scale', String(fitScale())));
+  addEventListener('resize', () => {
+    document.documentElement.style.setProperty('--scale', String(fitScale()));
+    // More or less room: lines that did not fit may fit now, and the other way round.
+    renderSessions();
+  });
 
   // Less motion: chosen in Settings, or asked for by the system ("auto").
   const systemReduce = matchMedia('(prefers-reduced-motion: reduce)');
@@ -470,7 +475,9 @@
   // Every sound the machine plays is noted (what, when, and whether it was
   // muted at that moment) and sent to the app, which keeps the last ones in
   // ~/.zasatsu-bakuto/sound-log.json. If a sound ever plays while muted,
-  // the log says exactly which one.
+  // the log says exactly which one. Only while debugging: the app turns it
+  // on with ZASATSU_SOUND_LOG=1 (sent in the hello message).
+  let soundLogOn = false;
   const soundLog = [];
   const INTERNAL = new Set(['out', 'tone', 'hiss', 'ready', 'unlock', 'setMuted', 'tick']);
   for (const [name, fn] of Object.entries(sound)) {
@@ -488,6 +495,7 @@
   setInterval(() => {
     if (!soundLog.length) return;
     const batch = soundLog.splice(0, soundLog.length);
+    if (!soundLogOn) return;
     fetch('/sound-log', { method: 'POST', body: JSON.stringify(batch) }).catch(() => {});
   }, 2000);
 
@@ -746,7 +754,7 @@
   let linesWanted = Infinity;
   const RECENT_MS = 2 * 60 * 1000; // a finished conversation keeps its line this long
   const ACTIVE_STATES = new Set(['working', 'riichi', 'waiting']);
-  const STATE_KEYS = { idle: 'stIdle', working: 'stWorking', riichi: 'stRiichi', waiting: 'stWaiting', done: 'stDone', round: 'stRound' };
+  const STATE_KEYS = { idle: 'stIdle', working: 'stWorking', riichi: 'stRiichi', waiting: 'stWaiting', done: 'stDone', round: 'stRound', silent: 'stSilent' };
 
   function setWho(who) {
     if (who) currentWho = who;
@@ -763,6 +771,15 @@
       machine.style.setProperty('--who', w.color);
     }
     markCurrent();
+    whoChecks();
+  }
+
+  // With the lines off (or in Mini), the one line left still shows the real
+  // results of the conversation it names.
+  function whoChecks() {
+    const box = $('who-checks');
+    const s = currentWho && lastSessions && lastSessions.list.find((x) => x.id === currentWho.id);
+    box.replaceChildren(...(s ? lines.chips(s).map(chipEl) : []));
   }
 
   function markCurrent() {
@@ -785,7 +802,8 @@
       const li = document.createElement('li');
       li.className = 'conv';
       li.dataset.id = s.id;
-      const state = inRound && (s.state === 'working' || s.state === 'riichi') ? 'round' : s.state;
+      let state = inRound && (s.state === 'working' || s.state === 'riichi') ? 'round' : s.state;
+      if (s.silent) state = 'silent';
       li.dataset.state = state;
       li.style.setProperty('--c', s.color);
       const dot = document.createElement('i');
@@ -798,11 +816,20 @@
       title.textContent = s.title ? `“${s.title}”` : '';
       const chip = document.createElement('span');
       chip.className = 'st';
-      i18n.put(chip, STATE_KEYS[state] || 'stIdle');
+      i18n.put(chip, STATE_KEYS[state] || 'stIdle', state === 'silent' ? { m: lines.minutesSince(s.lastAt, now) } : undefined);
       const act = document.createElement('span');
       act.className = 'act';
-      act.textContent = s.detail || '';
+      // How long this turn has run, then the last action.
+      const busy = s.turnStartedAt && ACTIVE_STATES.has(s.state);
+      act.textContent = [busy ? `⏱ ${lines.elapsed(now - s.turnStartedAt)}` : '', s.detail || ''].filter(Boolean).join(' · ');
       li.append(dot, name, title, chip, act);
+      const results = lines.chips(s);
+      if (results.length) {
+        const checks = document.createElement('span');
+        checks.className = 'checks';
+        checks.append(...results.map(chipEl));
+        li.append(checks);
+      }
       if (s.link) {
         li.classList.add('linked');
         const { ja, tr } = i18n.t('openConv');
@@ -812,6 +839,18 @@
     }
     fitLines(list.length);
     markCurrent();
+    whoChecks();
+  }
+
+  // A real-result chip (see lines.js): ✓ 12, ✗ 1/12, build ✓, ctx 82%.
+  function chipEl({ result, text, key }) {
+    const el = document.createElement('span');
+    el.className = 'chk';
+    el.dataset.result = result;
+    el.textContent = text;
+    const { ja, tr } = i18n.t(key);
+    el.title = tr ? `${ja} · ${tr}` : ja;
+    return el;
   }
 
   // Lines never push the machine off the screen: the last ones give way to
@@ -1260,7 +1299,8 @@
     async miss(e) {
       await resolveRiichi(e, false);
       sound.miss();
-      const reason = { 'tests-red': 'testsRed', expired: 'timeUp' }[e.reason] || 'miss';
+      // Green tests that lose the draw must never read as red tests.
+      const reason = { 'tests-red': 'testsRed', 'tests-green': 'testsGreenMiss', unknown: 'testsUnknown', expired: 'timeUp' }[e.reason] || 'miss';
       setCabinet('miss', reason);
       await sleep(1600);
       setScene('stage');
@@ -1343,6 +1383,7 @@
   }
 
   function hello(e) {
+    soundLogOn = Boolean(e.soundLog);
     applyConfig(e.config);
     if (e.who !== undefined) {
       currentWho = e.who;

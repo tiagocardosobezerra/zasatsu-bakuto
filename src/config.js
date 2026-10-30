@@ -44,6 +44,7 @@ const DEFAULTS = {
   jackpot: 'full', // full | compact | off: the 大当たり screen
   idleDim: true,
   onTop: true, // keep the machine above every other window
+  notify: true, // a system notification when an agent needs you while the machine is discreet or hidden
   muted: false,
   discreet: false, // one switch for work: mini, silent, nothing full screen
   show: { crest: true, lamps: true, indicators: true, ticker: true, stats: true, usage: true },
@@ -73,7 +74,7 @@ function clean(input) {
     const n = Number(src[key]);
     if (Number.isFinite(n)) out[key] = Math.min(RANGES[key][1], Math.max(RANGES[key][0], n));
   }
-  for (const key of ['idleDim', 'onTop', 'muted', 'discreet']) if (typeof src[key] === 'boolean') out[key] = src[key];
+  for (const key of ['idleDim', 'onTop', 'notify', 'muted', 'discreet']) if (typeof src[key] === 'boolean') out[key] = src[key];
   if (src.lines === 'all' || (Number.isInteger(src.lines) && src.lines > 3)) out.lines = 'all';
   else if (Number.isInteger(src.lines) && src.lines >= 0) out.lines = src.lines;
   for (const key of Object.keys(DEFAULTS.show)) {
