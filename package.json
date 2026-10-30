@@ -25,7 +25,7 @@
     "start": "node bin/ryoiki.js tenkai",
     "serve": "node bin/ryoiki.js serve",
     "demo": "node bin/ryoiki.js demo",
-    "test": "node --test \"test/*.test.js\"",
+    "test": "node --test",
     "icon": "electron scripts/render-icon.js"
   },
   "engines": {

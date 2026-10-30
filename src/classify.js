@@ -4,8 +4,6 @@
 // agent-agnostic signal the game understands. Adapters for other agents
 // only need to produce the same signal kinds.
 
-const path = require('node:path');
-
 // A command line is split into the commands it runs (a && b; c | d), with
 // quoted text removed, so `git commit -m "make npm test pass"` runs no
 // tests. Each command is then matched from its start, past what usually
@@ -176,7 +174,8 @@ function conversationTitle(payload) {
 }
 
 function sessionLabel(payload) {
-  if (payload.cwd) return path.basename(String(payload.cwd).replace(/[\\/]+$/, ''));
+  // Either separator: an agent on Windows may report to a machine that is not.
+  if (payload.cwd) return String(payload.cwd).replace(/[\\/]+$/, '').split(/[\\/]/).pop();
   if (payload.session_id) return String(payload.session_id).slice(0, 8);
   return 'agent';
 }
