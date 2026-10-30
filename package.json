@@ -3,6 +3,15 @@
   "version": "0.1.0",
   "description": "坐殺博徒 Zasatsu Bakuto: Kinji Hakari's Domain Expansion as a pachinko overlay that shows what your AI coding agent is doing. Tool calls spin the reels, tests are the riichi, green tests hit the jackpot.",
   "license": "MIT",
+  "author": "Tiago Cardoso Bezerra",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tiagocardosobezerra/zasatsu-bakuto.git"
+  },
+  "homepage": "https://github.com/tiagocardosobezerra/zasatsu-bakuto#readme",
+  "bugs": {
+    "url": "https://github.com/tiagocardosobezerra/zasatsu-bakuto/issues"
+  },
   "bin": {
     "ryoiki": "bin/ryoiki.js"
   },

@@ -149,6 +149,13 @@ async function main() {
         report = createDaily({ saved }).report();
       }
       for (const line of formatReport(report)) console.log(line);
+      // Are the hooks in place, and pointing at this copy?
+      const check = installer.inspect({ settingsPath: option('settings') });
+      if (check.error) console.log(`Hooks: ${check.error}`);
+      else if (!check.hooks) console.log(`Hooks: not installed in ${check.settingsPath}. Run "ryoiki install".`);
+      else if (check.missing.length) console.log(`Hooks: they point at ${check.missing.join(', ')}, which no longer exists (the folder moved?). Run "ryoiki install" again.`);
+      else if (check.legacy || check.hooks !== check.expected || !check.statusLine) console.log(`Hooks: ${check.hooks} of ${check.expected}${check.statusLine ? '' : ', no status line'}. Run "ryoiki install" again to repair them.`);
+      else console.log(`Hooks: all ${check.hooks} installed, with the status line (${check.settingsPath}).`);
       // Plan usage comes from Claude Code's status line, which only some
       // Claude Code apps run (the terminal does; the desktop app does not).
       let note = null;
