@@ -115,6 +115,8 @@ process.stdin.on('end', async () => {
     const os = require('node:os');
     const path = require('node:path');
     const home = process.env.ZASATSU_HOME || path.join(os.homedir(), '.zasatsu-bakuto');
+    // The folder may not exist yet if the app has never been opened.
+    require('node:fs').mkdirSync(home, { recursive: true });
     require('node:fs').writeFileSync(path.join(home, 'statusline-last.json'), JSON.stringify({ at: new Date().toISOString(), limits: Boolean(snapshot && snapshot.rate_limits) }));
   } catch {
     /* only a note */

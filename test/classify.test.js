@@ -88,3 +88,17 @@ test('counts what passed and failed', () => {
   const green = classify(bash('PostToolUse', 'npm test', { tool_response: { stdout: 'Tests: 8 passed, 8 total' } }));
   assert.deepEqual(green.summary, { passed: 8, failed: null });
 });
+
+test('words inside quotes or arguments are not commands', () => {
+  const { checkKind } = require('../src/classify');
+  for (const cmd of ['git commit -m "make npm test pass"', "echo 'run pytest later'", 'grep -rn "go test" docs/', 'cat pytest.ini']) {
+    assert.ok(!isTestCommand(cmd), cmd);
+  }
+  for (const cmd of ['cd app && npm test 2>&1 | tail -20', 'CI=1 npx vitest run', './mvnw -q verify', 'uv run pytest -q', 'sudo make check', 'npm ci; npm test']) {
+    assert.ok(isTestCommand(cmd), cmd);
+  }
+  assert.equal(checkKind('git commit -m "fix tsc errors"'), null);
+  assert.equal(checkKind('grep -r eslint package.json'), null);
+  assert.equal(checkKind('pnpm exec tsc --noEmit'), 'types');
+  assert.equal(checkKind('npm ci && npm run lint'), 'lint');
+});

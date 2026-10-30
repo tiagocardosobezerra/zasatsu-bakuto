@@ -6,7 +6,23 @@
 
 const path = require('node:path');
 
-const TEST_COMMAND = new RegExp(
+// A command line is split into the commands it runs (a && b; c | d), with
+// quoted text removed, so `git commit -m "make npm test pass"` runs no
+// tests. Each command is then matched from its start, past what usually
+// comes before the tool: VAR=1, sudo, npx, pnpm exec, uv run, ./ and so on.
+const RUNNER_PREFIX = /^(?:\w+=\S*\s+)*(?:sudo\s+)?(?:(?:npx|bunx|pnpx)\s+|(?:pnpm|yarn)\s+(?:exec|dlx)\s+|(?:uv|poetry|pipenv|bundle)\s+(?:run|exec)\s+)?(?:\.\/)?/i;
+
+function commandsIn(line) {
+  return String(line)
+    .replace(/"(?:[^"\\]|\\.)*"|'[^']*'/g, '""')
+    .split(/&&|\|\||[;|\n]/)
+    .map((part) => part.trim().replace(RUNNER_PREFIX, ''))
+    .filter(Boolean);
+}
+
+const anchored = (parts) => new RegExp(`^(?:${parts.join('|')})`, 'i');
+
+const TEST_COMMAND = anchored(
   [
     String.raw`\b(npm|pnpm|yarn|bun)\s+(run\s+)?test\b`,
     String.raw`\b(npx\s+)?(jest|vitest|mocha|ava|playwright\s+test|cypress\s+run)\b`,
@@ -23,8 +39,7 @@ const TEST_COMMAND = new RegExp(
     String.raw`\bmvnw?\b.*\b(test|verify)\b`,
     String.raw`\bgradlew?\b.*\b(test|check)\b`,
     String.raw`\bmake\s+(test|check)\b`,
-  ].join('|'),
-  'i',
+  ],
 );
 
 // Order matters: a summary like "1 failed, 12 passed" is a failure.
@@ -59,7 +74,7 @@ const PASS_MARKERS = [
 const MAX_OUTPUT = 20000;
 
 function isTestCommand(command) {
-  return typeof command === 'string' && TEST_COMMAND.test(command);
+  return typeof command === 'string' && commandsIn(command).some((c) => TEST_COMMAND.test(c));
 }
 
 // Builds, linters and type checks: not a riichi, but their result is worth
@@ -87,12 +102,13 @@ const CHECK_COMMANDS = {
     String.raw`\bmake\s+build\b`,
   ],
 };
-const CHECKS = Object.entries(CHECK_COMMANDS).map(([type, parts]) => [type, new RegExp(parts.join('|'), 'i')]);
+const CHECKS = Object.entries(CHECK_COMMANDS).map(([type, parts]) => [type, anchored(parts)]);
 
 // 'types' | 'lint' | 'build', or null.
 function checkKind(command) {
   if (typeof command !== 'string' || isTestCommand(command)) return null;
-  for (const [type, re] of CHECKS) if (re.test(command)) return type;
+  const commands = commandsIn(command);
+  for (const [type, re] of CHECKS) if (commands.some((c) => re.test(c))) return type;
   return null;
 }
 
