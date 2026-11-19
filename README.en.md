@@ -1,19 +1,41 @@
-# Zasatsu Bakuto
+<a href="https://tiagocardosobezerra.github.io/zasatsu-bakuto/"><img width="100%" alt="Zasatsu Bakuto: the agent works, the domain opens, the machine spins with every tool and green tests hit the jackpot" src="assets/zasatsu-banner.svg" /></a>
 
-[Português](README.md) | **English**
+<p align="center">
+  <a href="https://tiagocardosobezerra.github.io/zasatsu-bakuto/"><strong>Project site</strong></a> ·
+  <a href="https://tiagocardosobezerra.github.io/zasatsu-bakuto/#topo"><strong>See the machine live</strong></a> ·
+  <a href="#get-started-in-3-steps"><strong>Install</strong></a> ·
+  <a href="#the-rules-of-the-domain"><strong>Rules</strong></a>
+</p>
+
+<p align="center">
+  <a href="README.md">Português</a> · <strong>English</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/tiagocardosobezerra/zasatsu-bakuto/actions/workflows/test.yml"><img alt="test" src="https://github.com/tiagocardosobezerra/zasatsu-bakuto/actions/workflows/test.yml/badge.svg" /></a>
+  <img alt="Version 0.2.0" src="https://img.shields.io/badge/version-0.2.0-ffd23f?style=flat-square" />
+  <img alt="Node.js 20+" src="https://img.shields.io/badge/node.js-20%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white" />
+  <img alt="Electron" src="https://img.shields.io/badge/electron-33-47848F?style=flat-square&logo=electron&logoColor=white" />
+  <img alt="Uses Claude Code hooks" src="https://img.shields.io/badge/Claude%20Code-hooks-D97757?style=flat-square" />
+  <img alt="100% local events" src="https://img.shields.io/badge/events-100%25%20local-2ea44f?style=flat-square" />
+  <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" />
+</p>
 
 **Your AI agent works. You follow along from the corner of your eye, on a pachinko machine with the rules of Hakari's Domain Expansion.**
 
-[![test](https://github.com/tiagocardosobezerra/zasatsu-bakuto/actions/workflows/test.yml/badge.svg)](https://github.com/tiagocardosobezerra/zasatsu-bakuto/actions/workflows/test.yml)
-![Node.js 20+](https://img.shields.io/badge/node.js-20%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)
-![Electron](https://img.shields.io/badge/electron-33-47848F?style=flat-square&logo=electron&logoColor=white)
-![Claude Code](https://img.shields.io/badge/Claude%20Code-official%20hooks-D97757?style=flat-square&logo=anthropic&logoColor=white)
-![100% local](https://img.shields.io/badge/data-100%25%20local-2ea44f?style=flat-square)
-![MIT](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
-
-<img width="100%" alt="Zasatsu Bakuto: the agent works, the domain opens, the machine spins with every tool and green tests hit the jackpot" src="assets/zasatsu-banner.svg" />
-
 Zasatsu Bakuto (坐殺博徒, *Idle Death Gamble*) is a small pachinko machine that sits in the corner of your screen and plays by itself while Claude Code works. Every tool the agent uses spins the reels, running the tests becomes a リーチ, green tests can hit the 大当たり, and when the agent needs you the machine tells you, with the conversation's name. You stop staring at the terminal, and you stop forgetting to come back.
+
+<table>
+  <tr>
+    <td align="center" width="20%"><h3>1/239</h3><sub>jackpot odds on every tool call, as on the rule sheet</sub></td>
+    <td align="center" width="20%"><h3>4:11</h3><sub>round when green tests hit the 大当たり</sub></td>
+    <td align="center" width="20%"><h3>7</h3><sub>test runners recognized, from npm to gradle</sub></td>
+    <td align="center" width="20%"><h3>0</h3><sub>agent events leaving your PC: everything on 127.0.0.1</sub></td>
+    <td align="center" width="20%"><h3>81</h3><sub>tests running on Linux, Windows and macOS</sub></td>
+  </tr>
+</table>
+
+> **Want to see it before installing?** The [project site](https://tiagocardosobezerra.github.io/zasatsu-bakuto/) runs the real machine in your browser, playing the same session as `ryoiki demo`. The site is in Portuguese.
 
 ## What it does for you
 
@@ -34,7 +56,7 @@ Zasatsu Bakuto (坐殺博徒, *Idle Death Gamble*) is a small pachinko machine t
 >
 > **Claude:** reads the files, edits two of them and runs `npm test`.
 >
-> **The machine:** doors closing, reserve balls lighting up, リーチ!!, 華金終電リーチ ★★★… **大当たり.** The domain shatters, the music starts and a 4:11 countdown runs on screen. Meanwhile the `docs` conversation's line turns blue: **あなたの番, waiting for you.**
+> **The machine:** doors closing, reserve balls lighting up, リーチ!!, 華金終電リーチ ★★★… **大当たり.** The domain shatters, the fanfare plays and a 4:11 countdown runs on screen. Meanwhile the `docs` conversation's line turns blue: **あなたの番, waiting for you.**
 
 You knew the tests passed and that another conversation needed you, without opening a single window.
 
@@ -259,9 +281,9 @@ zasatsu-bakuto/
 ├── bin/ryoiki.js          # Command line
 ├── src/                   # Hook, classifier, game, machines, server and desktop app
 ├── public/                # Overlay, guide, settings and icon
-├── scripts/               # Renders the icon (npm run icon)
+├── scripts/               # Renders the icon and the machine on the site
 ├── assets/                # README animations
-├── docs/                  # README icon and the animation prompt
+├── docs/                  # Project site (GitHub Pages), README icon and the animation prompt
 └── test/                  # Test suite (node:test)
 ```
 
@@ -273,6 +295,7 @@ npm test            # node:test, no extra dependencies
 npm run serve       # then open http://127.0.0.1:4111/?preview
 npm start           # Electron overlay
 npm run icon        # renders the icon again from public/icon-render.js
+npm run page        # copies the overlay from public/ into the site's machine (docs/maquina/)
 ```
 
 To track down a sound that played when it should not, run with `ZASATSU_SOUND_LOG=1`: every sound goes to `~/.zasatsu-bakuto/sound-log.json`. CI runs the tests on Linux, Windows and macOS. What changed in each version is in the [CHANGELOG](CHANGELOG.md).
@@ -297,7 +320,7 @@ Named after Kinji Hakari's Domain Expansion in Jujutsu Kaisen, the sorcerer who 
 
 ## Notice
 
-Fan project, not affiliated with Jujutsu Kaisen, Gege Akutami, Shueisha or MAPPA. It ships no official art or music: everything is drawn in CSS and the sounds are synthesised. Files you add to the `custom` folder stay on your machine, and you are responsible for having the rights to them.
+Fan project, not affiliated with Jujutsu Kaisen, Gege Akutami, Shueisha or MAPPA, nor with Anthropic (Claude and Claude Code are trademarks of Anthropic). It ships no official art or music: everything is drawn in CSS and the sounds are synthesised. Files you add to the `custom` folder stay on your machine, and you are responsible for having the rights to them.
 
 ## License
 

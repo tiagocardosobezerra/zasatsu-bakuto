@@ -8,7 +8,7 @@
     "type": "git",
     "url": "git+https://github.com/tiagocardosobezerra/zasatsu-bakuto.git"
   },
-  "homepage": "https://github.com/tiagocardosobezerra/zasatsu-bakuto#readme",
+  "homepage": "https://tiagocardosobezerra.github.io/zasatsu-bakuto/",
   "bugs": {
     "url": "https://github.com/tiagocardosobezerra/zasatsu-bakuto/issues"
   },
@@ -26,7 +26,9 @@
     "serve": "node bin/ryoiki.js serve",
     "demo": "node bin/ryoiki.js demo",
     "test": "node --test",
-    "icon": "electron scripts/render-icon.js"
+    "icon": "electron scripts/render-icon.js",
+    "page": "node scripts/build-page.js",
+    "record-demo": "node scripts/record-demo.js"
   },
   "engines": {
     "node": ">=20"
