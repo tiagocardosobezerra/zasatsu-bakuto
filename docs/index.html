@@ -4,601 +4,723 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zasatsu Bakuto · seu agente trabalha, você joga</title>
-<meta name="description" content="Uma máquina de pachinko no canto da tela que mostra o que o Claude Code está fazendo: ferramentas giram os rolos, testes viram riichi, teste verde pode dar o jackpot e, quando o agente precisa de você, ela chama pelo nome da conversa. Grátis, open source e 100% local.">
+<meta name="description" content="Uma máquina de pachinko no canto da tela que mostra o que o Claude Code está fazendo: ferramentas giram os rolos, testes viram riichi, teste verde pode dar o jackpot e, quando o agente precisa de você, ela chama pelo nome da conversa. Grátis e open source.">
 <meta property="og:title" content="Zasatsu Bakuto · seu agente trabalha, você joga">
-<meta property="og:description" content="Pare de encarar o terminal. Uma máquina de pachinko no canto da tela mostra o que o seu agente de IA está fazendo e avisa quando ele precisa de você.">
+<meta property="og:description" content="Pare de encarar o terminal. Uma máquina de pachinko no canto da tela mostra o que o seu agente de IA está fazendo e chama você quando é a sua vez.">
 <meta property="og:image" content="https://tiagocardosobezerra.github.io/zasatsu-bakuto/img/og.png">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#120c17">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23120c17'/%3E%3Crect x='3' y='3' width='26' height='26' rx='5' fill='none' stroke='%23ff2d55' stroke-width='2'/%3E%3Ctext x='16' y='23' font-family='sans-serif' font-weight='900' font-size='18' text-anchor='middle' fill='%23ffd23f'%3E7%3C/text%3E%3C/svg%3E">
+<meta name="theme-color" content="#0c0a0e">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23d8dde6'/%3E%3Ccircle cx='11' cy='10' r='5' fill='%23fff'/%3E%3Ccircle cx='16' cy='16' r='14' fill='none' stroke='%23e4002b' stroke-width='3'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Inter:wght@400;500;600;700;800&family=Yuji+Boku&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Dela+Gothic+One&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&family=Yuji+Boku&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#120c17; --bg2:#170f1d; --panel:#1c1324; --surface:#241830; --surface2:#2e2040; --line:#33243f; --line2:#4a3459;
-  --ink:#fbf4ff; --muted:#bcaacb; --faint:#8c7a9c;
-  --gold:#ffd23f; --gold2:#c99a12; --hot:#ff2d55; --pink:#ff7eb6; --cyan:#3be8ff; --green:#4dff9a; --orange:#ff9a3c; --blue:#5aa8ff;
-  --paper:#f3efe4; --paper2:#e8e2d2; --ink-black:#0b0b0d; --ink-soft:#4a4540;
+  --night:#0c0a0e; --night2:#141018; --night3:#1c1622; --wire:#2c2333; --wire2:#433650;
+  --paper:#eee8da; --paper2:#e2dac8; --ink:#0d0b0e; --ink2:#3d3833; --ink3:#77706a;
+  --red:#e4002b; --pink:#ff2d75; --gold:#ffd23f; --gold2:#c9970c; --cyan:#3be8ff; --green:#4dff9a; --orange:#ff9a3c; --blue:#5aa8ff;
+  --lit:#fbf4ff; --mut:#b9a9c6; --dim:#7d6f8b;
   --rainbow:linear-gradient(90deg,#ff3b5c,#ffb02e,#fff04a,#4ade80,#3be8ff,#a35bff,#ff3b5c);
+  --anton:'Anton','Impact','Arial Narrow Bold',sans-serif;
   --sfx:'Dela Gothic One','Yu Gothic','Noto Sans JP',sans-serif;
   --brush:'Yuji Boku','Yu Mincho','Noto Serif JP',serif;
   --tx:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
-  --mono:ui-monospace,'Cascadia Code',Consolas,'SFMono-Regular',monospace;
-  --w:1160px; --g:24px;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+  --g:clamp(16px,3vw,40px);
 }
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:72px}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--tx);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+html{scroll-padding-top:70px;overflow-x:clip}
+body{margin:0;background:var(--night);color:var(--lit);font:16px/1.6 var(--tx);-webkit-font-smoothing:antialiased;overflow-x:clip}
+a{color:inherit}
 img{max-width:100%;display:block}
-a{color:var(--gold);text-decoration:none}
-a:hover{text-decoration:underline;text-underline-offset:3px}
-:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
-.wrap{max-width:var(--w);margin:0 auto;padding:0 var(--g)}
-.jp{font-family:var(--sfx);letter-spacing:.02em}
-.kicker{font:700 12px/1 var(--tx);letter-spacing:1.6px;text-transform:uppercase;color:var(--hot)}
-h1,h2,h3{margin:0;line-height:1.1}
-h2{font:400 clamp(30px,4.4vw,50px)/1.08 var(--sfx);margin:14px 0 18px;letter-spacing:-.2px}
-h3{font:700 18px/1.3 var(--tx)}
-p{margin:0}
-code{font:14px var(--mono);background:rgba(255,255,255,.07);padding:2px 6px;border-radius:5px}
-.lead{font-size:clamp(17px,1.6vw,19px);color:var(--muted);max-width:700px}
-section{padding:112px 0;position:relative}
-.sec-head{margin-bottom:48px}
-.btn{display:inline-flex;align-items:center;gap:10px;font:700 15px/1 var(--tx);padding:15px 22px;border-radius:12px;border:1px solid transparent;cursor:pointer;transition:transform .15s,background .15s,border-color .15s;white-space:nowrap}
-.btn:hover{text-decoration:none;transform:translateY(-1px)}
-.btn-hot{background:var(--hot);color:#fff;box-shadow:0 4px 0 #a3122f,0 0 28px rgba(255,45,85,.35)}
-.btn-hot:hover{background:#ff4a6b}
-.btn-hot:active{transform:translateY(3px);box-shadow:0 1px 0 #a3122f}
-.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line2)}
-.btn-ghost:hover{border-color:var(--faint);background:var(--surface)}
-.btn svg{width:18px;height:18px;flex:none}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+code,kbd{font:500 .88em var(--mono)}
+.jp{font-family:var(--sfx);font-weight:400}
+.nw{white-space:nowrap}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.pad{padding-left:var(--g);padding-right:var(--g)}
+.max{max-width:1320px;margin:0 auto}
 
-/* barra */
-.nav{position:sticky;top:0;z-index:50;background:rgba(18,12,23,.84);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color .2s}
-.nav.sc{border-bottom-color:var(--line)}
-.nav .wrap{display:flex;align-items:center;gap:28px;height:64px}
-.logo{display:flex;align-items:center;gap:10px;color:var(--ink);font:800 16px/1 var(--tx);letter-spacing:.2px}
-.logo:hover{text-decoration:none}
-.logo .mark{width:30px;height:30px;border-radius:8px;background:var(--bg);border:2px solid var(--hot);display:grid;place-items:center;font:400 17px/1 var(--sfx);color:var(--gold);box-shadow:0 0 12px rgba(255,45,85,.45)}
-.logo small{display:block;font:400 11px/1 var(--sfx);color:var(--faint);margin-top:3px;letter-spacing:.12em}
-.nav ul{display:flex;gap:24px;list-style:none;margin:0 0 0 auto;padding:0}
-.nav ul a{color:var(--muted);font-size:14px;font-weight:600}
-.nav ul a:hover{color:var(--ink);text-decoration:none}
-.nav .gh{margin-left:4px;padding:10px 16px;font-size:14px}
-@media (max-width:900px){.nav ul{display:none}.nav .gh{margin-left:auto}}
+/* ---------- cursor: uma bola de aço ---------- */
+.ball-cursor{position:fixed;left:0;top:0;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;pointer-events:none;z-index:9999;
+  background:radial-gradient(circle at 34% 30%,#fff 0 12%,#dfe4ec 28%,#8d97a8 62%,#3d4452 100%);box-shadow:0 2px 6px rgba(0,0,0,.45);
+  transition:width .18s,height .18s,margin .18s,opacity .2s;opacity:0}
+.ball-cursor.on{opacity:1}
+.ball-cursor.big{width:54px;height:54px;margin:-27px 0 0 -27px;background:radial-gradient(circle at 34% 30%,#fff7c8 0 10%,var(--gold) 40%,#a16f00 100%);mix-blend-mode:normal}
+@media (hover:hover) and (pointer:fine){body.has-ball, body.has-ball a, body.has-ball button{cursor:none}}
 
-/* hero */
-.hero{padding:56px 0 72px;overflow:hidden}
-.hero::before{content:"";position:absolute;inset:-20% -10% auto -10%;height:120%;background:
-  radial-gradient(700px 420px at 78% 38%,rgba(255,45,85,.20),transparent 62%),
-  radial-gradient(600px 400px at 12% 20%,rgba(59,232,255,.10),transparent 60%);pointer-events:none}
-.hero .wrap{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center;position:relative}
-.hero h1{font:400 clamp(42px,6.4vw,78px)/1.0 var(--sfx);letter-spacing:-.5px;margin:18px 0 22px}
-.hero h1 em{font-style:normal;color:var(--gold);text-shadow:0 0 24px rgba(255,210,63,.35)}
-.hero .lead b{color:var(--ink);font-weight:600}
-.hero .cta{display:flex;flex-wrap:wrap;gap:14px;margin:30px 0 26px}
-.chips{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:0;padding:0}
-.chips li{font:600 13px/1 var(--tx);color:var(--muted);border:1px solid var(--line2);border-radius:999px;padding:8px 12px;display:flex;align-items:center;gap:7px}
-.chips li::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
-.tate-side{position:absolute;right:calc(50% - 600px);top:30px;writing-mode:vertical-rl;font:400 15px/1 var(--sfx);letter-spacing:.5em;color:rgba(255,255,255,.12);pointer-events:none}
+/* ---------- barra ---------- */
+.bar{position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;gap:18px;height:62px;padding:0 var(--g);transition:background .25s,border-color .25s;border-bottom:1px solid transparent}
+.bar.solid{background:rgba(12,10,14,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom-color:var(--wire)}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.brand .seal{width:34px;height:34px;display:grid;place-items:center;background:var(--red);color:#fff;font:400 13px/1 var(--sfx);writing-mode:vertical-rl;letter-spacing:-1px;border-radius:3px;transform:rotate(-4deg)}
+.brand b{font:400 22px/1 var(--anton);letter-spacing:.5px;text-transform:uppercase}
+.bar nav{margin-left:auto;display:flex;align-items:center;gap:22px}
+.bar nav a{font:600 13px/1 var(--tx);text-decoration:none;color:var(--mut);letter-spacing:.3px}
+.bar nav a:hover{color:var(--lit)}
+.chip-btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--wire2);border-radius:999px;padding:9px 14px;background:transparent;font:700 12px/1 var(--tx);letter-spacing:.6px;text-transform:uppercase;cursor:pointer;color:var(--lit);text-decoration:none}
+.chip-btn:hover{border-color:var(--mut)}
+.chip-btn svg{width:15px;height:15px}
+.chip-btn[aria-pressed="true"]{background:var(--gold);color:var(--ink);border-color:var(--gold)}
+@media (max-width:900px){.bar nav a.l{display:none}}
+@media (max-width:560px){.bar nav a.chip-btn{display:none}.brand b{font-size:19px}.cab-top>i{display:none}}
 
-.stage{position:relative}
-.cabinet{position:relative;border-radius:22px;padding:10px;background:linear-gradient(160deg,#3a2440,#1a1020 40%,#2a1830);box-shadow:0 0 0 1px #4a3459,0 30px 80px rgba(0,0,0,.55),0 0 60px rgba(255,45,85,.18)}
-.cabinet::before{content:"";position:absolute;inset:-2px;border-radius:24px;padding:2px;background:var(--rainbow);background-size:200% 100%;animation:rb 8s linear infinite;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.55;pointer-events:none}
+/* ---------- botões ---------- */
+.btn{display:inline-flex;align-items:center;gap:10px;font:400 20px/1 var(--anton);letter-spacing:.8px;text-transform:uppercase;padding:18px 26px;border:3px solid var(--ink);text-decoration:none;cursor:pointer;transition:transform .12s,box-shadow .12s;white-space:nowrap}
+.btn-red{background:var(--red);color:#fff;box-shadow:6px 6px 0 var(--ink)}
+.btn-red:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--ink)}
+.btn-red:active{transform:translate(4px,4px);box-shadow:2px 2px 0 var(--ink)}
+.night .btn{border-color:var(--lit)}
+.night .btn-red{box-shadow:6px 6px 0 var(--lit)}
+.night .btn-red:hover{box-shadow:8px 8px 0 var(--lit)}
+.btn-line{background:transparent;color:inherit}
+.btn-line:hover{background:rgba(255,255,255,.06)}
+
+/* =========================================================
+   HERO: o salão
+   ========================================================= */
+.hero{position:relative;min-height:100vh;padding-top:86px;padding-bottom:40px;overflow:hidden;background:
+  radial-gradient(900px 600px at 80% 40%,rgba(255,45,117,.18),transparent 60%),
+  radial-gradient(700px 500px at 0% 100%,rgba(59,232,255,.08),transparent 60%),var(--night)}
+.hero::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,520px);gap:clamp(24px,4vw,64px);align-items:center;position:relative;z-index:2}
+.vol{display:flex;align-items:center;gap:14px;font:700 12px/1 var(--tx);letter-spacing:2px;text-transform:uppercase;color:var(--mut)}
+.vol span{background:var(--lit);color:var(--ink);padding:6px 8px}
+.hero h1{margin:22px 0 0;font:400 clamp(64px,10.4vw,168px)/.86 var(--anton);text-transform:uppercase;letter-spacing:-.5px}
+.hero h1 .row{display:block}
+.hero h1 .row>span{display:inline-block;opacity:0;transform:translateY(35%) skewY(4deg);animation:rise .9s cubic-bezier(.2,.8,.2,1) forwards}
+.hero h1 .row:nth-child(2)>span{animation-delay:.08s}
+.hero h1 .row:nth-child(3)>span{animation-delay:.16s}
+@keyframes rise{to{transform:none;opacity:1}}
+.og .hero h1 .row>span{animation:none;opacity:1;transform:none}
+.hero h1 .hot{color:var(--gold);text-shadow:0 0 30px rgba(255,210,63,.35)}
+.hero h1 .strike{position:relative;color:transparent;-webkit-text-stroke:2px var(--lit)}
+.hero h1 .strike::after{content:"";position:absolute;left:-2%;right:-2%;top:52%;height:.09em;background:var(--red);transform:rotate(-3deg) scaleX(0);transform-origin:left;animation:slash .5s .9s ease-out forwards}
+@keyframes slash{to{transform:rotate(-3deg) scaleX(1)}}
+.hero .lede{margin:28px 0 0;max-width:560px;font-size:clamp(17px,1.5vw,19px);color:var(--mut)}
+.hero .lede b{color:var(--lit);font-weight:600}
+.hero .cta{display:flex;flex-wrap:wrap;gap:16px;margin-top:34px}
+.facts-mini{display:flex;flex-wrap:wrap;gap:22px;margin-top:34px;font:600 13px/1.3 var(--tx);color:var(--dim)}
+.facts-mini b{display:block;font:400 30px/1 var(--anton);color:var(--lit);letter-spacing:.5px;margin-bottom:4px}
+.tate-big{position:absolute;right:calc(var(--g) - 4px);top:84px;writing-mode:vertical-rl;font:400 clamp(60px,7vw,110px)/1 var(--brush);color:rgba(255,255,255,.05);pointer-events:none;z-index:1;letter-spacing:.05em}
+
+/* o tabuleiro */
+.cab{position:relative;border-radius:30px;padding:16px;background:linear-gradient(145deg,#4a3456,#1a1220 35%,#2b1d33 70%,#120c16);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.08),0 40px 90px rgba(0,0,0,.6),0 0 80px rgba(255,45,117,.25)}
+.cab::before{content:"";position:absolute;inset:-3px;border-radius:33px;padding:3px;background:var(--rainbow);background-size:200% 100%;animation:rb 6s linear infinite;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.7;pointer-events:none}
 @keyframes rb{to{background-position:200% 0}}
-.cabinet iframe{display:block;width:100%;height:680px;border:0;border-radius:14px;background:#10101a}
-.stage-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:14px}
-.stage-bar p{font-size:13px;color:var(--faint);max-width:360px}
-.live{display:inline-flex;align-items:center;gap:8px;font:700 12px/1 var(--tx);letter-spacing:1.2px;text-transform:uppercase;color:var(--hot)}
-.live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--hot);animation:blink 1.2s steps(2) infinite}
-@keyframes blink{50%{opacity:.2}}
-.sound{padding:11px 16px;font-size:14px}
-@media (max-width:980px){.hero .wrap{grid-template-columns:1fr}.tate-side{display:none}.cabinet iframe{height:600px}}
+.cab-top{display:flex;justify-content:space-between;align-items:center;padding:2px 8px 12px;font:400 13px/1 var(--sfx);color:var(--pink);text-shadow:0 0 10px rgba(255,45,117,.7)}
+.cab-top i{font-style:normal;color:var(--mut);font:600 11px/1 var(--tx);letter-spacing:1.2px;text-shadow:none;text-transform:uppercase}
+.lamps{display:flex;gap:6px}
+.lamps i{width:8px;height:8px;border-radius:50%;background:#3a2a42}
+.lamps i.on{background:var(--gold);box-shadow:0 0 10px var(--gold)}
+.board-wrap{position:relative;aspect-ratio:3/4;border-radius:200px 200px 18px 18px/150px 150px 18px 18px;overflow:hidden;
+  background:radial-gradient(circle at 50% 30%,#3b2a4c,#1d1528 70%);box-shadow:inset 0 0 0 3px #b9c0cc,inset 0 0 0 7px #5d6574,inset 0 0 40px rgba(0,0,0,.6);cursor:crosshair;touch-action:manipulation}
+.board-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
+.lcd{position:absolute;left:33.3%;top:27.5%;width:33.4%;height:22.5%;border-radius:10px;background:linear-gradient(#0f1e3a,#1a0f2e);box-shadow:inset 0 0 0 3px var(--gold2),0 0 18px rgba(255,210,63,.35);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6%;overflow:hidden}
+.lcd .ttl{font:400 clamp(8px,1.05vw,12px)/1 var(--sfx);color:var(--pink);letter-spacing:.06em}
+.reels{display:flex;gap:6%;width:84%;justify-content:center}
+.reels b{flex:1;aspect-ratio:3/4;display:grid;place-items:center;border-radius:6px;background:linear-gradient(#fff,#e8e0f0);color:var(--red);font:400 clamp(18px,2.6vw,34px)/1 var(--sfx);box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)}
+.reels b.spin{animation:blur .09s linear infinite}
+@keyframes blur{0%{transform:translateY(-8%);filter:blur(1px)}100%{transform:translateY(8%);filter:blur(1px)}}
+.reels b.hit{background:var(--gold);color:var(--ink);box-shadow:0 0 16px var(--gold)}
+.lcd .msg{font:400 clamp(8px,1vw,12px)/1 var(--sfx);color:var(--lit);min-height:1em}
+.lcd.riichi{box-shadow:inset 0 0 0 3px var(--red),0 0 30px rgba(228,0,43,.8);animation:shake .16s linear infinite}
+@keyframes shake{25%{transform:translate(1px,-1px)}75%{transform:translate(-1px,1px)}}
+.flash{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;opacity:0}
+.flash span{font:400 clamp(44px,7vw,92px)/1 var(--sfx);transform:rotate(-8deg) scale(.4);background:var(--rainbow);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:2px #fff;filter:drop-shadow(0 0 20px rgba(255,210,63,.8))}
+.flash.go{animation:flash 2.4s ease-out}
+.flash.go span{animation:pop 2.4s cubic-bezier(.2,1.6,.4,1),rb 1s linear infinite}
+@keyframes flash{0%{opacity:0}8%{opacity:1}80%{opacity:1}100%{opacity:0}}
+@keyframes pop{0%{transform:rotate(-8deg) scale(.4)}20%{transform:rotate(-8deg) scale(1.1)}100%{transform:rotate(-8deg) scale(1)}}
+.hud{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.hud div{background:rgba(0,0,0,.35);border-radius:10px;padding:8px 6px;text-align:center}
+.hud dt{font:400 10px/1 var(--sfx);color:var(--dim)}
+.hud dd{margin:5px 0 0;font:400 22px/1 var(--anton);color:var(--gold);letter-spacing:.5px}
+.feed{margin-top:12px;height:94px;overflow:hidden;border-radius:10px;background:#09070b;border:1px solid var(--wire);padding:8px 12px;font:12px/1.55 var(--mono);color:var(--mut);position:relative;-webkit-mask:linear-gradient(transparent,#000 40%)}
+.feed p{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed .k{color:var(--cyan)}.feed .ok{color:var(--green)}.feed .no{color:#ff6d84}.feed .ask{color:var(--blue)}
+.board-note{margin-top:10px;font-size:12.5px;color:var(--dim);display:flex;gap:10px;justify-content:space-between;flex-wrap:wrap}
+.board-note b{color:var(--mut)}
+@media (max-width:980px){.hero-grid{grid-template-columns:1fr}.tate-big{display:none}.cab{max-width:520px;margin:0 auto;width:100%}}
 
-/* faixa de números */
-.facts{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg2)}
-.facts .wrap{display:grid;grid-template-columns:repeat(5,1fr)}
-.fact{padding:30px 18px;border-left:1px solid var(--line)}
-.fact:first-child{border-left:0}
-.fact b{display:block;font:400 clamp(26px,3vw,36px)/1 var(--sfx);color:var(--gold);margin-bottom:10px}
-.fact span{font-size:14px;color:var(--muted);line-height:1.45;display:block}
-@media (max-width:900px){.facts .wrap{grid-template-columns:repeat(2,1fr)}.fact{border-left:0;border-top:1px solid var(--line)}.fact:nth-child(-n+2){border-top:0}.fact:last-child{grid-column:1/-1}}
+/* ---------- faixa SFX ---------- */
+.band{position:relative;z-index:3;background:var(--red);color:#fff;transform:rotate(-2deg);margin:-26px -20px 0;padding:14px 0;border-top:4px solid var(--ink);border-bottom:4px solid var(--ink);overflow:hidden}
+.band .track{display:flex;width:max-content;animation:marq 28s linear infinite}
+.band span{font:400 34px/1 var(--sfx);padding:0 26px;white-space:nowrap}
+.band span i{font:400 30px/1 var(--anton);font-style:normal;letter-spacing:1px;opacity:.9}
+.band.rev{background:var(--gold);color:var(--ink);transform:rotate(1.4deg);margin-top:-8px}
+.band.rev .track{animation-direction:reverse;animation-duration:34s}
+@keyframes marq{to{transform:translateX(-50%)}}
 
-/* papel de mangá */
-.paper{background:var(--paper);color:var(--ink-black)}
-.paper .kicker{color:#c8102e}
-.paper .lead{color:var(--ink-soft)}
-.paper::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(0,0,0,.09) 1px,transparent 1.2px);background-size:7px 7px;opacity:.5;pointer-events:none}
-.paper .wrap{position:relative}
-.pains{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-.pain{border:3px solid var(--ink-black);background:#fff;padding:30px 28px 28px;position:relative;box-shadow:8px 8px 0 var(--ink-black)}
-.pain .sfx{position:absolute;right:18px;top:-26px;font:400 44px/1 var(--sfx);color:var(--ink-black);-webkit-text-stroke:0;transform:rotate(-6deg);background:var(--paper);padding:0 8px}
-.pain h3{font:400 26px/1.15 var(--sfx);margin-bottom:12px}
-.pain p{color:var(--ink-soft);font-size:16.5px}
-.answer{margin-top:44px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;font:600 19px/1.4 var(--tx)}
-.answer .stamp{font:400 15px/1 var(--sfx);color:#fff;background:#c8102e;padding:10px 14px;transform:rotate(-3deg);box-shadow:3px 3px 0 var(--ink-black)}
-@media (max-width:760px){.pains{grid-template-columns:1fr;gap:40px}}
+/* =========================================================
+   PAPEL: capítulo de mangá
+   ========================================================= */
+.paper{background:var(--paper);color:var(--ink);position:relative}
+.paper::before{content:"";position:absolute;inset:0;background:radial-gradient(rgba(0,0,0,.11) 1px,transparent 1.3px) 0 0/6px 6px;opacity:.28;pointer-events:none;mix-blend-mode:multiply}
+.chapter{padding-top:clamp(90px,10vw,150px);padding-bottom:clamp(90px,10vw,150px);position:relative}
+.ch-head{display:grid;grid-template-columns:auto 1fr;gap:clamp(16px,3vw,40px);align-items:end;margin-bottom:clamp(40px,5vw,70px)}
+.ch-no{writing-mode:vertical-rl;font:400 clamp(26px,3vw,40px)/1 var(--sfx);background:var(--ink);color:var(--paper);padding:16px 10px;letter-spacing:.08em}
+.night .ch-no{background:var(--lit);color:var(--ink)}
+.ch-head h2{margin:0;font:400 clamp(48px,7.4vw,118px)/1 var(--anton);text-transform:uppercase;letter-spacing:-.3px}
+.ch-head p{margin:18px 0 0;max-width:640px;font-size:clamp(16px,1.4vw,18px);color:var(--ink2)}
+.night .ch-head p{color:var(--mut)}
+.red{color:var(--red)}
 
-/* tira em 3 quadros */
-.strip{display:grid;grid-template-columns:1fr 1.1fr 1.25fr;gap:14px;margin-top:8px}
-.frame{border:3px solid var(--ink-black);background:#fff;min-height:300px;padding:22px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
-.frame:nth-child(2){background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Cg stroke='%23000' stroke-opacity='.07' stroke-width='2'%3E%3Cpath d='M200 150 L0 0M200 150 L100 0M200 150 L300 0M200 150 L400 0M200 150 L400 100M200 150 L400 200M200 150 L400 300M200 150 L300 300M200 150 L200 300M200 150 L100 300M200 150 L0 300M200 150 L0 200M200 150 L0 100'/%3E%3C/g%3E%3C/svg%3E") center/cover}
-.frame:nth-child(3){background:var(--ink-black);color:#fff;border-color:var(--ink-black)}
-.frame .no{font:800 12px/1 var(--tx);letter-spacing:1.5px;text-transform:uppercase;color:#c8102e}
-.frame:nth-child(3) .no{color:var(--gold)}
-.bubble{background:#fff;border:2.5px solid var(--ink-black);border-radius:22px;padding:14px 16px;font:600 16px/1.35 var(--tx);position:relative;margin:16px 0}
-.bubble::after{content:"";position:absolute;left:28px;bottom:-14px;width:18px;height:18px;background:#fff;border-right:2.5px solid var(--ink-black);border-bottom:2.5px solid var(--ink-black);transform:skewX(30deg) rotate(45deg)}
-.frame .act{font-size:15px;color:var(--ink-soft)}
-.frame .act code{background:rgba(0,0,0,.07)}
-.frame .big{font:400 clamp(30px,3.6vw,46px)/1 var(--sfx);color:#c8102e;transform:rotate(-4deg);margin:12px 0}
-.frame:nth-child(3) .big{color:var(--gold);text-shadow:0 0 22px rgba(255,210,63,.6)}
-.frame .act.light{color:#cfc6d8}
-.turn-line{display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 12px;border-radius:10px;background:rgba(90,168,255,.14);border:1px solid rgba(90,168,255,.5);font:600 14px/1.3 var(--tx);color:#cfe5ff}
-.turn-line .jp{color:var(--blue)}
-.moral{margin-top:30px;font:600 18px/1.5 var(--tx);max-width:760px}
-@media (max-width:860px){.strip{grid-template-columns:1fr}.frame{min-height:0}}
+/* quadros */
+.koma{display:grid;grid-template-columns:repeat(12,1fr);grid-auto-rows:minmax(0,auto);gap:14px}
+.panel{position:relative;border:4px solid var(--ink);background:#fbf8f1;overflow:hidden;padding:clamp(18px,2.4vw,30px);min-height:380px;display:flex;flex-direction:column;justify-content:space-between}
+.p1{grid-column:1/8;clip-path:polygon(0 0,100% 0,96% 100%,0 100%)}
+.p2{grid-column:8/13;clip-path:polygon(4% 0,100% 0,100% 100%,0 100%);margin-left:-28px}
+.p3{grid-column:1/6;clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+.p4{grid-column:6/13;background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.panel .tone{position:absolute;inset:0;background:radial-gradient(var(--ink) 1.3px,transparent 1.6px) 0 0/8px 8px;opacity:.16;pointer-events:none}
+.panel .speed{position:absolute;inset:-40%;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(0,0,0,.09) 0 1.2deg,transparent 1.2deg 7deg);pointer-events:none}
+.p4 .speed{background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,210,63,.12) 0 1.2deg,transparent 1.2deg 7deg);animation:spinbg 30s linear infinite}
+@keyframes spinbg{to{transform:rotate(360deg)}}
+.panel .no{position:relative;font:800 11px/1 var(--tx);letter-spacing:2px;text-transform:uppercase;color:var(--red)}
+.p4 .no{color:var(--gold)}
+.panel .sfx{position:absolute;font:400 clamp(44px,5.2vw,84px)/1 var(--sfx);color:var(--ink);opacity:.92;pointer-events:none}
+.p1 .sfx{right:6%;top:10%;transform:rotate(8deg)}
+.p2 .sfx{right:7%;top:9%;transform:rotate(-6deg)}
+.p3 .sfx{right:6%;top:9%;transform:rotate(-10deg);-webkit-text-stroke:2px var(--ink);color:#fbf8f1}
+.p4 .sfx{right:5%;top:8%;color:var(--gold);transform:rotate(-6deg);text-shadow:0 0 30px rgba(255,210,63,.55)}
+.panel .cap{position:relative;max-width:460px;font:600 clamp(16px,1.5vw,19px)/1.35 var(--tx)}
+.panel .cap small{display:block;margin-top:8px;font:400 15px/1.5 var(--tx);color:var(--ink2)}
+.p4 .cap small{color:#cfc6d8}
+.bubble{position:relative;display:inline-block;background:#fff;border:3px solid var(--ink);border-radius:50% 46% 48% 50%/54% 52% 48% 46%;padding:18px 26px;font:700 clamp(16px,1.5vw,19px)/1.25 var(--tx);margin:22px 0;max-width:340px}
+.bubble::after{content:"";position:absolute;left:22%;bottom:-18px;width:22px;height:22px;background:#fff;border-right:3px solid var(--ink);border-bottom:3px solid var(--ink);transform:skewX(32deg) rotate(42deg)}
+.term-mini{position:relative;margin:14px 0;background:var(--ink);color:#d9d1e3;border-radius:8px;padding:12px 14px;font:12.5px/1.6 var(--mono);max-width:400px}
+.term-mini .scroll{height:84px;overflow:hidden;-webkit-mask:linear-gradient(transparent,#000 35%)}
+.term-mini .scroll div{animation:scrollup 6s linear infinite}
+@keyframes scrollup{to{transform:translateY(-50%)}}
+.clock{font:400 clamp(40px,5vw,72px)/1 var(--anton);letter-spacing:1px;margin:16px 0 6px}
+.clock small{font:600 14px/1 var(--tx);letter-spacing:0;color:var(--red);margin-left:8px;text-transform:uppercase}
+.call{position:relative;display:flex;align-items:center;gap:12px;margin:18px 0;padding:14px 16px;border-radius:12px;background:rgba(90,168,255,.12);border:2px solid var(--blue);font:600 15px/1.3 var(--tx);color:#d8eaff;max-width:440px;animation:callpulse 1.6s ease-in-out infinite}
+.call .jp{font-size:20px;color:var(--blue)}
+@keyframes callpulse{50%{box-shadow:0 0 0 8px rgba(90,168,255,.12)}}
+@media (max-width:860px){.koma{grid-template-columns:1fr}.p1,.p2,.p3,.p4{grid-column:auto;clip-path:none;margin-left:0}}
 
-/* sinais */
-.signals{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.sig{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:14px;transition:border-color .2s,transform .2s}
-.sig:hover{border-color:var(--line2);transform:translateY(-2px)}
-.sig .show{min-height:58px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.sig p{color:var(--muted);font-size:15px}
-.sig p b{color:var(--ink);font-weight:600}
-.tag{font:400 22px/1 var(--sfx);padding:10px 14px;border-radius:10px;display:inline-block}
-.t-riichi{background:#2a0610;color:#fff;border:2px solid var(--hot);text-shadow:0 0 10px var(--hot);animation:pulse 1.1s ease-in-out infinite}
-@keyframes pulse{50%{box-shadow:0 0 22px rgba(255,45,85,.7)}}
-.t-jack{color:#1a0d00;background:var(--rainbow);background-size:200% 100%;animation:rb 3s linear infinite}
-.t-miss{background:#26222b;color:#9c94a4;border:2px solid #4b4452}
-.t-turn{background:rgba(90,168,255,.14);color:#cfe5ff;border:2px solid var(--blue);font-size:18px}
-.t-consec{background:#1f1426;color:var(--gold);border:2px solid var(--gold2)}
-.t-silent{background:rgba(255,154,60,.12);color:#ffc58f;border:2px solid var(--orange);font:600 15px/1.2 var(--tx)}
-.pill{font:700 14px/1 var(--mono);padding:8px 10px;border-radius:8px;background:var(--surface);border:1px solid var(--line2)}
-.pill.ok{color:var(--green)} .pill.no{color:#ff6d84} .pill.warn{color:#ff6d84}
-.reels{display:flex;gap:6px}
-.reels i{font:400 24px/1 var(--sfx);font-style:normal;width:40px;height:52px;display:grid;place-items:center;background:linear-gradient(#fff,#e9e2f0);color:#c8102e;border-radius:6px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.15)}
-.reels.spin i{animation:roll .5s steps(4) infinite}
-.reels.spin i:nth-child(2){animation-delay:-.15s}.reels.spin i:nth-child(3){animation-delay:-.3s}
-@keyframes roll{0%{transform:translateY(-3px)}50%{transform:translateY(3px)}}
-.door{width:46px;height:52px;border-radius:6px;background:repeating-linear-gradient(#5b4a66 0 6px,#3d3048 6px 10px);border:2px solid #6c5a78}
-.balls{display:flex;gap:6px}
-.balls i{width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#9aa4b5 55%,#4d5664);box-shadow:0 0 8px rgba(255,255,255,.3)}
-.balls i.on{background:radial-gradient(circle at 35% 30%,#fff,var(--gold) 50%,#a37400);box-shadow:0 0 10px var(--gold)}
-.pies{display:flex;gap:16px;align-items:center}
-.pie{--v:38;width:44px;height:44px;border-radius:50%;background:conic-gradient(var(--c,var(--green)) calc(var(--v)*1%),#2e2040 0);position:relative}
-.pie::after{content:"";position:absolute;inset:9px;border-radius:50%;background:var(--panel)}
-.pies small{font-size:12px;color:var(--muted);line-height:1.2}
-@media (max-width:980px){.signals{grid-template-columns:1fr 1fr}}
-@media (max-width:640px){.signals{grid-template-columns:1fr}}
+/* =========================================================
+   EXPANSÃO DE DOMÍNIO (fixada na rolagem)
+   ========================================================= */
+.domain{position:relative;height:260vh;background:var(--ink)}
+.domain .stage{position:sticky;top:0;height:100vh;overflow:hidden;display:grid;place-items:center;background:var(--paper)}
+.domain .rays{position:absolute;inset:-50%;background:repeating-conic-gradient(from 0deg,#0d0b0e 0 2deg,#eee8da 2deg 9deg);opacity:var(--rays,0);transform:rotate(calc(var(--p,0)*90deg))}
+.domain .gate{position:absolute;top:0;bottom:0;width:51%;background:var(--ink);z-index:3}
+.domain .gate.l{left:0;transform:translateX(calc(-100% + var(--close,0)*100%))}
+.domain .gate.r{right:0;transform:translateX(calc(100% - var(--close,0)*100%))}
+.domain .gate::after{content:"";position:absolute;top:0;bottom:0;width:30px;background:repeating-linear-gradient(0deg,var(--red) 0 22px,var(--ink) 22px 44px)}
+.domain .gate.l::after{right:0}.domain .gate.r::after{left:0}
+.domain .word{position:relative;z-index:5;text-align:center;opacity:var(--word,0);transform:scale(calc(.6 + var(--word,0)*.4))}
+.domain .word .k{display:block;font:400 clamp(90px,17vw,260px)/1 var(--brush);color:#fff;filter:url(#ink);text-shadow:0 0 40px rgba(255,45,117,.35)}
+.domain .word .t{display:block;margin-top:10px;font:400 clamp(24px,3vw,40px)/1 var(--anton);letter-spacing:6px;text-transform:uppercase;color:var(--gold)}
+.domain .word .s{display:block;margin-top:16px;font:500 16px/1.4 var(--tx);color:#c9bfd3}
+.domain .pre{position:absolute;z-index:2;text-align:center;color:var(--ink);opacity:calc(1 - var(--close,0)*1.4);max-width:820px;padding:0 var(--g)}
+.domain .pre .k{font:400 clamp(40px,6vw,92px)/.95 var(--anton);text-transform:uppercase}
+.domain .pre p{margin:16px auto 0;font:600 18px/1.4 var(--tx);color:var(--ink2);max-width:520px}
+.domain .hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:6;font:700 11px/1 var(--tx);letter-spacing:2px;text-transform:uppercase;color:var(--ink3);opacity:calc(1 - var(--close,0)*3)}
 
-/* conversas */
-.conv{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+/* =========================================================
+   NOITE: a máquina de verdade
+   ========================================================= */
+.night{background:var(--night);color:var(--lit)}
+.live{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:clamp(30px,5vw,80px);align-items:center}
+.live .frame{position:relative;border-radius:26px;padding:12px;background:linear-gradient(160deg,#3a2440,#140d18 45%,#2a1830);box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 70px rgba(255,45,117,.2)}
+.live iframe{display:block;width:100%;height:680px;border:0;border-radius:16px;background:#10101a}
+.live-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px}
+.onair{display:inline-flex;align-items:center;gap:8px;font:700 11px/1 var(--tx);letter-spacing:2px;text-transform:uppercase;color:var(--pink)}
+.onair::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--pink);box-shadow:0 0 10px var(--pink);animation:blink 1.1s steps(2) infinite}
+@keyframes blink{50%{opacity:.15}}
+.note{font-size:12.5px;color:var(--dim);margin-top:10px}
+.points{list-style:none;margin:28px 0 0;padding:0;display:grid;gap:0;border-top:1px solid var(--wire)}
+.points li{display:grid;grid-template-columns:110px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid var(--wire);color:var(--mut);font-size:15.5px}
+.points li b{color:var(--lit);font-weight:600}
+.points .jp{font-size:20px;color:var(--gold);line-height:1.2}
+@media (max-width:980px){.live{grid-template-columns:1fr}.live iframe{height:600px}}
+@media (max-width:520px){.points li{grid-template-columns:1fr;gap:4px}}
+
+/* =========================================================
+   FOLHA DE REGRAS (遊技説明書)
+   ========================================================= */
+.sheet-sec{background:#d9d2c0}
+.sheet{position:relative;background:#fffdf6;color:var(--ink);border:3px solid var(--ink);box-shadow:14px 14px 0 var(--ink);padding:clamp(18px,3vw,44px);transform:rotate(-.6deg)}
+.sheet-head{display:grid;grid-template-columns:auto 1fr auto;gap:22px;align-items:center;border-bottom:3px double var(--ink);padding-bottom:18px;margin-bottom:22px}
+.sheet-head .v{writing-mode:vertical-rl;font:400 22px/1 var(--sfx);color:var(--red);border:2px solid var(--red);padding:8px 4px}
+.sheet-head h2{margin:0;font:400 clamp(32px,4.4vw,64px)/.95 var(--anton);text-transform:uppercase}
+.sheet-head h2 small{display:block;font:400 clamp(14px,1.4vw,18px)/1.3 var(--sfx);color:var(--red);letter-spacing:.06em;margin-bottom:8px;text-transform:none}
+.stamp{width:110px;height:110px;border-radius:50%;border:4px solid var(--red);color:var(--red);display:grid;place-items:center;text-align:center;font:400 15px/1.1 var(--sfx);transform:rotate(12deg);opacity:.85}
+.stamp b{display:block;font:400 26px/1 var(--anton);letter-spacing:.5px}
+.sheet-cols{display:grid;grid-template-columns:1.25fr .75fr;gap:clamp(18px,3vw,40px)}
+.sig{width:100%;border-collapse:collapse;font-size:15px}
+.sig caption{text-align:left;font:800 11px/1 var(--tx);letter-spacing:2px;text-transform:uppercase;color:var(--red);padding-bottom:10px}
+.sig td{border-top:1px solid #cfc7b3;padding:12px 10px;vertical-align:middle}
+.sig tr:hover td{background:#fff2c7}
+.sig td:first-child{width:170px}
+.sig td:last-child{color:var(--ink2)}
+.sig td b{color:var(--ink)}
+.t{display:inline-block;font:400 18px/1 var(--sfx);padding:8px 10px;border:2px solid var(--ink)}
+.t-r{background:var(--ink);color:#fff;box-shadow:3px 3px 0 var(--red)}
+.t-j{background:var(--rainbow);background-size:200% 100%;animation:rb 3s linear infinite}
+.t-m{background:#e2ddd2;color:#77706a;border-color:#a39d92}
+.t-y{background:#dcecff;color:#1d4f8f;border-color:#1d4f8f;font-size:15px}
+.t-x{background:#fff2c7;color:var(--ink)}
+.t-o{background:#ffe3c9;color:#8a3d00;border-color:#8a3d00;font:700 13px/1 var(--tx)}
+.pills{display:flex;gap:5px;flex-wrap:wrap}
+.pl{font:700 12px/1 var(--mono);padding:6px 7px;border:1.5px solid var(--ink);background:#fff}
+.pl.ok{color:#0b7a3b}.pl.no{color:var(--red)}
+.mini-reels{display:flex;gap:4px}
+.mini-reels i{font:400 18px/1 var(--sfx);font-style:normal;width:26px;height:32px;display:grid;place-items:center;border:2px solid var(--ink);background:#fff;color:var(--red)}
+.box{border:2px solid var(--ink);padding:16px;margin-bottom:16px;background:#fff}
+.box h3{margin:0 0 10px;font:800 11px/1 var(--tx);letter-spacing:2px;text-transform:uppercase;color:var(--red)}
+.box p{margin:0;font-size:14.5px;color:var(--ink2)}
+.reach{list-style:none;margin:0;padding:0}
+.reach li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px dashed #cfc7b3;font-size:14px}
+.reach li:first-child{border-top:0}
+.reach .jp{font-size:15px}
+.reach .st{color:var(--red);letter-spacing:2px;white-space:nowrap}
+.flow{display:grid;gap:8px;font-size:14px}
+.flow .n{display:flex;align-items:center;gap:10px}
+.flow .n b{font:400 18px/1 var(--sfx);min-width:64px}
+.odds{display:flex;align-items:baseline;gap:10px;font:400 64px/1 var(--anton)}
+.odds small{font:600 13px/1.3 var(--tx);color:var(--ink2);max-width:150px}
+details.more{margin-top:18px;border-top:3px double var(--ink);padding-top:14px}
+details.more summary{cursor:pointer;font-weight:700}
+details.more ul{margin:10px 0 0;padding-left:20px;color:var(--ink2);font-size:14.5px}
+@media (max-width:980px){.sheet-cols{grid-template-columns:1fr}.sheet{transform:none}}
+@media (max-width:640px){.sheet-head{grid-template-columns:1fr}.sheet-head .v,.stamp{display:none}.sig td:first-child{width:auto}.sig tr{display:grid}.sig td{border-top:0;padding:6px 4px}.sig tr{border-top:1px solid #cfc7b3;padding:8px 0}}
+
+/* =========================================================
+   CONVERSAS E DIA
+   ========================================================= */
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:clamp(20px,3vw,40px);align-items:start}
+.card-n{background:var(--night2);border:1px solid var(--wire);border-radius:20px;padding:clamp(20px,2.4vw,30px)}
+.card-n h3{margin:0 0 6px;font:400 clamp(26px,2.6vw,36px)/1 var(--anton);text-transform:uppercase;letter-spacing:.3px}
+.card-n>p{margin:0 0 20px;color:var(--mut);font-size:15.5px}
 .lines{display:flex;flex-direction:column;gap:8px}
-.ln{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--line);font-size:14px}
-.ln .dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 1.6s ease-in-out infinite}
-.ln .t b{display:block;font-weight:700;color:var(--ink)}
-.ln .t span{color:var(--muted);font-size:13px}
-.ln .r{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-.ln .r .pill{font-size:12px;padding:5px 7px}
-.ln.wait{border-color:rgba(90,168,255,.6);background:rgba(90,168,255,.08)}
-.ln.wait .dot{background:var(--blue);box-shadow:0 0 10px var(--blue)}
-.ln.silent{border-color:rgba(255,154,60,.6);background:rgba(255,154,60,.07)}
-.ln.silent .dot{background:var(--orange);box-shadow:0 0 10px var(--orange);animation:none}
-.ln.done{opacity:.6}.ln.done .dot{background:var(--faint);box-shadow:none;animation:none}
-.ex-note{font-size:12px;color:var(--faint);margin-top:10px}
-.bullets{list-style:none;padding:0;margin:22px 0 0;display:grid;gap:14px}
-.bullets li{padding-left:26px;position:relative;color:var(--muted)}
-.bullets li::before{content:"";position:absolute;left:4px;top:9px;width:9px;height:9px;border-radius:2px;background:var(--hot);transform:rotate(45deg)}
-.bullets b{color:var(--ink)}
-@media (max-width:900px){.conv{grid-template-columns:1fr}}
+.ln{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-radius:12px;background:var(--night3);border:1px solid var(--wire);font-size:13.5px;transition:background .3s,border-color .3s}
+.ln .dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
+.ln .t2 b{display:block;font-weight:700}
+.ln .t2 span{color:var(--mut);font-size:12.5px}
+.ln .r{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}
+.pn{font:700 11.5px/1 var(--mono);padding:5px 7px;border-radius:6px;background:var(--night);border:1px solid var(--wire2)}
+.pn.ok{color:var(--green)}.pn.no{color:#ff6d84}
+.ln.wait{border-color:var(--blue);background:rgba(90,168,255,.1)}.ln.wait .dot{background:var(--blue);box-shadow:0 0 10px var(--blue)}
+.ln.silent{border-color:var(--orange);background:rgba(255,154,60,.08)}.ln.silent .dot{background:var(--orange);box-shadow:0 0 10px var(--orange)}
+.ln.done{opacity:.55}.ln.done .dot{background:var(--dim);box-shadow:none}
+.term{background:#08060a;border:1px solid var(--wire2);border-radius:14px;overflow:hidden}
+.term .tb{display:flex;gap:7px;padding:11px 14px;border-bottom:1px solid var(--wire)}
+.term .tb i{width:10px;height:10px;border-radius:50%;background:#3a2f45}
+.term pre{margin:0;padding:16px 18px;font:12.8px/1.7 var(--mono);color:#e7def0;white-space:pre-wrap;word-break:break-word}
+.term .p{color:var(--pink)}.term .g{color:var(--green)}.term .y{color:var(--gold)}.term .c{color:var(--dim)}
+.ex{font-size:12px;color:var(--dim);margin-top:10px}
+.bul{list-style:none;padding:0;margin:18px 0 0;display:grid;gap:10px;color:var(--mut);font-size:14.5px}
+.bul li{padding-left:22px;position:relative}
+.bul li::before{content:"";position:absolute;left:2px;top:8px;width:8px;height:8px;background:var(--pink);transform:rotate(45deg)}
+.bul b{color:var(--lit)}
+@media (max-width:900px){.duo{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:520px){.ln{grid-template-columns:auto 1fr}.ln .r{grid-column:1/-1;justify-content:flex-start}}
 
-/* terminal */
-.term{background:#0b0910;border:1px solid var(--line2);border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)}
-.term .bar{display:flex;gap:7px;padding:12px 14px;border-bottom:1px solid var(--line)}
-.term .bar i{width:11px;height:11px;border-radius:50%;background:#3a2f45}
-.term .bar span{margin-left:8px;font:12px var(--mono);color:var(--faint)}
-.term pre{margin:0;padding:18px 20px;font:13.5px/1.7 var(--mono);color:#e7def0;white-space:pre-wrap;word-break:break-word}
-.term .p{color:var(--hot)} .term .g{color:var(--green)} .term .y{color:var(--gold)} .term .c{color:var(--faint)}
-.day{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:center}
-@media (max-width:900px){.day{grid-template-columns:1fr}}
-
-/* regras */
-.rules{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:start}
-.rule-list{display:flex;flex-direction:column;gap:10px}
-.rule{display:grid;grid-template-columns:150px 1fr;gap:18px;padding:16px 18px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
-.rule .jp{font-size:21px;color:var(--gold);line-height:1.15}
-.rule .jp small{display:block;font:500 12px/1.3 var(--tx);color:var(--faint);margin-top:6px;letter-spacing:0}
-.rule p{color:var(--muted);font-size:15px}
-.rule p b{color:var(--ink)}
-.rule .src{display:block;font-size:12px;color:var(--faint);margin-top:6px}
-.sim{position:sticky;top:90px;background:linear-gradient(170deg,#2a1830,#160f1c);border:1px solid var(--line2);border-radius:20px;padding:26px;text-align:center}
-.sim h3{font:400 22px/1.2 var(--sfx);margin-bottom:6px}
-.sim > p{color:var(--muted);font-size:14px;margin-bottom:20px}
-.sim .reels{justify-content:center;margin:0 auto 18px}
-.sim .reels i{width:64px;height:84px;font-size:40px}
-.sim .reels.win i{background:var(--gold);color:#1a0d00;box-shadow:0 0 24px var(--gold)}
-.sim .msg{font:400 20px/1.2 var(--sfx);min-height:26px;margin-bottom:16px;color:var(--muted)}
-.sim .msg.win{background:var(--rainbow);-webkit-background-clip:text;background-clip:text;color:transparent}
-.sim .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.sim .row .btn{padding:13px 16px;font-size:14px}
-.sim dl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:20px 0 0}
-.sim dl div{background:rgba(0,0,0,.25);border-radius:10px;padding:10px 6px}
-.sim dt{font-size:11px;color:var(--faint);text-transform:uppercase;letter-spacing:1px}
-.sim dd{margin:4px 0 0;font:700 20px/1 var(--tx);color:var(--ink)}
-.sim .note{font-size:12px;color:var(--faint);margin-top:14px;text-align:left}
-details.more{margin-top:18px;border:1px solid var(--line);border-radius:12px;padding:14px 18px;background:var(--bg2)}
-details.more summary{cursor:pointer;font-weight:700}
-details.more ul{color:var(--muted);font-size:15px;margin:12px 0 0;padding-left:20px}
-@media (max-width:980px){.rules{grid-template-columns:1fr}.sim{position:static}}
-@media (max-width:520px){.rule{grid-template-columns:1fr;gap:8px}}
-
-/* instalar */
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;counter-reset:s}
-.step{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;display:flex;flex-direction:column;gap:14px}
-.step .n{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;font:800 18px/1 var(--tx);background:var(--hot);color:#fff}
-.step p{color:var(--muted);font-size:15px}
-.code{position:relative;background:#0b0910;border:1px solid var(--line2);border-radius:12px}
-.code pre{margin:0;padding:14px 16px;padding-right:76px;font:13.5px/1.65 var(--mono);color:#efe6f7;overflow-x:auto}
-.copy{position:absolute;top:8px;right:8px;font:700 12px/1 var(--tx);padding:8px 10px;border-radius:8px;border:1px solid var(--line2);background:var(--surface);color:var(--ink);cursor:pointer}
-.copy:hover{border-color:var(--faint)}
-.req{margin-bottom:26px;color:var(--muted)}
-.cmds{margin-top:30px;width:100%;border-collapse:collapse;font-size:15px}
-.cmds th,.cmds td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
-.cmds th{font-size:12px;letter-spacing:1px;text-transform:uppercase;color:var(--faint)}
+/* =========================================================
+   TROCA DE PRÊMIOS: instalar
+   ========================================================= */
+.prize{background:var(--gold);color:var(--ink);position:relative;overflow:hidden}
+.prize::before{content:"景品交換所";position:absolute;right:-30px;top:40px;writing-mode:vertical-rl;font:400 clamp(90px,12vw,190px)/1 var(--sfx);color:rgba(0,0,0,.07);pointer-events:none}
+.tickets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;position:relative}
+.ticket{position:relative;background:#fffdf6;border:3px solid var(--ink);padding:24px 22px 22px;display:flex;flex-direction:column;gap:14px;box-shadow:8px 8px 0 var(--ink)}
+.ticket::before,.ticket::after{content:"";position:absolute;top:96px;width:26px;height:26px;border-radius:50%;background:var(--gold);border:3px solid var(--ink)}
+.ticket::before{left:-15px;clip-path:inset(0 0 0 50%)}
+.ticket::after{right:-15px;clip-path:inset(0 50% 0 0)}
+.ticket .cut{border-top:3px dashed var(--ink);margin:0 -22px;position:relative;top:0}
+.ticket .tno{display:flex;justify-content:space-between;align-items:center}
+.ticket .tno b{font:400 64px/1 var(--anton)}
+.ticket .tno span{font:400 15px/1 var(--sfx);color:var(--red);writing-mode:vertical-rl}
+.ticket h3{margin:0;font:400 28px/1 var(--anton);text-transform:uppercase;letter-spacing:.3px}
+.ticket p{margin:0;font-size:14.5px;color:var(--ink2)}
+.code{position:relative;background:var(--ink);color:#efe6f7;border-radius:6px}
+.code pre{margin:0;padding:14px 16px;padding-right:80px;font:13px/1.65 var(--mono);overflow-x:auto}
+.copy{position:absolute;top:8px;right:8px;font:700 11px/1 var(--tx);letter-spacing:.8px;text-transform:uppercase;padding:8px 10px;border:2px solid var(--gold);background:transparent;color:var(--gold);cursor:pointer}
+.copy:hover{background:var(--gold);color:var(--ink)}
+.req{font-weight:600;margin:0 0 28px}
+.req a{text-decoration-thickness:2px}
+.cmds{margin-top:44px;width:100%;border-collapse:collapse;font-size:15px;position:relative;background:#fffdf6;border:3px solid var(--ink)}
+.cmds th,.cmds td{text-align:left;padding:12px 14px;border-bottom:1px solid #d8cfa8;vertical-align:top}
+.cmds th{font:800 11px/1 var(--tx);letter-spacing:1.6px;text-transform:uppercase;color:var(--red);background:#fff6d0}
 .cmds td:first-child{white-space:nowrap}
-.cmds td{color:var(--muted)}
-.tbl{overflow-x:auto}
-@media (max-width:900px){.steps{grid-template-columns:1fr}}
+.cmds td{color:var(--ink2)}
+.tblw{overflow-x:auto}
+@media (max-width:900px){.tickets{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:700px){.prize::before{display:none}}
+.ticket,.code,.duo>*,.live>*,.sheet-cols>*{min-width:0}
 
-/* duas colunas */
-.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:28px;display:flex;flex-direction:column;gap:14px}
-.card h3{font:400 24px/1.15 var(--sfx)}
-.card p{color:var(--muted);font-size:15.5px}
-@media (max-width:860px){.two{grid-template-columns:1fr}}
+/* =========================================================
+   OMAKE (extras)
+   ========================================================= */
+.omake{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;border:3px solid var(--ink)}
+.om{padding:clamp(20px,2.2vw,28px);border-right:3px solid var(--ink);display:flex;flex-direction:column;gap:12px;background:#fbf8f1;transition:background .2s}
+.om:last-child{border-right:0}
+.om:hover{background:#fff}
+.om .ic{font:400 40px/1 var(--sfx);color:var(--red)}
+.om h3{margin:0;font:400 24px/1 var(--anton);text-transform:uppercase}
+.om p{margin:0;font-size:14.5px;color:var(--ink2)}
+.om code{background:rgba(0,0,0,.06);padding:1px 5px}
+@media (max-width:1060px){.omake{grid-template-columns:1fr 1fr}.om:nth-child(2){border-right:0}.om:nth-child(-n+2){border-bottom:3px solid var(--ink)}}
+@media (max-width:600px){.omake{grid-template-columns:1fr}.om{border-right:0;border-bottom:3px solid var(--ink)}.om:last-child{border-bottom:0}}
 
-/* limites */
-.limits{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.lim{display:flex;gap:14px;padding:20px;border-radius:14px;border:1px solid var(--line);background:var(--bg2)}
-.lim .x{flex:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;font:800 15px/1 var(--tx)}
-.lim .x.y{background:rgba(77,255,154,.12);color:var(--green)}
-.lim .x.n{background:rgba(255,45,85,.12);color:#ff6d84}
-.lim p{color:var(--muted);font-size:15px}
-.lim b{color:var(--ink)}
-@media (max-width:760px){.limits{grid-template-columns:1fr}}
+/* ---------- aviso ---------- */
+.caution{background:var(--night)}
+.hazard{height:22px;background:repeating-linear-gradient(-45deg,var(--gold) 0 18px,var(--ink) 18px 36px)}
+.warn-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--wire);border:1px solid var(--wire)}
+.warn{background:var(--night);padding:24px;display:flex;flex-direction:column;gap:10px}
+.warn .m{font:400 13px/1 var(--sfx);letter-spacing:.1em}
+.warn .m.y{color:var(--green)}.warn .m.n{color:var(--pink)}
+.warn h3{margin:0;font:700 17px/1.3 var(--tx)}
+.warn p{margin:0;font-size:14.5px;color:var(--mut)}
+@media (max-width:980px){.warn-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:620px){.warn-grid{grid-template-columns:1fr}}
 
-/* final */
-.final{text-align:center;padding:120px 0 100px;overflow:hidden}
-.final::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 300px at 50% 60%,rgba(255,45,85,.18),transparent 70%);pointer-events:none}
-.final .big{font:400 clamp(44px,8vw,104px)/1 var(--brush);color:var(--ink);margin-bottom:10px}
-.final h2{margin:6px auto 26px;max-width:760px}
-.final .cta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
-footer{border-top:1px solid var(--line);padding:44px 0 56px;color:var(--faint);font-size:14px}
-footer .wrap{display:grid;grid-template-columns:1fr 1fr;gap:28px}
-footer p+p{margin-top:10px}
-footer a{color:var(--muted)}
-@media (max-width:760px){footer .wrap{grid-template-columns:1fr}}
+/* ---------- final ---------- */
+.fin{position:relative;background:var(--night);text-align:center;overflow:hidden;padding-top:clamp(100px,12vw,180px);padding-bottom:clamp(80px,10vw,140px)}
+.fin::before{content:"";position:absolute;inset:0;background:radial-gradient(700px 360px at 50% 55%,rgba(228,0,43,.22),transparent 70%)}
+.fin .k{position:relative;display:block;font:400 clamp(90px,19vw,300px)/.9 var(--brush);color:var(--lit);filter:url(#ink)}
+.fin h2{position:relative;margin:18px 0 34px;font:400 clamp(34px,5vw,72px)/1 var(--anton);text-transform:uppercase}
+.fin h2 em{font-style:normal;color:var(--gold)}
+.fin .cta{position:relative;display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+footer{background:var(--night);border-top:1px solid var(--wire);color:var(--dim);font-size:13.5px;padding-top:40px;padding-bottom:50px}
+footer .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+footer p{margin:0 0 10px}
+footer a{color:var(--mut)}
+@media (max-width:760px){footer .cols{grid-template-columns:1fr}}
 
-.reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
-.reveal.in{opacity:1;transform:none}
+/* revelar */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+.rv.in{opacity:1;transform:none}
 @media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition:none!important}
-  .reveal{opacity:1;transform:none}
-  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;transition:none!important}
+  .rv{opacity:1;transform:none}
+  .hero h1 .row>span{transform:none;opacity:1}
+  .domain{height:auto}
+  .domain .stage{position:relative;height:auto;min-height:70vh}
+  .domain .pre,.domain .hint{display:none}
+  .domain .stage{background:var(--ink)}
 }
-.nw{white-space:nowrap}
-.steps>*,.two>*,.signals>*,.conv>*,.day>*,.rules>*,.hero .wrap>*{min-width:0}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="ink"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"/></filter>
+</svg>
+<div class="ball-cursor" id="cursor" aria-hidden="true"></div>
 
-<nav class="nav" id="nav" aria-label="Principal">
-  <div class="wrap">
-    <a class="logo" href="#topo" aria-label="Zasatsu Bakuto, início">
-      <span class="mark" aria-hidden="true">坐</span>
-      <span>Zasatsu Bakuto<small>坐殺博徒</small></span>
-    </a>
-    <ul>
-      <li><a href="#pratica">Na prática</a></li>
-      <li><a href="#sinais">O que aparece</a></li>
-      <li><a href="#regras">Regras</a></li>
-      <li><a href="#instalar">Instalar</a></li>
-    </ul>
-    <a class="btn btn-ghost gh" href="https://github.com/tiagocardosobezerra/zasatsu-bakuto">
-      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-      GitHub
-    </a>
-  </div>
-</nav>
+<header class="bar" id="bar">
+  <a class="brand" href="#topo" aria-label="Zasatsu Bakuto, início"><span class="seal" aria-hidden="true">坐殺</span><b>Zasatsu Bakuto</b></a>
+  <nav aria-label="Principal">
+    <a class="l" href="#cap1">O problema</a>
+    <a class="l" href="#maquina">A máquina</a>
+    <a class="l" href="#regras">Regras</a>
+    <a class="l" href="#instalar">Instalar</a>
+    <button class="chip-btn" id="snd" type="button" aria-pressed="false" title="Som do tabuleiro">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg><span>Som</span>
+    </button>
+    <a class="chip-btn" href="https://github.com/tiagocardosobezerra/zasatsu-bakuto">GitHub</a>
+  </nav>
+</header>
 
 <main id="topo">
 
-<!-- HERO -->
-<section class="hero">
-    <div class="wrap">
+<!-- ================= HERO ================= -->
+<section class="hero pad">
+  <div class="tate-big" aria-hidden="true">坐殺博徒</div>
+  <div class="max hero-grid">
     <div>
-      <span class="kicker">Para quem trabalha com Claude Code</span>
-      <h1>Pare de encarar o <em>terminal.</em></h1>
-      <p class="lead">O <b>Zasatsu Bakuto</b> é uma máquina de pachinko que fica no canto da tela e joga sozinha enquanto o seu agente de IA trabalha. <b>Cada ferramenta gira os rolos, os testes viram <span class="nw">リーチ</span> e teste verde pode dar o <span class="nw">大当たり</span>.</b> Quando o agente precisa de você, ela chama pelo nome da conversa.</p>
+      <div class="vol"><span>Vol. 0.2.0</span> Para quem trabalha com Claude Code</div>
+      <h1>
+        <span class="row"><span>Pare de</span></span>
+        <span class="row"><span>encarar o</span></span>
+        <span class="row"><span class="hot">terminal.</span></span>
+      </h1>
+      <p class="lede">O <b>Zasatsu Bakuto</b> é uma máquina de pachinko que fica no canto da tela e joga sozinha enquanto o seu agente de IA trabalha. <b>Cada ferramenta gira os rolos, os testes viram <span class="nw">リーチ</span> e teste verde pode dar o <span class="nw">大当たり</span>.</b> Quando o agente precisa de você, ela chama pelo nome da conversa.</p>
       <div class="cta">
-        <a class="btn btn-hot" href="#instalar">Instalar em 3 passos</a>
-        <a class="btn btn-ghost" href="https://github.com/tiagocardosobezerra/zasatsu-bakuto">Ver o código</a>
+        <a class="btn btn-red" href="#instalar">Instalar grátis</a>
+        <a class="btn btn-line" href="#maquina">Ver a máquina</a>
       </div>
-      <ul class="chips">
-        <li>Grátis e open source</li>
-        <li>100% local, sem conta</li>
-        <li>Windows, macOS e Linux</li>
-        <li>Usa os hooks do Claude Code</li>
-      </ul>
+      <div class="facts-mini">
+        <div><b>1/239</b>por ferramenta</div>
+        <div><b>4:11</b>de jackpot</div>
+        <div><b>127.0.0.1</b>roda no seu PC</div>
+        <div><b>MIT</b>open source</div>
+      </div>
     </div>
-    <div class="stage">
-      <div class="cabinet">
-        <iframe id="machine" data-src="maquina/?preview&amp;embed&amp;lang=pt" title="A máquina do Zasatsu Bakuto tocando uma sessão de demonstração" loading="eager" allow="autoplay"></iframe>
+
+    <div class="cab" aria-label="Tabuleiro de pachinko jogável">
+      <div class="cab-top"><span class="jp">CR 坐殺博徒 · 1/239</span><span class="lamps" id="holds" aria-label="Bolas de reserva"><i></i><i></i><i></i><i></i></span><i>Clique para atirar</i></div>
+      <div class="board-wrap" id="board" role="button" tabindex="0" aria-label="Tabuleiro: clique ou aperte Enter para atirar bolas">
+        <canvas id="cv"></canvas>
+        <div class="lcd" id="lcd" aria-live="polite">
+          <div class="ttl">保留 · 回転中</div>
+          <div class="reels"><b>7</b><b>3</b><b>1</b></div>
+          <div class="msg" id="lcdmsg">bola no centro gira</div>
+        </div>
+        <div class="flash" id="flash"><span>大当たり</span></div>
       </div>
-      <div class="stage-bar">
-        <span class="live">Ao vivo no navegador</span>
-        <button class="btn btn-ghost sound" id="play" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a10 10 0 0 1 0 14"/></svg>
-          Recomeçar com som
-        </button>
-      </div>
-      <p class="ex-note">É o overlay de verdade, com o código do repositório, tocando a sessão de demonstração do <code>ryoiki demo</code>. O uso do plano nas pizzas é de exemplo.</p>
+      <dl class="hud">
+        <div><dt>回転 giros</dt><dd id="hSpin">0</dd></div>
+        <div><dt>大当たり</dt><dd id="hJack">0</dd></div>
+        <div><dt>リーチ</dt><dd id="hRii">0</dd></div>
+        <div><dt>玉 bolas</dt><dd id="hBall">0</dd></div>
+      </dl>
+      <div class="feed" id="feed" aria-hidden="true"></div>
+      <div class="board-note"><span><b>Brincadeira:</b> aqui um agente de exemplo atira bolas, e a que cai no centro gira os rolos (1/239).</span><span>Na máquina de verdade, cada ferramenta que termina já é um sorteio.</span></div>
     </div>
   </div>
 </section>
 
-<!-- NÚMEROS -->
-<div class="facts" aria-label="Em números">
-  <div class="wrap">
-    <div class="fact"><b>1/239</b><span>chance de jackpot a cada ferramenta, como na folha de regras</span></div>
-    <div class="fact"><b>4:11</b><span>de rodada quando os testes verdes dão o 大当たり</span></div>
-    <div class="fact"><b>7</b><span>executores de teste reconhecidos, de <code>npm test</code> a <code>gradle test</code></span></div>
-    <div class="fact"><b>0</b><span>eventos do seu agente saindo do PC: tudo roda em <code>127.0.0.1</code></span></div>
-    <div class="fact"><b>81</b><span>testes automáticos, rodando no Linux, Windows e macOS</span></div>
-  </div>
-</div>
+<div class="band" aria-hidden="true"><div class="track" id="m1"></div></div>
 
-<!-- POR QUE -->
-<section class="paper" id="porque">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">O problema</span>
-      <h2>Agente de IA te faz perder tempo de dois jeitos.</h2>
+<!-- ================= CAPÍTULO 1 ================= -->
+<section class="paper chapter pad" id="cap1">
+  <div class="max">
+    <div class="ch-head rv">
+      <div class="ch-no">第一話</div>
+      <div>
+        <h2>Agente de IA<br>te rouba tempo<br><span class="red">de dois jeitos.</span></h2>
+        <p>Ou você fica olhando o terminal rolar, ou vai fazer outra coisa e esquece que ele está parado esperando você. Uma tarde de exemplo, em quatro quadros.</p>
+      </div>
     </div>
-    <div class="pains">
-      <article class="pain reveal">
+    <div class="koma">
+      <article class="panel p1 rv">
+        <div class="tone"></div>
+        <span class="sfx" aria-hidden="true">カタ</span>
+        <span class="no">Quadro 1 · 14:02</span>
+        <div>
+          <div class="bubble">corrige os testes do checkout</div>
+          <p class="cap">Você manda o pedido. O agente começa a ler, editar e rodar comandos.</p>
+        </div>
+      </article>
+      <article class="panel p2 rv">
+        <div class="speed"></div>
         <span class="sfx" aria-hidden="true">ジー…</span>
-        <h3>Você fica olhando.</h3>
-        <p>O agente vai trabalhar por alguns minutos e você fica ali, vendo o terminal rolar, com medo de perder o momento em que um teste quebra ou ele pede alguma coisa.</p>
+        <span class="no">Quadro 2 · 14:09</span>
+        <div>
+          <div class="term-mini" aria-hidden="true"><div class="scroll"><div>Read src/checkout.ts<br>Edit src/checkout.ts<br>Bash npm test<br>Read test/cart.test.ts<br>Edit src/cart.ts<br>Bash npm test<br>Read src/checkout.ts<br>Edit src/checkout.ts<br>Bash npm test<br>Read test/cart.test.ts<br>Edit src/cart.ts<br>Bash npm test<br></div></div></div>
+          <p class="cap">Sete minutos olhando o terminal rolar.<small>Com medo de perder o teste que quebra.</small></p>
+        </div>
       </article>
-      <article class="pain reveal">
+      <article class="panel p3 rv">
+        <div class="tone"></div>
         <span class="sfx" aria-hidden="true">シーン</span>
-        <h3>Ou você esquece de voltar.</h3>
-        <p>Você vai fazer outra coisa e o agente fica parado, esperando uma permissão que você nem viu. Com três conversas abertas, fica pior: qual delas está esperando?</p>
+        <span class="no">Quadro 3 · 14:31</span>
+        <div>
+          <div class="clock">22 min<small>parado</small></div>
+          <p class="cap">Você foi responder um e-mail.<small>O agente pediu uma permissão às 14:09 e está esperando desde então.</small></p>
+        </div>
+      </article>
+      <article class="panel p4 rv">
+        <div class="speed"></div>
+        <span class="sfx" aria-hidden="true">ピコン!</span>
+        <span class="no">Quadro 4 · Com o Zasatsu</span>
+        <div>
+          <div class="call"><span class="jp">あなたの番</span> checkout · esperando permissão ↗</div>
+          <p class="cap">A máquina no canto da tela gira enquanto ele trabalha e chama você pelo nome da conversa quando é a sua vez.<small>Você vê de relance o que está acontecendo, e não esquece mais de voltar. (Horários do exemplo, ilustrativos.)</small></p>
+        </div>
       </article>
     </div>
-    <p class="answer reveal"><span class="stamp">解決</span> O Zasatsu ajuda nas duas pelo canto do olho: você vê o que está acontecendo sem olhar o terminal, e ele te chama quando é a sua vez.</p>
   </div>
 </section>
 
-<!-- NA PRÁTICA -->
-<section class="paper" id="pratica" style="padding-top:24px">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">Na prática</span>
-      <h2>Três quadros, nenhuma janela aberta.</h2>
-    </div>
-    <div class="strip reveal">
-      <div class="frame">
-        <span class="no">Quadro 1 · Você</span>
-        <div class="bubble">corrige os testes do checkout</div>
-        <p class="act">Você manda o pedido e vai fazer outra coisa. O domínio se abre: <span class="jp">領域展開</span>.</p>
-      </div>
-      <div class="frame">
-        <span class="no">Quadro 2 · O agente</span>
-        <p class="act">Lê os arquivos, edita dois deles e roda <code>npm test</code>.</p>
-        <div class="big">リーチ!!</div>
-        <p class="act">Na máquina: portas fechando, bolas de reserva acendendo e o cenário 華金終電 ★★★.</p>
-      </div>
-      <div class="frame">
-        <span class="no">Quadro 3 · A máquina</span>
-        <div class="big">大当たり</div>
-        <p class="act light">Testes verdes. O domínio quebra, a fanfarra toca e um contador de 4:11 desce na tela.</p>
-        <div class="turn-line"><span class="jp">あなたの番</span> docs · esperando você</div>
-      </div>
-    </div>
-    <p class="moral reveal">Você soube que os testes passaram e que outra conversa precisava de você, sem abrir nenhuma janela.</p>
+<!-- ================= EXPANSÃO DE DOMÍNIO ================= -->
+<section class="domain" id="domain" aria-label="Expansão de Domínio">
+  <div class="stage" id="dstage">
+    <div class="rays"></div>
+    <div class="pre"><div class="k">Agora, a máquina de verdade.</div><p>Role para abrir o domínio.</p></div>
+    <div class="gate l"></div><div class="gate r"></div>
+    <div class="word"><span class="k">領域展開</span><span class="t">Expansão de Domínio</span><span class="s">É assim que a máquina acorda no seu primeiro prompt.</span></div>
+    <div class="hint">rolar ↓</div>
   </div>
 </section>
 
-<!-- SINAIS -->
-<section id="sinais">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">O que aparece</span>
-      <h2>Dá para entender de relance.</h2>
-      <p class="lead">O japonês fica na tela, com tradução embaixo em português ou inglês. Depois de algumas sessões, dá para ler a máquina de relance.</p>
-    </div>
-    <div class="signals">
-      <div class="sig reveal">
-        <div class="show"><span class="reels spin" aria-hidden="true"><i>3</i><i>7</i><i>5</i></span><span class="door" aria-hidden="true"></span><span class="balls" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i><i></i></span></div>
-        <p><b>O agente está trabalhando.</b> Cada ferramenta gira os rolos. Editar arquivo fecha as portas de シャッター; ler ou rodar comando acende uma bola de reserva 保留.</p>
+<!-- ================= A MÁQUINA ================= -->
+<section class="night chapter pad" id="maquina">
+  <div class="max live">
+    <div class="rv">
+      <div class="ch-head" style="grid-template-columns:auto 1fr;margin-bottom:24px">
+        <div class="ch-no">第二話</div>
+        <h2>Esta é a<br>máquina.<br><span style="color:var(--gold)">Ao vivo.</span></h2>
       </div>
-      <div class="sig reveal">
-        <div class="show"><span class="tag t-riichi">リーチ</span></div>
-        <p><b>Seus testes estão rodando agora.</b> <code>npm test</code>, <code>pytest</code>, <code>go test</code>, <code>cargo test</code>, <code>dotnet test</code>, <code>mvn test</code> e <code>gradle test</code> entram em riichi.</p>
-      </div>
-      <div class="sig reveal">
-        <div class="show"><span class="tag t-jack">大当たり</span></div>
-        <p><b>Os testes passaram e o sorteio deu certo.</b> Vem a tela cheia, a fanfarra e a rodada de 4:11.</p>
-      </div>
-      <div class="sig reveal">
-        <div class="show"><span class="tag t-miss">ハズレ</span></div>
-        <p><b>Os testes falharam, ou passaram e o sorteio não deu.</b> O letreiro diz qual. Teste verde que perde o sorteio avisa: "Errou, mas os testes passaram".</p>
-      </div>
-      <div class="sig reveal">
-        <div class="show"><span class="pill ok">✓ 12</span><span class="pill no">✗ 1/12</span><span class="pill ok">build ✓</span><span class="pill no">lint ✗</span></div>
-        <p><b>O resultado real fica sempre na linha.</b> Os últimos testes, build, lint ou checagem de tipos daquela conversa, sem depender da sorte.</p>
-      </div>
-      <div class="sig reveal">
-        <div class="show"><span class="tag t-consec">×2 ×3 ×4</span></div>
-        <p><b>Uma ferramenta falhou e o agente está se recuperando.</b> É o 疑似連 do pachinko: a sequência recomeça e sobe.</p>
-      </div>
-      <div class="sig reveal">
-        <div class="show"><span class="tag t-turn"><span class="jp">あなたの番</span> · checkout</span></div>
-        <p><b>O agente está esperando você.</b> Pedido de permissão ou de resposta, com o nome da conversa e um toque de aviso. Nas linhas com ↗, um clique abre a conversa no app do Claude.</p>
-      </div>
-      <div class="sig reveal">
-        <div class="show"><span class="tag t-silent">sem sinal há 6 min</span></div>
-        <p><b>Comando longo ou agente travado?</b> Conversa sem nenhum evento há 5 minutos fica laranja. Depois de 15, a linha para de dizer que está trabalhando.</p>
-      </div>
-      <div class="sig reveal">
-        <div class="show pies"><span class="pie" style="--v:38" aria-hidden="true"></span><small>Sessão<br>38%</small><span class="pie" style="--v:61;--c:var(--gold)" aria-hidden="true"></span><small>Semana<br>61%</small></div>
-        <p><b>Quanto do seu plano já foi usado.</b> A sessão de 5 horas e a semana, com o tempo que falta para renovar. Vem da linha de status do Claude Code no terminal (números de exemplo).</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CONVERSAS -->
-<section id="conversas" style="padding-top:24px">
-  <div class="wrap conv">
-    <div class="reveal">
-      <span class="kicker">Várias conversas</span>
-      <h2>Todas as conversas, uma linha cada.</h2>
-      <p class="lead">Cada conversa em andamento ganha uma linha com o projeto, o nome, o que está fazendo e a última ação. A lista cresce e diminui sozinha.</p>
-      <ul class="bullets">
-        <li><b>Uma máquina para todas</b> (padrão), com o placar salvo, ou <b>uma por conversa</b>, seguindo a última em que você escreveu.</li>
-        <li><b>ctx 82%</b> mostra quanto da janela de contexto já está em uso, em vermelho a partir de 80%.</li>
-        <li><b>⏱ 4m</b> mostra há quanto tempo o turno está rodando.</li>
-        <li>Com a máquina escondida ou no <b>modo discreto</b>, quem precisa de você também vira notificação do sistema.</li>
+      <p style="color:var(--mut);font-size:17px;max-width:540px">É o overlay do repositório rodando no seu navegador (nada de vídeo), tocando a mesma sessão do <code>ryoiki demo</code>. Um pedido, um teste que quebra, falhas em sequência e, no fim, testes verdes.</p>
+      <ul class="points">
+        <li><span class="jp">領域展開</span><span><b>Você manda o prompt</b> e o domínio se abre.</span></li>
+        <li><span class="jp">回転</span><span><b>Cada ferramenta gira os rolos.</b> Editar fecha as portas; ler ou rodar comando acende uma bola de reserva.</span></li>
+        <li><span class="jp">リーチ</span><span><b>Seus testes estão rodando.</b> O resultado real fica na linha da conversa: <b>✓ 12</b> ou <b>✗ 1/12</b>.</span></li>
+        <li><span class="jp">あなたの番</span><span><b>O agente precisa de você.</b> Nas linhas com ↗, um clique abre a conversa no app do Claude.</span></li>
       </ul>
     </div>
-    <div class="reveal">
-      <div class="lines" role="list" aria-label="Exemplo de linhas de conversa">
-        <div class="ln" role="listitem"><span class="dot" aria-hidden="true"></span><span class="t"><b>loja · corrige os testes do checkout</b><span>Bash · npm test · ⏱ 4m</span></span><span class="r"><span class="pill ok">✓ 12</span><span class="pill ok">build ✓</span><span class="pill">ctx 54%</span></span></div>
-        <div class="ln wait" role="listitem"><span class="dot" aria-hidden="true"></span><span class="t"><b>docs · reescreve o guia de instalação</b><span><span class="jp" style="color:var(--blue)">あなたの番</span> · esperando permissão ↗</span></span><span class="r"><span class="pill">ctx 31%</span></span></div>
-        <div class="ln silent" role="listitem"><span class="dot" aria-hidden="true"></span><span class="t"><b>api · migra o banco de dados</b><span>sem sinal há 6 min: comando longo ou travado?</span></span><span class="r"><span class="pill warn">ctx 82%</span></span></div>
-        <div class="ln done" role="listitem"><span class="dot" aria-hidden="true"></span><span class="t"><b>site · ajusta o menu no celular</b><span>terminou a vez</span></span><span class="r"><span class="pill no">lint ✗</span></span></div>
-      </div>
-      <p class="ex-note">Exemplo ilustrativo, com nomes de projeto inventados.</p>
+    <div class="rv">
+      <div class="frame"><iframe id="machine" data-src="maquina/?preview&amp;embed&amp;lang=pt" title="A máquina do Zasatsu Bakuto tocando a sessão de demonstração" loading="lazy" allow="autoplay"></iframe></div>
+      <div class="live-bar"><span class="onair">No ar no navegador</span><button class="chip-btn" id="play" type="button">▶ Recomeçar com som</button></div>
+      <p class="note">O uso do plano nas duas pizzas é de exemplo.</p>
     </div>
   </div>
 </section>
 
-<!-- DIA -->
-<section id="dia" style="padding-top:24px">
-  <div class="wrap day">
-    <div class="reveal term" aria-label="Exemplo da saída do comando ryoiki status">
-      <div class="bar"><i></i><i></i><i></i><span>terminal</span></div>
+<div class="band rev" aria-hidden="true"><div class="track" id="m2"></div></div>
+
+<!-- ================= FOLHA DE REGRAS ================= -->
+<section class="sheet-sec chapter pad" id="regras">
+  <div class="max">
+    <div class="sheet rv">
+      <div class="sheet-head">
+        <div class="v">遊技説明書</div>
+        <h2><small>CR 私鉄純愛列車 · como ler a máquina</small>Folha de regras</h2>
+        <div class="stamp"><span><b>1/239</b>確率</span></div>
+      </div>
+      <div class="sheet-cols">
+        <table class="sig">
+          <caption>Na tela · o que significa</caption>
+          <tr><td><span class="mini-reels" aria-hidden="true"><i>3</i><i>7</i><i>5</i></span></td><td><b>O agente está trabalhando.</b> Cada ferramenta gira os rolos. Editar arquivo fecha as portas de シャッター; ler ou rodar comando acende uma bola 保留.</td></tr>
+          <tr><td><span class="t t-r">リーチ</span></td><td><b>Seus testes estão rodando agora.</b> <code>npm test</code>, <code>pytest</code>, <code>go test</code>, <code>cargo test</code>, <code>dotnet test</code>, <code>mvn test</code> e <code>gradle test</code>.</td></tr>
+          <tr><td><span class="t t-j">大当たり</span></td><td><b>Os testes passaram e o sorteio deu certo.</b> Tela cheia, fanfarra e a rodada de 4:11.</td></tr>
+          <tr><td><span class="t t-m">ハズレ</span></td><td><b>Os testes falharam, ou passaram e o sorteio não deu.</b> O letreiro diz qual: "Errou, mas os testes passaram".</td></tr>
+          <tr><td><span class="pills"><span class="pl ok">✓ 12</span><span class="pl no">✗ 1/12</span><span class="pl ok">build ✓</span></span></td><td><b>O resultado real fica sempre na linha.</b> Testes, build, lint e checagem de tipos, sem depender da sorte.</td></tr>
+          <tr><td><span class="t t-x">×2 ×3 ×4</span></td><td><b>Uma ferramenta falhou e o agente está se recuperando.</b> É o 疑似連: a sequência recomeça e sobe.</td></tr>
+          <tr><td><span class="t t-y"><span class="jp">あなたの番</span></span></td><td><b>O agente está esperando você,</b> com o nome da conversa e um toque de aviso.</td></tr>
+          <tr><td><span class="t t-o">sem sinal 6 min</span></td><td><b>Comando longo ou travado?</b> 5 minutos sem evento deixam a linha laranja; depois de 15, ela para de dizer que está trabalhando.</td></tr>
+          <tr><td><span class="pills"><span class="pl">ctx 82%</span><span class="pl">⏱ 4m</span></span></td><td><b>Contexto em uso e tempo de turno</b> de cada conversa. Vermelho a partir de 80%.</td></tr>
+        </table>
+        <div>
+          <div class="box">
+            <h3>A chance</h3>
+            <div class="odds">1/239<small>por ferramenta que termina, como na folha de regras do mangá</small></div>
+          </div>
+          <div class="box">
+            <h3>Cenários de リーチ</h3>
+            <ul class="reach">
+              <li><span class="jp">交通系IC</span><span class="st">★☆☆</span></li>
+              <li><span class="jp">座席争奪</span><span class="st">★★☆</span></li>
+              <li><span class="jp">うっかり特快</span><span class="st">★★☆</span></li>
+              <li><span class="jp">華金終電</span><span class="st">★★★</span></li>
+            </ul>
+          </div>
+          <div class="box">
+            <h3>Depois do jackpot</h3>
+            <div class="flow">
+              <div class="n"><b>確変</b><span>trinca ímpar: chance alta até o próximo jackpot</span></div>
+              <div class="n"><b>時短</b><span>trinca par: 70 ou 30 giros mais rápidos</span></div>
+              <div class="n"><b>約75%</b><span>de chance de entrar em 確変</span></div>
+            </div>
+          </div>
+          <div class="box">
+            <h3>Cores dos avisos</h3>
+            <p><span class="jp" style="color:#0b7a3b">緑</span> &lt; <span class="jp" style="color:var(--red)">赤</span> &lt; <span class="jp" style="color:var(--gold2)">金</span>. Arco-íris ou o ×4 confirmam o jackpot.</p>
+          </div>
+        </div>
+      </div>
+      <details class="more">
+        <summary>Fontes, e onde o mangá não diz nada</summary>
+        <ul>
+          <li>As regras vêm da folha de regras do <span class="jp">CR私鉄純愛列車</span> mostrada no capítulo 183 de Jujutsu Kaisen e das lutas dos capítulos 182 a 190. Ligar eventos do agente a eventos da luta é escolha do projeto.</li>
+          <li>A probabilidade aumentada é 1/24; o 疑似連 falha metade das vezes fora dela (10% dentro); o 潜伏確変 vem em 25% dos jackpots pares. O mangá não dá esses números.</li>
+          <li>A história do riichi 座席争奪 nunca foi mostrada, então as falas dele são inventadas.</li>
+        </ul>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONVERSAS E DIA ================= -->
+<section class="night chapter pad" id="conversas">
+  <div class="max">
+    <div class="ch-head rv">
+      <div class="ch-no">第三話</div>
+      <div>
+        <h2>Quatro conversas.<br><span style="color:var(--pink)">Um canto da tela.</span></h2>
+        <p>Cada conversa em andamento ganha uma linha, que cresce e some sozinha. No fim do dia, a máquina conta quanto tempo os agentes ficaram esperando você.</p>
+      </div>
+    </div>
+    <div class="duo">
+      <div class="card-n rv">
+        <h3>Linhas de conversa</h3>
+        <p>Projeto, nome, o que está fazendo e o último resultado real.</p>
+        <div class="lines" id="lines" role="list" aria-label="Exemplo de linhas de conversa">
+          <div class="ln" role="listitem"><span class="dot"></span><span class="t2"><b>loja · corrige os testes do checkout</b><span data-s>Bash · npm test · ⏱ 4m</span></span><span class="r"><span class="pn ok">✓ 12</span><span class="pn">ctx 54%</span></span></div>
+          <div class="ln wait" role="listitem"><span class="dot"></span><span class="t2"><b>docs · reescreve o guia de instalação</b><span data-s><span class="jp" style="color:var(--blue)">あなたの番</span> · esperando permissão ↗</span></span><span class="r"><span class="pn">ctx 63%</span></span></div>
+          <div class="ln silent" role="listitem"><span class="dot"></span><span class="t2"><b>api · migra o banco de dados</b><span data-s>sem sinal há 6 min: comando longo ou travado?</span></span><span class="r"><span class="pn no">ctx 82%</span></span></div>
+          <div class="ln done" role="listitem"><span class="dot"></span><span class="t2"><b>site · ajusta o menu no celular</b><span data-s>terminou a vez</span></span><span class="r"><span class="pn no">lint ✗</span></span></div>
+        </div>
+        <p class="ex">Exemplo ilustrativo, com nomes de projeto inventados.</p>
+        <ul class="bul">
+          <li><b>Uma máquina para todas</b> (padrão) ou <b>uma por conversa</b>.</li>
+          <li>Com a máquina escondida ou no <b>modo discreto</b>, quem precisa de você também vira notificação do sistema.</li>
+        </ul>
+      </div>
+      <div class="card-n rv">
+        <h3>Seu dia em números</h3>
+        <p><code>ryoiki status</code> conta turnos, testes, builds e o tempo que os agentes esperaram você.</p>
+        <div class="term" aria-label="Exemplo da saída do comando ryoiki status">
+          <div class="tb"><i></i><i></i><i></i></div>
 <pre><span class="p">$</span> ryoiki status
 <span class="y">領域展開</span> · The domain is open on port 4111.
 Today: 23 turns, 412 tool calls (9 failed), tests <span class="g">31 green</span> / 4 red, builds/lints 12 ok / 2 failed, <span class="y">agents waited for you 38 min</span> (14×, avg 3 min).
 Last 7 days: 141 turns, 2630 tool calls (57 failed), tests <span class="g">188 green</span> / 21 red, builds/lints 70 ok / 9 failed, agents waited for you 196 min (61×, avg 3 min).
-Hooks: all 7 installed, with the status line (~/.claude/settings.json).
-<span class="c"># números de exemplo</span></pre>
-      <p class="ex-note" style="margin:0;padding:0 20px 16px">Saída de exemplo, com números inventados.</p>
-    </div>
-    <div class="reveal">
-      <span class="kicker">Seu dia</span>
-      <h2>Quanto tempo os agentes ficaram esperando você?</h2>
-      <p class="lead"><code>ryoiki status</code> conta os turnos, os testes e builds que passaram ou quebraram e o tempo que os agentes ficaram parados esperando a sua resposta, hoje e nos últimos 7 dias.</p>
-      <ul class="bullets">
-        <li>Esperas de mais de 30 minutos contam como ausência, não como espera.</li>
-        <li>O menu da bandeja mostra o resumo de hoje.</li>
-        <li>A contagem acontece enquanto o domínio está aberto.</li>
-        <li>Também confere se os hooks estão instalados e apontam para a pasta certa.</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<!-- REGRAS -->
-<section id="regras" style="background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">As regras do domínio</span>
-      <h2>Tirado do mangá, até o 1/239.</h2>
-      <p class="lead">As regras vêm da folha de regras do <span class="jp">CR私鉄純愛列車</span> mostrada no capítulo 183 de Jujutsu Kaisen e das lutas dos capítulos 182 a 190. Ligar os eventos do agente aos eventos da luta é escolha do projeto.</p>
-    </div>
-    <div class="rules">
-      <div class="rule-list">
-        <div class="rule reveal"><div class="jp">領域展開<small>Expansão de Domínio</small></div><p><b>Você manda um prompt</b>, ou o agente age sem domínio aberto: o domínio se abre e as regras são transmitidas.<span class="src">cap. 182 e 187</span></p></div>
-        <div class="rule reveal"><div class="jp">約1/239<small>o sorteio</small></div><p><b>Cada ferramenta que termina</b> sorteia o jackpot em cerca de 1 em 239.<span class="src">folha de regras</span></p></div>
-        <div class="rule reveal"><div class="jp">緑 &lt; 赤 &lt; 金<small>cores dos avisos</small></div><p><b>Verde, vermelho e dourado</b> dizem quanto o efeito promete. Arco-íris ou o ×4 confirmam o jackpot.<span class="src">folha de regras</span></p></div>
-        <div class="rule reveal"><div class="jp">リーチ<small>riichi, 4 cenários</small></div><p><b>Testes rodando</b>, ou um sorteio de 1/239 ganho. Cenários de 交通系IC ★☆☆ a 華金終電 ★★★.<span class="src">folha de regras, cap. 183</span></p></div>
-        <div class="rule reveal"><div class="jp">大当たり<small>jackpot</small></div><p><b>Testes verdes com cenário vencedor.</b> O domínio some e vêm 4:11 de energia amaldiçoada infinita, a duração da música da luta.<span class="src">cap. 186 a 189</span></p></div>
-        <div class="rule reveal"><div class="jp">確変 · 時短<small>modos depois do jackpot</small></div><p><b>Trinca ímpar</b> entra em 確変 até o próximo jackpot; par, em 時短 por 70 ou 30 giros. Chance de 確変 de cerca de 75%.<span class="src">folha de regras, cap. 187 e 189</span></p></div>
-        <div class="rule reveal"><div class="jp">領域解除<small>o domínio fecha</small></div><p><b>Todas as conversas terminam a vez</b> sem jackpot, e a sequência 連チャン zera.</p></div>
-        <details class="more reveal">
-          <summary>Onde o mangá não diz nada</summary>
-          <ul>
-            <li>A probabilidade aumentada é 1/24; o 疑似連 falha metade das vezes fora dela (10% dentro); o 潜伏確変 vem em 25% dos jackpots pares. O mangá não dá esses números.</li>
-            <li>A história do riichi 座席争奪 nunca foi mostrada, então as falas dele são inventadas.</li>
-            <li>O resultado dos testes vem do próprio hook: comando que falha é vermelho, e resumos como <code>12 passed</code> ou <code>1 failed</code> decidem o resto.</li>
-          </ul>
-        </details>
-      </div>
-      <aside class="sim reveal" aria-labelledby="sim-t">
-        <h3 id="sim-t">Puxe como o agente puxa</h3>
-        <p>Cada clique é uma ferramenta que termina: um sorteio de 1 em 239.</p>
-        <div class="reels" id="simReels" aria-hidden="true"><i>1</i><i>2</i><i>3</i></div>
-        <div class="msg" id="simMsg" aria-live="polite">Pronto para girar</div>
-        <div class="row">
-          <button class="btn btn-hot" id="spin1" type="button">Usar 1 ferramenta</button>
-          <button class="btn btn-ghost" id="spin100" type="button">Uma tarde: 100</button>
+Hooks: all 7 installed, with the status line (~/.claude/settings.json).</pre>
         </div>
-        <dl>
-          <div><dt>Giros</dt><dd id="sGiros">0</dd></div>
-          <div><dt>Jackpots</dt><dd id="sJack">0</dd></div>
-          <div><dt>Esperado</dt><dd id="sEsp">0,0</dd></div>
-        </dl>
-        <p class="note">Só o sorteio de 1/239. Na máquina, teste verde também abre リーチ e pode virar jackpot, então ele vem mais quando o código passa.</p>
-      </aside>
+        <p class="ex">Saída de exemplo, com números inventados.</p>
+        <ul class="bul">
+          <li>Esperas de mais de 30 minutos contam como ausência, não como espera.</li>
+          <li>A contagem acontece enquanto o domínio está aberto.</li>
+          <li>Também confere se os hooks estão instalados e apontam para a pasta certa.</li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- INSTALAR -->
-<section id="instalar">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">Instalar</span>
-      <h2>Instalar leva três comandos.</h2>
-      <p class="lead req">Você precisa do <a href="https://nodejs.org">Node.js</a> 20 ou mais novo e do <a href="https://claude.com/claude-code">Claude Code</a>.</p>
+<!-- ================= INSTALAR ================= -->
+<section class="prize chapter pad" id="instalar">
+  <div class="max">
+    <div class="ch-head rv">
+      <div class="ch-no">景品</div>
+      <div>
+        <h2>Troque três<br>passos pelo prêmio.</h2>
+        <p class="req" style="color:var(--ink2)">Precisa do <a href="https://nodejs.org">Node.js</a> 20 ou mais novo e do <a href="https://claude.com/claude-code">Claude Code</a>. Sem conta e sem telemetria.</p>
+      </div>
     </div>
-    <div class="steps">
-      <div class="step reveal">
-        <span class="n">1</span><h3>Instale</h3>
+    <div class="tickets">
+      <div class="ticket rv">
+        <div class="tno"><b>01</b><span>景品券</span></div>
+        <h3>Instale</h3>
+        <div class="cut"></div>
         <div class="code"><pre>git clone https://github.com/tiagocardosobezerra/zasatsu-bakuto.git
 cd zasatsu-bakuto
 npm install
 npm link</pre><button class="copy" type="button">Copiar</button></div>
-        <p>O <code>npm link</code> cria o comando <code>ryoiki</code>. O npm 11 pode pedir para aprovar o script do Electron: <code>npm install-scripts approve electron</code>.</p>
+        <p>O <code>npm link</code> cria o comando <code>ryoiki</code>. O npm 11 pode pedir para aprovar o Electron: <code>npm install-scripts approve electron</code>.</p>
       </div>
-      <div class="step reveal">
-        <span class="n">2</span><h3>Ligue no Claude Code</h3>
+      <div class="ticket rv">
+        <div class="tno"><b>02</b><span>景品券</span></div>
+        <h3>Ligue no Claude Code</h3>
+        <div class="cut"></div>
         <div class="code"><pre>ryoiki install</pre><button class="copy" type="button">Copiar</button></div>
-        <p>Adiciona os hooks e a linha de status em <code>~/.claude/settings.json</code> e guarda um backup. Sua linha de status continua igual e volta inteira no <code>ryoiki uninstall</code>.</p>
+        <p>Põe os hooks e a linha de status em <code>~/.claude/settings.json</code> e guarda um backup. Sua linha de status continua igual e volta inteira no <code>ryoiki uninstall</code>.</p>
       </div>
-      <div class="step reveal">
-        <span class="n">3</span><h3>Abra o domínio</h3>
+      <div class="ticket rv">
+        <div class="tno"><b>03</b><span>景品券</span></div>
+        <h3>Abra o domínio</h3>
+        <div class="cut"></div>
         <div class="code"><pre>ryoiki tenkai</pre><button class="copy" type="button">Copiar</button></div>
-        <p><span class="jp">領域展開.</span> A máquina aparece no canto da tela e acorda no seu primeiro prompt. Para ver antes, rode <code>ryoiki demo</code>.</p>
+        <p><span class="jp">領域展開.</span> A máquina aparece no canto e acorda no seu primeiro prompt. Para ver antes, rode <code>ryoiki demo</code>.</p>
       </div>
     </div>
-    <div class="tbl reveal">
+    <div class="tblw rv">
       <table class="cmds">
         <thead><tr><th>Comando</th><th>No mangá</th><th>O que faz</th></tr></thead>
         <tbody>
           <tr><td><code>ryoiki tenkai</code></td><td class="jp">領域展開</td><td>Abre o domínio: overlay e ícone na bandeja</td></tr>
           <tr><td><code>ryoiki kaijo</code></td><td class="jp">領域解除</td><td>Fecha o domínio</td></tr>
           <tr><td><code>ryoiki install</code> / <code>uninstall</code></td><td></td><td>Liga ou desliga os hooks do Claude Code (só os deste projeto)</td></tr>
-          <tr><td><code>ryoiki demo</code></td><td></td><td>Toca a sessão de exemplo desta página</td></tr>
+          <tr><td><code>ryoiki demo</code></td><td></td><td>Toca a sessão de exemplo que está nesta página</td></tr>
           <tr><td><code>ryoiki status</code></td><td></td><td>Diz se o domínio está aberto e resume o dia</td></tr>
           <tr><td><code>ryoiki guide</code></td><td class="jp">遊び方</td><td>Abre o guia com glossário</td></tr>
           <tr><td><code>ryoiki settings</code></td><td></td><td>Abre as configurações</td></tr>
@@ -609,75 +731,57 @@ npm link</pre><button class="copy" type="button">Copiar</button></div>
   </div>
 </section>
 
-<!-- LIVE E OUTRAS IAs -->
-<section id="mais" style="padding-top:24px">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">Para ir além</span>
-      <h2>Na live, no trabalho e com outras IAs.</h2>
+<!-- ================= OMAKE ================= -->
+<section class="paper chapter pad" id="omake">
+  <div class="max">
+    <div class="ch-head rv">
+      <div class="ch-no">おまけ</div>
+      <div><h2>Extras do<br>volume.</h2></div>
     </div>
-    <div class="two">
-      <div class="card reveal">
-        <h3>Para quem faz live</h3>
-        <p>Rode <code>ryoiki serve</code> e adicione <code>http://127.0.0.1:4111/</code> como browser source no OBS, com fundo transparente. Canto, tamanho, formato e idioma vão na própria URL.</p>
-        <div class="code"><pre>http://127.0.0.1:4111/?pos=br&amp;scale=1.5&amp;layout=compact</pre><button class="copy" type="button">Copiar</button></div>
+    <div class="omake rv">
+      <div class="om"><span class="ic" aria-hidden="true">配信</span><h3>Na live</h3><p>Rode <code>ryoiki serve</code> e adicione <code>http://127.0.0.1:4111/</code> como browser source no OBS, com fundo transparente. Canto, tamanho e formato vão na URL.</p></div>
+      <div class="om"><span class="ic" aria-hidden="true">静</span><h3>No trabalho</h3><p>O modo discreto deixa a máquina pequena, sem som, sem tela cheia e um pouco transparente. Formatos Normal, Compacto e Mini.</p></div>
+      <div class="om"><span class="ic" aria-hidden="true">他</span><h3>Outras IAs</h3><p>A máquina escuta uma API local: qualquer agente que mande um <code>POST</code> para <code>/event</code> no formato dos hooks pode jogar. Codex CLI, Gemini CLI, Cursor e Aider ainda não têm adaptador pronto.</p></div>
+      <div class="om"><span class="ic" aria-hidden="true">私</span><h3>Suas artes</h3><p>O app não traz imagens nem músicas da obra: tudo é CSS e som sintetizado. Arquivos seus em <code>~/.zasatsu-bakuto/custom/</code> trocam rolos, fundo, jackpot e sons e ficam só na sua máquina. Você responde pelos direitos sobre eles.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= AVISO ================= -->
+<section class="caution" id="limites">
+  <div class="hazard" aria-hidden="true"></div>
+  <div class="chapter pad" style="padding-top:clamp(70px,8vw,110px)">
+    <div class="max">
+      <div class="ch-head rv">
+        <div class="ch-no">注意</div>
+        <div><h2>Leia antes<br>de jogar.</h2></div>
       </div>
-      <div class="card reveal">
-        <h3>No computador do trabalho</h3>
-        <p>O <b style="color:var(--ink)">modo discreto</b> deixa a máquina pequena, sem som, sem tela cheia e um pouco transparente. Os formatos Normal, Compacto e Mini, o canto, a opacidade e cada parte da máquina mudam na hora, nas configurações.</p>
-      </div>
-      <div class="card reveal">
-        <h3>Com outras IAs</h3>
-        <p>A máquina escuta uma API local. Qualquer agente que consiga mandar um <code>POST</code> quando algo acontece pode jogar, no formato dos hooks do Claude Code. Codex CLI, Gemini CLI, Cursor e Aider ainda não têm adaptador pronto.</p>
-        <div class="code"><pre>curl -X POST http://127.0.0.1:4111/event \
-  -H "Content-Type: application/json" \
-  -d '{"hook_event_name":"Notification","session_id":"meu-agente","cwd":"/projetos/app"}'</pre><button class="copy" type="button">Copiar</button></div>
-      </div>
-      <div class="card reveal">
-        <h3>Com as suas artes e músicas</h3>
-        <p>O app não traz imagens nem músicas da obra: tudo é desenhado em CSS e os sons são sintetizados. Se você tem arquivos próprios, coloque em <code>~/.zasatsu-bakuto/custom/</code> para trocar os rolos, o fundo, a tela do jackpot e cada som. Eles ficam só na sua máquina.</p>
+      <div class="warn-grid rv">
+        <div class="warn"><span class="m y">○ 安全</span><h3>Nunca atrapalha o agente.</h3><p>O hook repassa o evento e sai na hora: nunca imprime, nunca bloqueia, sempre sai com código 0. O overlay deixa o clique passar.</p></div>
+        <div class="warn"><span class="m y">○ ローカル</span><h3>O que a máquina vê fica no seu PC.</h3><p>Tudo roda em <code>127.0.0.1</code>, sem telemetria nem conta, e o servidor recusa páginas de outros sites. Só as fontes da tela vêm do Google Fonts.</p></div>
+        <div class="warn"><span class="m y">○ 配慮</span><h3>Respeita quem pede menos movimento.</h3><p>Com o ajuste do sistema ligado, os efeitos ficam na máquina e nada treme ou pisca forte.</p></div>
+        <div class="warn"><span class="m y">○ 保存</span><h3>Mexe no settings.json com cuidado.</h3><p>Grava por arquivo temporário, guarda o backup de antes e o <code>ryoiki status</code> avisa se os hooks quebraram.</p></div>
+        <div class="warn"><span class="m n">× 非対応</span><h3>Uso do plano não aparece no app desktop.</h3><p>Os números vêm da linha de status, que o Claude Code do terminal roda e o app desktop não. Com chave de API, as pizzas ficam escondidas.</p></div>
+        <div class="warn"><span class="m n">× 非公式</span><h3>Não é produto oficial.</h3><p>Projeto de fã, sem vínculo com Jujutsu Kaisen, Gege Akutami, Shueisha ou MAPPA, nem com a Anthropic, e sem nenhuma arte ou música da obra.</p></div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- LIMITES -->
-<section id="limites" style="padding-top:24px">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <span class="kicker">Combinado</span>
-      <h2>O que ele faz e o que ele não faz.</h2>
-    </div>
-    <div class="limits">
-      <div class="lim reveal"><span class="x y" aria-hidden="true">✓</span><p><b>Nunca atrapalha o agente.</b> O hook repassa o evento e sai na hora: nunca imprime, nunca bloqueia, sempre sai com código 0. O overlay deixa o clique passar.</p></div>
-      <div class="lim reveal"><span class="x y" aria-hidden="true">✓</span><p><b>O que o agente faz não sai do seu PC.</b> Tudo roda em <code>127.0.0.1</code>, sem telemetria nem conta, e o servidor recusa páginas de outros sites. Só as fontes da tela vêm do Google Fonts.</p></div>
-      <div class="lim reveal"><span class="x y" aria-hidden="true">✓</span><p><b>Respeita quem pede menos movimento.</b> Com o ajuste do sistema ligado, os efeitos ficam na máquina e nada treme ou pisca forte.</p></div>
-      <div class="lim reveal"><span class="x y" aria-hidden="true">✓</span><p><b>Mexe no seu settings.json com cuidado.</b> Grava por arquivo temporário, guarda o backup de antes e o <code>ryoiki status</code> avisa se os hooks quebraram.</p></div>
-      <div class="lim reveal"><span class="x n" aria-hidden="true">✕</span><p><b>O uso do plano não aparece no app desktop.</b> Os números vêm da linha de status, que o Claude Code do terminal roda e o app desktop não. Com chave de API, as pizzas ficam escondidas.</p></div>
-      <div class="lim reveal"><span class="x n" aria-hidden="true">✕</span><p><b>Não é produto oficial.</b> Projeto de fã, sem vínculo com Jujutsu Kaisen, Gege Akutami, Shueisha ou MAPPA, nem com a Anthropic, e sem nenhuma arte ou música da obra.</p></div>
-    </div>
-  </div>
-</section>
-
-<!-- FINAL -->
-<section class="final">
-  <div class="wrap" style="position:relative">
-    <div class="big" aria-hidden="true">坐殺博徒</div>
-    <h2>Seu agente trabalha. Você joga.</h2>
-    <div class="cta">
-      <a class="btn btn-hot" href="#instalar">Instalar agora</a>
-      <a class="btn btn-ghost" href="https://github.com/tiagocardosobezerra/zasatsu-bakuto">Dar uma estrela no GitHub</a>
-    </div>
-  </div>
+<!-- ================= FINAL ================= -->
+<section class="fin pad">
+  <span class="k" aria-hidden="true">坐殺博徒</span>
+  <h2>Seu agente trabalha. <em>Você joga.</em></h2>
+  <div class="cta night"><a class="btn btn-red" href="#instalar">Instalar agora</a><a class="btn btn-line" href="https://github.com/tiagocardosobezerra/zasatsu-bakuto">Estrela no GitHub</a></div>
 </section>
 
 </main>
 
-<footer>
-  <div class="wrap">
+<footer class="pad">
+  <div class="max cols">
     <div>
-      <p><b style="color:var(--ink)">Zasatsu Bakuto</b> · MIT · criado por <a href="https://github.com/tiagocardosobezerra">Tiago Cardoso Bezerra</a>.</p>
-      <p>Novidades de cada versão no <a href="https://github.com/tiagocardosobezerra/zasatsu-bakuto/blob/main/CHANGELOG.md">CHANGELOG</a>. Achou um problema? <a href="https://github.com/tiagocardosobezerra/zasatsu-bakuto/issues">Abra uma issue</a>.</p>
+      <p><b style="color:var(--lit)">Zasatsu Bakuto</b> · licença MIT · criado por <a href="https://github.com/tiagocardosobezerra">Tiago Cardoso Bezerra</a>.</p>
+      <p>Novidades no <a href="https://github.com/tiagocardosobezerra/zasatsu-bakuto/blob/main/CHANGELOG.md">CHANGELOG</a> · problemas em <a href="https://github.com/tiagocardosobezerra/zasatsu-bakuto/issues">issues</a>.</p>
     </div>
     <div>
       <p>Batizado em homenagem à Expansão de Domínio de Kinji Hakari em Jujutsu Kaisen. Projeto de fã, sem vínculo com Jujutsu Kaisen, Gege Akutami, Shueisha ou MAPPA. Não inclui arte nem música oficial. Também não tem vínculo com a Anthropic; Claude e Claude Code são marcas da Anthropic.</p>
@@ -687,63 +791,287 @@ npm link</pre><button class="copy" type="button">Copiar</button></div>
 
 <script>
 (function(){
-  'use strict';
-  // barra com borda ao rolar
-  var nav=document.getElementById('nav');
-  addEventListener('scroll',function(){nav.classList.toggle('sc',scrollY>8)},{passive:true});
+'use strict';
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var fine=matchMedia('(hover:hover) and (pointer:fine)').matches;
 
-  // aparecer ao rolar
-  var els=document.querySelectorAll('.reveal');
-  if('IntersectionObserver' in window){
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -8% 0px'});
-    els.forEach(function(el){io.observe(el)});
-  } else els.forEach(function(el){el.classList.add('in')});
+/* ---------- barra ---------- */
+var bar=document.getElementById('bar');
+function onScrollBar(){bar.classList.toggle('solid',scrollY>40)}
+addEventListener('scroll',onScrollBar,{passive:true});onScrollBar();
 
-  // a máquina ao vivo, no tamanho do quadro (na escala 1 ela tem 400 x 585)
-  var frame=document.getElementById('machine');
-  var sc=Math.max(0.5,Math.min(1.3,(frame.clientWidth-36)/400,(frame.clientHeight-64)/585));
-  frame.src=frame.getAttribute('data-src')+'&scale='+sc.toFixed(2)+'&fit=3';
+/* ---------- faixas ---------- */
+function fill(id,items){var t=document.getElementById(id),h='';for(var r=0;r<2;r++)items.forEach(function(s){h+='<span>'+s+'</span>'});t.innerHTML=h}
+fill('m1',['ドドドド','<i>SEU AGENTE TRABALHA</i>','キュイン','<i>VOCÊ JOGA</i>','リーチ!!','<i>1/239</i>','ジャラジャラ','<i>4:11</i>','大当たり']);
+fill('m2',['確変突入','<i>FOLHA DE REGRAS</i>','華金終電','<i>★★★</i>','疑似連 ×4','<i>CAP. 183</i>','時短']);
 
-  // som: recomeça a demo dentro da máquina
-  document.getElementById('play').addEventListener('click',function(){
-    try{frame.contentWindow.playWithSound()}catch(e){}
+/* ---------- revelar ---------- */
+var rv=document.querySelectorAll('.rv');
+if('IntersectionObserver' in window&&!reduce){
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{rootMargin:'0px 0px -10% 0px'});
+  rv.forEach(function(el){io.observe(el)});
+}else rv.forEach(function(el){el.classList.add('in')});
+
+/* ---------- cursor bola ---------- */
+var cur=document.getElementById('cursor');
+if(fine&&!reduce){
+  document.body.classList.add('has-ball');
+  var mx=-100,my=-100,cx=-100,cy=-100;
+  addEventListener('pointermove',function(e){mx=e.clientX;my=e.clientY;cur.classList.add('on')},{passive:true});
+  document.addEventListener('pointerleave',function(){cur.classList.remove('on')});
+  document.addEventListener('pointerover',function(e){cur.classList.toggle('big',!!e.target.closest('a,button,.copy'))});
+  (function loop(){cx+=(mx-cx)*.32;cy+=(my-cy)*.32;cur.style.transform='translate('+cx+'px,'+cy+'px)';requestAnimationFrame(loop)})();
+}
+
+/* ---------- som (opcional) ---------- */
+var sndBtn=document.getElementById('snd'),ac=null,soundOn=false,lastTick=0;
+sndBtn.addEventListener('click',function(){
+  soundOn=!soundOn;sndBtn.setAttribute('aria-pressed',soundOn);
+  if(soundOn&&!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}
+  if(ac&&ac.state==='suspended')ac.resume();
+});
+function tone(freq,dur,type,vol,slide){
+  if(!soundOn||!ac)return;
+  var o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime;
+  o.type=type||'triangle';o.frequency.setValueAtTime(freq,t);
+  if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+dur);
+  g.gain.setValueAtTime(vol||.05,t);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+dur+.02);
+}
+function tick(){var n=performance.now();if(n-lastTick<35)return;lastTick=n;tone(2400+Math.random()*1600,.04,'square',.012)}
+
+/* =========================================================
+   O TABULEIRO (física simples, sem biblioteca)
+   coordenadas lógicas 600 x 800
+   ========================================================= */
+var board=document.getElementById('board'),cv=document.getElementById('cv'),ctx=cv.getContext('2d');
+var W=600,H=800,scale=1,dpr=Math.min(2,window.devicePixelRatio||1);
+var R=6.5,PR=3.2,G=.32,BOUNCE=.55;
+var pins=[],balls=[],segs=[];
+var LCD={x:200,y:220,w:200,h:180};
+var START={x:300,y:452,w:30};           // bolso do centro
+var TULIPS=[{x:132,y:600},{x:468,y:600}];
+var ARC={cx:300,cy:300,r:288};
+
+// pinos em grade alternada, fora do visor e dos bolsos
+for(var row=0;row<17;row++){
+  var y=128+row*34,off=row%2?0:20;
+  for(var x=46+off;x<=540;x+=40){
+    var inLcd=x>LCD.x-14&&x<LCD.x+LCD.w+14&&y>LCD.y-16&&y<LCD.y+LCD.h+14;
+    var dx=x-ARC.cx,dy=y-ARC.cy;
+    if(inLcd)continue;
+    if(y<ARC.cy&&Math.sqrt(dx*dx+dy*dy)>ARC.r-26)continue;
+    if(Math.abs(x-START.x)<26&&Math.abs(y-START.y)<24)continue;
+    if(TULIPS.some(function(t){return Math.abs(x-t.x)<24&&Math.abs(y-t.y)<22}))continue;
+    if(y>720&&Math.abs(x-300)<40)continue;
+    pins.push({x:x,y:y,lit:0});
+  }
+}
+// guias dos bolsos (pinos-porta)
+[[START.x-17,START.y-6],[START.x+17,START.y-6],[TULIPS[0].x-15,TULIPS[0].y-6],[TULIPS[0].x+15,TULIPS[0].y-6],[TULIPS[1].x-15,TULIPS[1].y-6],[TULIPS[1].x+15,TULIPS[1].y-6]].forEach(function(p){pins.push({x:p[0],y:p[1],lit:0,gate:1})});
+// trilho de lançamento à direita
+segs.push({x1:556,y1:300,x2:556,y2:792});
+// rampas do fundo levando ao buraco de saída
+segs.push({x1:18,y1:700,x2:262,y2:782});segs.push({x1:556,y1:720,x2:338,y2:782});
+
+function resize(){
+  var r=board.getBoundingClientRect();
+  scale=r.width/W;
+  cv.width=Math.round(r.width*dpr);cv.height=Math.round(r.height*dpr);
+  ctx.setTransform(dpr*scale,0,0,dpr*scale,0,0);
+}
+addEventListener('resize',resize);
+
+var launched=0;
+function launch(n){
+  for(var i=0;i<(n||1);i++){
+    (function(k){setTimeout(function(){
+      if(balls.length>140)return;
+      balls.push({x:569,y:770,vx:0,vy:-(21.5+Math.random()*3),lane:true});
+      launched++;document.getElementById('hBall').textContent=launched;
+      tone(180,.08,'sawtooth',.02,90);
+    },k*110)})(i);
+  }
+}
+function payout(n){for(var i=0;i<n;i++)balls.push({x:120+Math.random()*360,y:70+Math.random()*30,vx:(Math.random()-.5)*3,vy:Math.random()*2,gold:true})}
+
+function collideCircle(b,px,py,pr){
+  var dx=b.x-px,dy=b.y-py,d2=dx*dx+dy*dy,min=R+pr;
+  if(d2>=min*min||d2===0)return false;
+  var d=Math.sqrt(d2),nx=dx/d,ny=dy/d;
+  b.x=px+nx*min;b.y=py+ny*min;
+  var vn=b.vx*nx+b.vy*ny;
+  if(vn<0){b.vx-=(1+BOUNCE)*vn*nx;b.vy-=(1+BOUNCE)*vn*ny;b.vx+=(Math.random()-.5)*.35}
+  return true;
+}
+function collideSeg(b,s){
+  var ex=s.x2-s.x1,ey=s.y2-s.y1,l2=ex*ex+ey*ey;
+  var t=Math.max(0,Math.min(1,((b.x-s.x1)*ex+(b.y-s.y1)*ey)/l2));
+  var px=s.x1+t*ex,py=s.y1+t*ey;
+  return collideCircle(b,px,py,1.5);
+}
+function step(){
+  for(var i=balls.length-1;i>=0;i--){
+    var b=balls[i];
+    b.vy+=G*.5;b.x+=b.vx*.5;b.y+=b.vy*.5;
+    // arco do topo
+    if(b.y<ARC.cy){var dx=b.x-ARC.cx,dy=b.y-ARC.cy,d=Math.sqrt(dx*dx+dy*dy),lim=ARC.r-R;
+      if(d>lim){var nx=dx/d,ny=dy/d;b.x=ARC.cx+nx*lim;b.y=ARC.cy+ny*lim;var vn=b.vx*nx+b.vy*ny;if(vn>0){b.vx-=(1+.15)*vn*nx;b.vy-=(1+.15)*vn*ny}}}
+    if(b.x<12+R){b.x=12+R;b.vx=Math.abs(b.vx)*BOUNCE}
+    if(b.x>588-R){b.x=588-R;b.vx=-Math.abs(b.vx)*BOUNCE}
+    if(b.lane&&b.x<550)b.lane=false;
+    for(var s=0;s<segs.length;s++)collideSeg(b,segs[s]);
+    if(!b.lane){
+      // visor: caixa sólida
+      var qx=Math.max(LCD.x,Math.min(b.x,LCD.x+LCD.w)),qy=Math.max(LCD.y,Math.min(b.y,LCD.y+LCD.h));
+      if((b.x-qx)*(b.x-qx)+(b.y-qy)*(b.y-qy)<R*R){
+        // ワープ: às vezes a bola entra pelo visor e cai em cima do bolso do centro, como nas máquinas de verdade
+        if(!b.warped&&Math.random()<.12){b.warped=true;b.x=START.x+(Math.random()-.5)*14;b.y=LCD.y+LCD.h+8;b.vx=(Math.random()-.5)*.6;b.vy=.5;warpFx=1}
+        else collideCircle(b,qx,qy,0.01);
+      }
+      for(var p=0;p<pins.length;p++){var pin=pins[p];if(Math.abs(pin.x-b.x)<12&&Math.abs(pin.y-b.y)<12&&collideCircle(b,pin.x,pin.y,PR)){pin.lit=1;tick()}}
+      // bolso do centro
+      if(Math.abs(b.x-START.x)<START.w/2-3&&b.y>START.y-4&&b.y<START.y+10){balls.splice(i,1);enter();continue}
+      for(var t=0;t<TULIPS.length;t++){var tu=TULIPS[t];if(Math.abs(b.x-tu.x)<10&&b.y>tu.y-4&&b.y<tu.y+10){balls.splice(i,1);tulip(t);break}}
+      if(!balls[i]||balls[i]!==b)continue;
+    }
+    if(b.y>H+20){balls.splice(i,1)}
+  }
+}
+var tulipFlash=[0,0],warpFx=0;
+function tulip(t){tulipFlash[t]=1;tone(1320,.12,'triangle',.04);tone(1760,.14,'triangle',.03)}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  // brilho do fundo
+  var gr=ctx.createRadialGradient(300,320,40,300,320,420);gr.addColorStop(0,'rgba(255,45,117,.10)');gr.addColorStop(1,'rgba(0,0,0,0)');ctx.fillStyle=gr;ctx.fillRect(0,0,W,H);
+  // trilho
+  ctx.strokeStyle='#c4cad6';ctx.lineWidth=3;ctx.lineCap='round';
+  segs.forEach(function(s){ctx.beginPath();ctx.moveTo(s.x1,s.y1);ctx.lineTo(s.x2,s.y2);ctx.stroke()});
+  // pinos
+  for(var p=0;p<pins.length;p++){var pin=pins[p];
+    ctx.beginPath();ctx.arc(pin.x,pin.y,PR+(pin.gate?1:0),0,6.283);
+    ctx.fillStyle=pin.lit>.05?'rgba(255,'+Math.round(210+45*(1-pin.lit))+',63,1)':(pin.gate?'#ffd23f':'#d4d9e2');ctx.fill();
+    if(pin.lit>0)pin.lit*=.9;
+  }
+  // bolsos
+  ctx.fillStyle='#e4002b';ctx.beginPath();ctx.roundRect?ctx.roundRect(START.x-14,START.y+2,28,12,4):ctx.rect(START.x-14,START.y+2,28,12);ctx.fill();
+  ctx.fillStyle='#fff';ctx.font='10px "Dela Gothic One",sans-serif';ctx.textAlign='center';ctx.fillText('始動',START.x,START.y+30);
+  TULIPS.forEach(function(t,i){ctx.fillStyle=tulipFlash[i]>.05?'#4dff9a':'#3be8ff';ctx.beginPath();ctx.moveTo(t.x-14,t.y-2);ctx.lineTo(t.x-6,t.y+12);ctx.lineTo(t.x+6,t.y+12);ctx.lineTo(t.x+14,t.y-2);ctx.lineTo(t.x+6,t.y+4);ctx.lineTo(t.x-6,t.y+4);ctx.closePath();ctx.fill();tulipFlash[i]*=.93});
+  // saída da ワープ
+  if(warpFx>.05){ctx.fillStyle='rgba(59,232,255,'+warpFx*.6+')';ctx.beginPath();ctx.ellipse(START.x,LCD.y+LCD.h+6,26,6,0,0,6.283);ctx.fill();warpFx*=.9}
+  // buraco de saída
+  ctx.fillStyle='#09070b';ctx.beginPath();ctx.ellipse(300,792,40,10,0,0,6.283);ctx.fill();
+  // bolas
+  for(var i=0;i<balls.length;i++){var b=balls[i];
+    var g=ctx.createRadialGradient(b.x-2.2,b.y-2.4,.6,b.x,b.y,R);
+    if(b.gold){g.addColorStop(0,'#fff9d0');g.addColorStop(.5,'#ffd23f');g.addColorStop(1,'#8a5d00')}else{g.addColorStop(0,'#ffffff');g.addColorStop(.45,'#cfd5df');g.addColorStop(1,'#4b5361')}
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(b.x,b.y,R,0,6.283);ctx.fill();
+  }
+}
+
+/* visor: giros, reserva, リーチ, 大当たり */
+var reels=[].slice.call(document.querySelectorAll('#lcd .reels b')),lcd=document.getElementById('lcd'),lmsg=document.getElementById('lcdmsg'),flash=document.getElementById('flash');
+var holds=0,spinning=false,nSpin=0,nJack=0,nRii=0;
+var holdLamps=[].slice.call(document.querySelectorAll('#holds i'));
+function showHolds(){holdLamps.forEach(function(l,i){l.classList.toggle('on',i<holds)})}
+function enter(){tone(880,.1,'triangle',.05,1320);if(spinning){if(holds<4){holds++;showHolds()}return}spin()}
+function rnd7(){return 1+Math.floor(Math.random()*7)}
+function spin(){
+  spinning=true;nSpin++;document.getElementById('hSpin').textContent=nSpin;
+  var win=Math.random()<1/239, riichi=win||Math.random()<.16;
+  var a=rnd7(),c=a;var res;
+  if(win)res=[a,a,a];else if(riichi){var m=rnd7();while(m===a)m=rnd7();res=[a,m,a]}else{res=[rnd7(),rnd7(),rnd7()];if(res[0]===res[2])res[2]=res[2]%7+1}
+  lmsg.textContent='回転中…';lcd.classList.remove('riichi');reels.forEach(function(r){r.classList.remove('hit');r.classList.add('spin')});
+  var iv=setInterval(function(){reels.forEach(function(r){if(r.classList.contains('spin'))r.textContent=rnd7()})},70);
+  var stop=function(i,v){reels[i].classList.remove('spin');reels[i].textContent=v;tone(520+i*120,.06,'square',.03)};
+  setTimeout(function(){stop(0,res[0])},700);
+  setTimeout(function(){stop(2,res[2]);if(riichi){nRii++;document.getElementById('hRii').textContent=nRii;lcd.classList.add('riichi');lmsg.textContent='リーチ!!';tone(300,.6,'sawtooth',.03,900)}},1150);
+  setTimeout(function(){
+    clearInterval(iv);stop(1,res[1]);lcd.classList.remove('riichi');
+    if(win){nJack++;document.getElementById('hJack').textContent=nJack;reels.forEach(function(r){r.classList.add('hit')});lmsg.textContent='大当たり!!';flash.classList.remove('go');void flash.offsetWidth;flash.classList.add('go');payout(60);[523,659,784,1047].forEach(function(f,i){setTimeout(function(){tone(f,.3,'square',.04)},i*120)})}
+    else lmsg.textContent=riichi?'ハズレ · quase':'ハズレ';
+    spinning=false;
+    if(holds>0){holds--;showHolds();setTimeout(spin,500)}
+  },riichi?2900:1500);
+}
+
+/* o "agente" de exemplo: cada ação atira uma bola */
+var feed=document.getElementById('feed');
+var script=[
+  ['<span class="k">Read</span> src/checkout.ts',1],['<span class="k">Grep</span> "applyCoupon"',1],['<span class="k">Edit</span> src/checkout.ts',1],
+  ['<span class="k">Bash</span> npm test',2],['<span class="no">✗ 1 failed</span>, 11 passed',1],['<span class="k">Read</span> test/cart.test.ts',1],
+  ['<span class="k">Edit</span> src/cart.ts',1],['<span class="k">Bash</span> npm test',2],['<span class="ok">✓ 12 passed</span>',3],
+  ['<span class="k">Bash</span> npm run lint',1],['<span class="ask">あなたの番</span> · permissão para git push',1],['<span class="k">Write</span> CHANGELOG.md',1]
+];
+var si=0;
+function agent(){
+  var s=script[si++%script.length];
+  var p=document.createElement('p');p.innerHTML='› '+s[0];feed.appendChild(p);
+  while(feed.children.length>6)feed.removeChild(feed.firstChild);
+  launch(s[1]);
+}
+
+/* laço com pausa fora da tela */
+var visible=true,last=0,acc=0,agentT=0,started=false;
+if('IntersectionObserver' in window){new IntersectionObserver(function(es){visible=es[0].isIntersecting},{threshold:.05}).observe(board)}
+function frame(t){
+  if(!last)last=t;var dt=Math.min(50,t-last);last=t;
+  if(visible&&!document.hidden){
+    acc+=dt;var n=0;while(acc>=16.67&&n<4){step();step();acc-=16.67;n++}
+    agentT+=dt;if(agentT>(reduce?4200:1500+Math.random()*900)){agentT=0;agent()}
+    draw();
+  }
+  requestAnimationFrame(frame);
+}
+function start(){if(started)return;started=true;resize();agent();launch(reduce?4:14);
+  // ?og: imagem de compartilhamento, com o tabuleiro já cheio
+  if(/[?&]og/.test(location.search)){document.documentElement.classList.add('og');for(var f=0;f<330;f++){if(f%5===0&&f<300)balls.push({x:569,y:770,vx:0,vy:-(21.5+Math.random()*3),lane:true});step();step()}draw()}
+  requestAnimationFrame(frame)}
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(start);setTimeout(start,600);
+
+board.addEventListener('click',function(){launch(5)});
+board.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();launch(5)}});
+
+/* ---------- Expansão de Domínio na rolagem ---------- */
+var dom=document.getElementById('domain'),stage=document.getElementById('dstage');
+function domainProgress(){
+  if(reduce){stage.style.setProperty('--close',0);stage.style.setProperty('--word',1);stage.style.setProperty('--rays',0);return}
+  var r=dom.getBoundingClientRect(),total=r.height-innerHeight,p=Math.max(0,Math.min(1,-r.top/total));
+  var close=Math.min(1,p/.35),word=Math.max(0,Math.min(1,(p-.32)/.25)),open=Math.max(0,(p-.78)/.22);
+  stage.style.setProperty('--p',p);
+  stage.style.setProperty('--close',Math.max(0,close-open));
+  stage.style.setProperty('--word',word*(1-open));
+  stage.style.setProperty('--rays',Math.min(.9,word)*(1-open)*.9);
+}
+addEventListener('scroll',domainProgress,{passive:true});domainProgress();
+
+/* ---------- a máquina ao vivo (carrega quando chega perto) ---------- */
+var frameEl=document.getElementById('machine'),loaded=false;
+function loadMachine(){
+  if(loaded)return;loaded=true;
+  var sc=Math.max(.5,Math.min(1.3,(frameEl.clientWidth-36)/400,(frameEl.clientHeight-64)/585));
+  frameEl.src=frameEl.getAttribute('data-src')+'&scale='+sc.toFixed(2)+'&fit=3';
+}
+if('IntersectionObserver' in window){new IntersectionObserver(function(es){if(es[0].isIntersecting)loadMachine()},{rootMargin:'600px'}).observe(frameEl)}else loadMachine();
+document.getElementById('play').addEventListener('click',function(){loadMachine();try{frameEl.contentWindow.playWithSound()}catch(e){}});
+
+/* ---------- linhas de conversa vivas ---------- */
+if(!reduce){
+  var states=[
+    ['Bash · npm test · ⏱ 4m','Edit · src/cart.ts · ⏱ 5m','Read · test/cart.test.ts · ⏱ 5m'],
+  ];
+  var first=document.querySelector('#lines .ln [data-s]'),k=0;
+  setInterval(function(){k++;first.textContent=states[0][k%3]},2400);
+}
+
+/* ---------- copiar ---------- */
+document.querySelectorAll('.copy').forEach(function(b){
+  b.addEventListener('click',function(){
+    var t=b.parentNode.querySelector('pre').innerText;
+    if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){b.textContent='Copiado';setTimeout(function(){b.textContent='Copiar'},1500)},function(){});
   });
-
-  // copiar
-  document.querySelectorAll('.copy').forEach(function(b){
-    b.addEventListener('click',function(){
-      var t=b.parentNode.querySelector('pre').innerText;
-      var done=function(){b.textContent='Copiado';setTimeout(function(){b.textContent='Copiar'},1600)};
-      if(navigator.clipboard)navigator.clipboard.writeText(t).then(done,function(){});
-    });
-  });
-
-  // simulador de 1/239
-  var reels=document.getElementById('simReels'),cells=reels.querySelectorAll('i'),msg=document.getElementById('simMsg');
-  var giros=0,jack=0,busy=false;
-  var fmt=function(n){return n.toFixed(1).replace('.',',')};
-  function show(){document.getElementById('sGiros').textContent=giros;document.getElementById('sJack').textContent=jack;document.getElementById('sEsp').textContent=fmt(giros/239)}
-  function face(win){
-    if(win){var n=1+Math.floor(Math.random()*7);cells.forEach(function(c){c.textContent=n});return}
-    var a=[1,2,3].map(function(){return 1+Math.floor(Math.random()*7)});
-    if(a[0]===a[1]&&a[1]===a[2])a[2]=a[2]%7+1;
-    cells.forEach(function(c,i){c.textContent=a[i]});
-  }
-  function result(won,count){
-    reels.classList.remove('spin');reels.classList.toggle('win',won);
-    msg.classList.toggle('win',won);
-    msg.textContent=won?'大当たり!!':(count>1?'ハズレ · '+count+' giros sem jackpot':'ハズレ');
-    show();busy=false;
-  }
-  function run(n){
-    if(busy)return;busy=true;
-    reels.classList.add('spin');reels.classList.remove('win');msg.classList.remove('win');msg.textContent='回転中…';
-    var hits=0;for(var i=0;i<n;i++){giros++;if(Math.random()<1/239)hits++}
-    jack+=hits;
-    setTimeout(function(){face(hits>0);result(hits>0,n);if(hits>1)msg.textContent='大当たり ×'+hits},matchMedia('(prefers-reduced-motion: reduce)').matches?0:650);
-  }
-  document.getElementById('spin1').addEventListener('click',function(){run(1)});
-  document.getElementById('spin100').addEventListener('click',function(){run(100)});
+});
 })();
 </script>
 </body>

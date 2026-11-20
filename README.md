@@ -2,7 +2,7 @@
 
 <p align="center">
   <a href="https://tiagocardosobezerra.github.io/zasatsu-bakuto/"><strong>Site do projeto</strong></a> ·
-  <a href="https://tiagocardosobezerra.github.io/zasatsu-bakuto/#topo"><strong>Ver a máquina ao vivo</strong></a> ·
+  <a href="https://tiagocardosobezerra.github.io/zasatsu-bakuto/#maquina"><strong>Ver a máquina ao vivo</strong></a> ·
   <a href="#comece-em-3-passos"><strong>Instalar</strong></a> ·
   <a href="#as-regras-do-domínio"><strong>Regras</strong></a>
 </p>
